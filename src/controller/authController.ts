@@ -6,8 +6,7 @@ import {
 } from '../utils/tokenHelpers';
 import { sanitizeEmail, sanitizePassword } from '../utils/inputSanitizer';
 import { REFRESH_TOKEN_LEN } from '../consts';
-import { ser_createUser } from '../services/CRUD/createServices';
-import { ser_findUserViaEmail, ser_findUserViaRT } from '../services/CRUD/getServices';
+import { ser_createUser, ser_findUserViaEmail, ser_findUserViaRT } from '../services/authServices';
 
 /******************************************************************************************************************
  * POST /auth/register

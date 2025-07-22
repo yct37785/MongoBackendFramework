@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { ser_findUserViaId } from '../services/CRUD/getServices';
+import { ser_findUserViaId } from '../services/authServices';
 import jwt from 'jsonwebtoken';
 import { Types } from 'mongoose';
 import { InputError, AuthError } from '../error/AppError';
