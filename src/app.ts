@@ -1,10 +1,11 @@
-import 'dotenv/config';
 import express, { Router } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import { verifyAccessTokenMiddleware } from './middleware/authMiddleware';
 import { globalErrorHandler } from './error/globalErrorHandler';
+
+// TODO: reject if none of the .env vars are defined
 
 export function createApp(applicationRoutes: Router) {
   const app = express();
@@ -17,7 +18,7 @@ export function createApp(applicationRoutes: Router) {
   }));
 
   // MongoDB Connection
-  mongoose.connect(process.env.MONGO_URI!, { dbName: process.env.DB_NAME || 'appDB' });
+  mongoose.connect(process.env.MONGO_URI!, { dbName: process.env.DB_NAME });
   mongoose.connection.on('connected', () => {
     console.log('✅ Connected to MongoDB via Mongoose\n');
   });

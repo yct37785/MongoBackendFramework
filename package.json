@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node src/sampleIndex.ts"
+    "dev": "ts-node src/devApp.ts"
   },
   "keywords": [],
   "author": "",
