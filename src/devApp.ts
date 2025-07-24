@@ -13,7 +13,6 @@ appRouter.get('/dev/test', (req: Request, res: Response) => {
 
 const app = createApp(appRouter);
 
-const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-  console.log(`🧪 Framework running in standalone mode on port ${PORT}`);
+app.listen(process.env.PORT, () => {
+  console.log(`🧪 Framework running in standalone mode on port ${process.env.PORT}`);
 });
