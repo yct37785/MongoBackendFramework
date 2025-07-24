@@ -4,10 +4,12 @@ import cors from 'cors';
 import authRoutes from './routes/authRoutes';
 import { verifyAccessTokenMiddleware } from './middleware/authMiddleware';
 import { globalErrorHandler } from './error/globalErrorHandler';
-
-// TODO: reject if none of the .env vars are defined
+import { validateEnv } from './utils/misc';
 
 export function createApp(applicationRoutes: Router) {
+  // ensure all required env vars are provided
+  validateEnv();
+
   const app = express();
   app.use(express.json());
 

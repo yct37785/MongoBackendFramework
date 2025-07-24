@@ -5,11 +5,11 @@ echo =============================================
 echo  mongoBackendFramework - DEV Launcher
 echo =============================================
 
-echo [1/2] Checking if port 3000 is in use...
+echo [1/2] Checking if port 4000 is in use...
 
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr :3000 ^| findstr LISTENING') do (
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :4000 ^| findstr LISTENING') do (
     set PID=%%a
-    echo Port 3000 is in use by PID !PID!, killing it...
+    echo Port 4000 is in use by PID !PID!, killing it...
     taskkill /F /PID !PID! >nul 2>&1
 )
 

@@ -1,6 +1,19 @@
 /******************************************************************************************************************
  * common values
  ******************************************************************************************************************/
+export const REQUIRED_ENV_VARS = [
+  'PORT',
+  'FRONTEND_ORIGIN',
+  'MONGO_URI',
+  'MONGO_DB_NAME',
+  'MAX_SESSIONS',
+  'SALT_ROUNDS',
+  'ACCESS_TOKEN_EXPIRES_IN_S',
+  'REFRESH_TOKEN_EXPIRES_IN_S',
+  'ACCESS_TOKEN_SECRET',
+  'REFRESH_TOKEN_SECRET',
+];
+
 export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const EMAIL_MIN_LEN = 5;
 export const EMAIL_MAX_LEN = 50;
