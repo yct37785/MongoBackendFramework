@@ -37,10 +37,12 @@ export function createApp(unprotectedRoutes: Router, protectedRoutes: Router) {
   }));
 
   // MongoDB Connection
-  mongoose.connect(process.env.MONGO_URI!, { dbName: process.env.MONGO_DB_NAME });
-  mongoose.connection.on('connected', () => {
-    console.log('✅ Connected to MongoDB via Mongoose\n');
-  });
+  if (process.env.NODE_ENV !== 'test') {
+    mongoose.connect(process.env.MONGO_URI!, { dbName: process.env.MONGO_DB_NAME });
+    mongoose.connection.on('connected', () => {
+      console.log('✅ Connected to MongoDB via Mongoose\n');
+    });
+  }
 
   // health check
   app.get('/ping', async (_, res) => {
