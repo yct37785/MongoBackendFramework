@@ -6,7 +6,24 @@ import { verifyAccessTokenMiddleware } from './middleware/authMiddleware';
 import { globalErrorHandler } from './error/globalErrorHandler';
 import { validateEnv } from './utils/misc';
 
-export function createApp(applicationRoutes: Router) {
+/**
+ * Initializes and returns an Express app instance with core middleware,
+ * MongoDB connection, and optional routes provided by applications using the framework.
+ *
+ * Framework includes:
+ * - Environment validation
+ * - Express body parser and CORS
+ * - MongoDB connection
+ * - `/ping` health check route
+ * - `/auth` public auth routes
+ * - Application-provided routes
+ * - Global error handler
+ *
+ * @param unprotectedRoutes - Express Router containing public routes (no auth required)
+ * @param protectedRoutes - Express Router containing protected routes (requires valid access token)
+ * @returns Configured Express app instance
+ */
+export function createApp(unprotectedRoutes: Router, protectedRoutes: Router) {
   // ensure all required env vars are provided
   validateEnv();
 
@@ -39,11 +56,14 @@ export function createApp(applicationRoutes: Router) {
   // public routes
   app.use('/auth', authRoutes);
 
+  // application-provided unprotected routes
+  app.use(unprotectedRoutes);
+
   // protected routes
   app.use(verifyAccessTokenMiddleware);
 
-  // mount application-provided protected routes here
-  app.use(applicationRoutes);
+  // application-provided protected routes
+  app.use(protectedRoutes);
 
   // global error handler (must come after all routes)
   app.use(globalErrorHandler);
