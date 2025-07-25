@@ -1,7 +1,7 @@
 import { setUpInMemDB } from '../setupTestDB';
 import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from '../../controller/authController';
-import { InputError, AuthError, ConflictError } from '../../error/AppError';
-import { wait, expectString, expectDate } from '../testUtils';
+import { AuthError } from '../../error/AppError';
+import { wait } from '../testUtils';
 
 setUpInMemDB();
 
@@ -10,6 +10,10 @@ const rtExpiresIn = Number(process.env.REFRESH_TOKEN_EXPIRES_IN_S);
 const testEmail = `user${Date.now()}97@test.com`;
 const password = 'StrongPass123!';
 let refreshToken = '';
+
+/******************************************************************************************************************
+ * Setup.
+ ******************************************************************************************************************/
 beforeEach(async () => {
   await con_auth_register({ body: { email: testEmail, password } });
   const loginData = await con_auth_login({

@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env', quiet: true });
 
 // in test mode
 process.env.NODE_ENV = 'test';
