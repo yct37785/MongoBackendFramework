@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "ts-node src/devApp.ts"
+    "dev": "nodemon --watch src --exec ts-node src/devApp.ts"
   },
   "keywords": [],
   "author": "",
