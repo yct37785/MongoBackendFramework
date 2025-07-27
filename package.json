@@ -4,6 +4,7 @@
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": ["dist", "types"],
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
