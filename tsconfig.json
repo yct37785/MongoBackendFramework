@@ -13,6 +13,6 @@
     "lib": ["ES2022", "DOM"],
     "typeRoots": ["./types", "./node_modules/@types"]
   },
-  "include": ["src/**/*", "types"],
+  "include": ["src/**/*", "types/**/*", "templates/**/*"],
   "exclude": ["node_modules"]
 }

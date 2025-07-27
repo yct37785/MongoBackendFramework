@@ -1,8 +1,5 @@
-const dotenv = require('dotenv');
-dotenv.config({ path: '.env', quiet: true });
+import '../templates/jest.setup.template';
 
-// in test mode
-process.env.NODE_ENV = 'test';
-// override env vars
+// override env vars only for framework tests
 process.env.ACCESS_TOKEN_EXPIRES_IN_S = '5';
 process.env.REFRESH_TOKEN_EXPIRES_IN_S = '10';
