@@ -1,5 +1,5 @@
 import mongoose, { Types } from 'mongoose';
-import { setUpInMemDB } from '../../setupTestDB';
+import { setUpInMemDB } from '../../../utils/setupTestDB';
 import {
   ser_createUser,
   ser_findUserViaEmail, ser_findUserViaRT, ser_findUserViaId,
@@ -7,7 +7,7 @@ import {
 } from '../../../services/authServices';
 import { ConflictError } from '../../../error/AppError';
 import { UserModel } from '../../../models/userModel';
-import { expectMongooseDoc, expectObj } from '../../testUtils';
+import { expectMongooseDoc, expectObj } from '../../../utils/testUtils';
 import { hashValue } from '../../../utils/hash';
 
 setUpInMemDB();

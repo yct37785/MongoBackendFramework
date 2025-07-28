@@ -1,4 +1,4 @@
-import { setUpInMemDB } from '../../setupTestDB';
+import { setUpInMemDB } from '../../../utils/setupTestDB';
 import { verifyAccessToken } from '../../../middleware/authMiddleware';
 import { ser_findUserViaId } from '../../../services/authServices';
 import { con_auth_register, con_auth_login } from '../../../controller/authController';
