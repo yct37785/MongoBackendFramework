@@ -16,5 +16,5 @@
     "declarationMap": true
   },
   "include": ["index.ts", "src/**/*", "types", "templates/**/*"],
-  "exclude": ["node_modules", "dist", "src/test"]
+  "exclude": ["node_modules", "dist"]
 }
