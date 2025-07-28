@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import { REQUIRED_ENV_VARS } from '../consts';
 
 /**
@@ -27,4 +28,12 @@ export function validateEnv(): void {
     console.error('❌ Invalid or missing environment variables:\n' + missingOrInvalid.join('\n'));
     process.exit(1);
   }
+}
+
+/**
+ * load .env vars:
+ * - call at top level of client index.ts
+ */
+export function loadEnv(path = '.env') {
+  dotenv.config({ path, quiet: true });
 }
