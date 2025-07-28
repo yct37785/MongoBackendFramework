@@ -117,7 +117,7 @@ describe('Delete services: auth', () => {
     /*---------------------------------------------------------------------------------------------------------------
      * ser_deleteUser
      ---------------------------------------------------------------------------------------------------------------*/
-    test('deleteUser deletes user and all downstream data', async () => {
+    test('deleteUser deletes user', async () => {
       await ser_deleteUser(userId);
   
       const user = await UserModel.findById(userId);

@@ -67,12 +67,12 @@ export async function ser_findUserViaId(userId: Types.ObjectId): Promise<IUser |
  * Delete
  ******************************************************************************************************************/
 /**
- * delete user and all associated downstream data
+ * delete user ONLY
+ * - downstream data deletion must be handled by clients after calling ser_deleteUser
  * @param userId - user to delete
  */
 export async function ser_deleteUser(userId: Types.ObjectId): Promise<void> {
   await Promise.all([
     UserModel.deleteOne({ _id: userId }).exec(),
-    // TODO: callback to delete related user data
   ]);
 }
