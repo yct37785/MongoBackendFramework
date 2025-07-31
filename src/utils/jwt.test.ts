@@ -2,7 +2,7 @@ import { generateAccessToken, generateRefreshToken } from './jwt';
 import { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
 import { InternalError } from '../error/AppError';
-import { wait } from '../test/utils/testUtils';
+import { wait } from '../test/testUtils';
 
 describe('jwt.ts', () => {
   const userId = new Types.ObjectId();

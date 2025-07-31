@@ -1,1 +1,1 @@
-export * from '../../../src/test/utils/setupTestDB';
+export * from '../../../src/test/setupTestDB';

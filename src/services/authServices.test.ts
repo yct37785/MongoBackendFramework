@@ -1,6 +1,6 @@
 import mongoose, { Types } from 'mongoose';
-import { setUpInMemDB } from '../test/utils/setupTestDB';
-import { expectMongooseDoc } from '../test/utils/testUtils';
+import { setUpInMemDB } from '../test/setupTestDB';
+import { expectMongooseDoc } from '../test/testUtils';
 import {
   ser_createUser,
   ser_findUserViaEmail, ser_findUserViaRT, ser_findUserViaId,

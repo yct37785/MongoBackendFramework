@@ -1,5 +1,5 @@
-import { setUpInMemDB } from '../../test/utils/setupTestDB';
-import { wait } from '../../test/utils/testUtils';
+import { setUpInMemDB } from '../../test/setupTestDB';
+import { wait } from '../../test/testUtils';
 import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from '../../controller/authController';
 import { AuthError } from '../../error/AppError';
 
