@@ -11,7 +11,7 @@
  */
 import 'dotenv/config';
 import express, { Request, Response } from 'express';
-import { createApp } from './index';
+import { createApp } from './src/app';
 
 // define unprotected routes (no Authorization header required)
 const unprotectedRoutes = express.Router();
