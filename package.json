@@ -19,11 +19,11 @@
   "license": "ISC",
   "exports": {
     ".": "./dist/index.js",
-    "./error": "./dist/src/error/index.js",
-    "./middleware": "./dist/src/middleware/index.js",
-    "./models": "./dist/src/models/index.js",
-    "./services": "./dist/src/services/index.js",
-    "./utils": "./dist/src/utils/index.js",
+    "./error": "./dist/exports/error.js",
+    "./middleware": "./dist/exports/middleware.js",
+    "./models": "./dist/exports/models.js",
+    "./services": "./dist/exports/services.js",
+    "./utils": "./dist/exports/utils.js",
     "./jest-setup-template": "./dist/templates/jest.setup.template.js",
     "./jest-config-template": "./templates/jest.config.template.js"
   },
