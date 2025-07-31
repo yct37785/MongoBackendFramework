@@ -19,6 +19,10 @@
   "license": "ISC",
   "exports": {
     ".": "./dist/index.js",
+    "./axios": "./dist/exports/deps/axios.js",
+    "./express": "./dist/exports/deps/express.js",
+    "./mongoose": "./dist/exports/deps/mongoose.js",
+    "./uuid": "./dist/exports/deps/uuid.js",
     "./consts": "./dist/exports/src/consts.js",
     "./core": "./dist/exports/src/core.js",
     "./error": "./dist/exports/src/error.js",
