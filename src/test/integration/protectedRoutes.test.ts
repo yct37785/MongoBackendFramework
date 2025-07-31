@@ -1,5 +1,5 @@
 const request = require('supertest');
-import { setUpInMemDB } from '../../test/utils/setupTestDB';
+import { setUpInMemDB } from '../../test/setupTestDB';
 import { createApp } from '../../app'; // framework app
 import express from 'express';
 import { con_auth_register, con_auth_login } from '../../controller/authController';
