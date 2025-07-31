@@ -6,9 +6,9 @@ import {
   pruneAndSortRefreshTokens,
   isRefreshTokenExpired,
   removeTokenFromList
-} from '../../../utils/tokenHelpers';
-import { InternalError } from '../../../error/AppError';
-import { IRefreshToken } from '../../../models/userModel';
+} from './tokenHelpers';
+import { InternalError } from '../error/AppError';
+import { IRefreshToken } from '../models/userModel';
 const ACCESS_TOKEN_EXPIRES_IN_S = Number(process.env.ACCESS_TOKEN_EXPIRES_IN_S);
 const REFRESH_TOKEN_EXPIRES_IN_S = Number(process.env.REFRESH_TOKEN_EXPIRES_IN_S);
 const MAX_SESSIONS = Number(process.env.MAX_SESSIONS);

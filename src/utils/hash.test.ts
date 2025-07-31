@@ -1,4 +1,4 @@
-import { hashValue, hmacHash, compareHash } from '../../../utils/hash';
+import { hashValue, hmacHash, compareHash } from './hash';
 
 describe('hash.ts', () => {
   const rawString = 'MySecurePassword123!';
