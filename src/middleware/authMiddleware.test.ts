@@ -1,9 +1,9 @@
-import { setUpInMemDB } from '../../../utils/setupTestDB';
-import { verifyAccessToken } from '../../../middleware/authMiddleware';
-import { ser_findUserViaId } from '../../../services/authServices';
-import { con_auth_register, con_auth_login } from '../../../controller/authController';
+import { setUpInMemDB } from '../test/utils/setupTestDB';
+import { verifyAccessToken } from './authMiddleware';
+import { ser_findUserViaId } from '../services/authServices';
+import { con_auth_register, con_auth_login } from '../controller/authController';
 import jwt from 'jsonwebtoken';
-import { InputError, AuthError } from '../../../error/AppError';
+import { InputError, AuthError } from '../error/AppError';
 import { Types } from 'mongoose';
 
 setUpInMemDB();

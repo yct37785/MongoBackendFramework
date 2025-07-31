@@ -7,10 +7,10 @@ import {
   sanitizeTargetCompletionDate,
   sanitizeDefaultSprintColumns,
   sanitizeObjectId
-} from '../../../utils/inputSanitizer';
-import { testInvalidStringInputs } from '../../../utils/testUtils';
-import { EMAIL_MAX_LEN, PW_MAX_LEN, TITLE_MIN_LEN, TITLE_MAX_LEN, DESC_MAX_LEN, SPRINT_COLS_MAX } from '../../../consts';
-import { InputError } from '../../../error/AppError';
+} from './inputSanitizer';
+import { testInvalidStringInputs } from '../test/utils/testUtils';
+import { EMAIL_MAX_LEN, PW_MAX_LEN, TITLE_MIN_LEN, TITLE_MAX_LEN, DESC_MAX_LEN, SPRINT_COLS_MAX } from '../consts';
+import { InputError } from '../error/AppError';
 
 describe('inputSanitizer', () => {
   /*---------------------------------------------------------------------------------------------------------------

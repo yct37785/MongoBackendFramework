@@ -29,6 +29,7 @@
     "./middleware": "./dist/exports/src/middleware.js",
     "./models": "./dist/exports/src/models.js",
     "./services": "./dist/exports/src/services.js",
+    "./testUtils": "./dist/exports/src/testUtils.js",
     "./utils": "./dist/exports/src/utils.js",
     "./jest-setup-template": "./dist/templates/jest.setup.template.js",
     "./jest-config-template": "./templates/jest.config.template.js"

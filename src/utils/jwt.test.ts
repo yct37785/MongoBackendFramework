@@ -1,8 +1,8 @@
-import { generateAccessToken, generateRefreshToken } from '../../../utils/jwt';
+import { generateAccessToken, generateRefreshToken } from './jwt';
 import { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
-import { InternalError } from '../../../error/AppError';
-import { wait } from '../../../utils/testUtils';
+import { InternalError } from '../error/AppError';
+import { wait } from '../test/utils/testUtils';
 
 describe('jwt.ts', () => {
   const userId = new Types.ObjectId();

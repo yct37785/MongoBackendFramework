@@ -1,7 +1,7 @@
-import { setUpInMemDB } from '../../../utils/setupTestDB';
-import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from '../../../controller/authController';
-import { InputError, AuthError, ConflictError } from '../../../error/AppError';
-import { wait, expectString, expectDate } from '../../../utils/testUtils';
+import { setUpInMemDB } from '../test/utils/setupTestDB';
+import { wait, expectString, expectDate } from '../test/utils/testUtils';
+import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from './authController';
+import { InputError, AuthError, ConflictError } from '../error/AppError';
 
 setUpInMemDB();
 
