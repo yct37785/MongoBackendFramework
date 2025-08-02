@@ -1,5 +1,5 @@
 import { setUpInMemDB } from '../../test/setupTestDB';
-import { wait } from '../../test/testUtils';
+import { wait, mockReq } from '../../test/testUtils';
 import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from '../../controller/authController';
 import { AuthError } from '../../error/AppError';
 
@@ -15,12 +15,9 @@ let refreshToken = '';
  * Setup.
  ******************************************************************************************************************/
 beforeEach(async () => {
-  await con_auth_register({ body: { email: testEmail, password } });
-  const loginData = await con_auth_login({
-    body: { email: testEmail, password },
-    headers: { 'user-agent': 'jest-test-agent' },
-    ip: '127.0.0.1'
-  });
+  await con_auth_register(mockReq({ email: testEmail, password }));
+  const loginData = await con_auth_login(
+    mockReq({ email: testEmail, password }, { 'user-agent': 'jest-agent' }));
   refreshToken = loginData.refreshToken;
 });
 
@@ -33,10 +30,10 @@ describe('int: token invalidation test', () => {
    */
   test('test invalidation via logout', async () => {
     // logout
-    let result = await con_auth_logout({ body: { refreshToken } });
+    let result = await con_auth_logout(mockReq({ refreshToken }));
     expect(typeof result.msg === 'string').toBeTruthy();
     // throw auth error when attempt to refresh
-    await expect(con_auth_refresh({ body: { refreshToken } })).rejects.toThrow(AuthError);
+    await expect(con_auth_refresh(mockReq({ refreshToken }))).rejects.toThrow(AuthError);
   });
 
   /**
@@ -46,7 +43,7 @@ describe('int: token invalidation test', () => {
     // wait for timeout + 1
     await wait(rtExpiresIn + 1);
     // throw auth error when attempt to refresh
-    await expect(con_auth_refresh({ body: { refreshToken } })).rejects.toThrow(AuthError);
+    await expect(con_auth_refresh(mockReq({ refreshToken }))).rejects.toThrow(AuthError);
   }, (rtExpiresIn + 2) * 1000);
 
   /**
@@ -55,9 +52,9 @@ describe('int: token invalidation test', () => {
   test('test invalidation via max session trim', async () => {
     // login maxSessions times
     for (let i = 0; i < maxSessions; ++i) {
-      await con_auth_login({ body: { email: testEmail, password } });
+      await con_auth_login(mockReq({ email: testEmail, password }));
     }
     // throw auth error when attempt to refresh
-    await expect(con_auth_refresh({ body: { refreshToken } })).rejects.toThrow(AuthError);
+    await expect(con_auth_refresh(mockReq({ refreshToken }))).rejects.toThrow(AuthError);
   });
 });
