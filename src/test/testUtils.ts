@@ -1,3 +1,4 @@
+import type { Request } from 'express';
 import mongoose, { Types } from 'mongoose';
 
 /******************************************************************************************************************
@@ -75,6 +76,25 @@ export async function callConFn(
     req.params = params;
   }
   return await fn(req);
+}
+
+/******************************************************************************************************************
+ * mockReq - Utility to create a mock Express Request object for unit testing.
+ *
+ * Simulates a minimal Express request object with optional `body`, `headers`, and `ip` fields.
+ * Useful for testing controllers or middleware without requiring a full Express context.
+ *
+ * @param body - The `req.body` object (required).
+ * @param headers - Optional `req.headers` object to simulate request headers.
+ * @returns A mock Request object typed as `Request`, suitable for unit tests.
+ ******************************************************************************************************************/
+export function mockReq(
+  body: any,
+  headers?: Record<string, string>
+): Request {
+  const req: Partial<Request> = { body };
+  if (headers) req.headers = headers;
+  return req as Request;
 }
 
 /******************************************************************************************************************

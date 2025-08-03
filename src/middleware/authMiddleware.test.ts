@@ -1,6 +1,7 @@
 import { setUpInMemDB } from '../test/setupTestDB';
 import { verifyAccessToken } from './authMiddleware';
 import { ser_findUserViaId } from '../services/authServices';
+import { mockReq } from '../test/testUtils';
 import { con_auth_register, con_auth_login } from '../controller/authController';
 import jwt from 'jsonwebtoken';
 import { InputError, AuthError } from '../error/AppError';
@@ -15,12 +16,9 @@ let accessToken = '';
 let req: any;
 beforeEach(async () => {
   req = { headers: {} };
-  await con_auth_register({ body: { email, password } });
-  const loginData = await con_auth_login({
-    body: { email, password },
-    headers: { 'user-agent': 'jest-test-agent' },
-    ip: '127.0.0.1'
-  });
+  await con_auth_register(mockReq({ email, password }));
+  const loginData = await con_auth_login(
+    mockReq({ email, password }, { 'user-agent': 'jest-test-agent' }));
   accessToken = loginData.accessToken;
 });
 

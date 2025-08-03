@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { InputError, AuthError, NotFoundError, ConflictError } from '../error/AppError';
 import { compareHash, hmacHash } from '../utils/hash';
 import {
@@ -23,7 +24,7 @@ import { ser_createUser, ser_findUserViaEmail, ser_findUserViaRT } from '../serv
  *   msg: string
  * }
  ******************************************************************************************************************/
-export async function con_auth_register(req: any) {
+export async function con_auth_register(req: Request) {
   // validate required fields
   const validatedEmail = sanitizeEmail(req.body.email);
   const validatedPassword = sanitizePassword(req.body.password);
@@ -59,7 +60,7 @@ export async function con_auth_register(req: any) {
  *   rtExpiresAt: ISO datestring
  * }
  ******************************************************************************************************************/
-export async function con_auth_login(req: any) {
+export async function con_auth_login(req: Request) {
   const email = req.body.email;
   const password = req.body.password;
   const userAgent = (req.headers && req.headers['user-agent']) ?? undefined;
@@ -121,7 +122,7 @@ export async function con_auth_login(req: any) {
  *   rtExpiresAt: ISO datestring
  * }
  ******************************************************************************************************************/
-export async function con_auth_refresh(req: any) {
+export async function con_auth_refresh(req: Request) {
   const refreshToken = req.body.refreshToken;
   const userAgent = (req.headers && req.headers['user-agent']) ?? undefined;
   const ip = req.ip ?? undefined;
@@ -195,7 +196,7 @@ export async function con_auth_refresh(req: any) {
  *   msg: string
  * }
  ******************************************************************************************************************/
-export async function con_auth_logout(req: any) {
+export async function con_auth_logout(req: Request) {
   const refreshToken = req.body.refreshToken;
   // validate refresh token
   if (typeof refreshToken !== 'string' || refreshToken.length !== REFRESH_TOKEN_LEN) {

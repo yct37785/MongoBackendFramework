@@ -3,6 +3,7 @@ import { setUpInMemDB } from '../../test/setupTestDB';
 import { createApp } from '../../app'; // framework app
 import express from 'express';
 import { con_auth_register, con_auth_login } from '../../controller/authController';
+import { mockReq } from '../../test/testUtils';
 import { Types } from 'mongoose';
 
 setUpInMemDB();
@@ -17,12 +18,9 @@ const password = 'Test12345!';
  ******************************************************************************************************************/
 beforeEach(async () => {
   // create test user and login to get JWT
-  await con_auth_register({ body: { email, password } });
-  const loginResult = await con_auth_login({
-    body: { email, password },
-    headers: { 'user-agent': 'jest-agent' },
-    ip: '127.0.0.1'
-  });
+  await con_auth_register(mockReq({ email, password }));
+  const loginResult = await con_auth_login(
+    mockReq({ email, password }, { 'user-agent': 'jest-agent' }));
 
   accessToken = loginResult.accessToken;
 
