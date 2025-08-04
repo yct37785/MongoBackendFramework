@@ -17,7 +17,7 @@ let refreshToken = '';
 beforeEach(async () => {
   await con_auth_register(mockReq({ email: testEmail, password }));
   const loginData = await con_auth_login(
-    mockReq({ email: testEmail, password }, { 'user-agent': 'jest-agent' }));
+    mockReq({ email: testEmail, password }));
   refreshToken = loginData.refreshToken;
 });
 

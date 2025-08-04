@@ -41,7 +41,7 @@ describe('authController: con_auth_login', () => {
 
   beforeEach(async () => {
     await con_auth_register(
-      mockReq({ email: testEmail, password }, { 'user-agent': 'jest-test-agent' }));
+      mockReq({ email: testEmail, password }));
   });
 
   test('invalid input/unauthorized', async () => {
@@ -73,7 +73,7 @@ describe('authController: con_auth_refresh', () => {
   beforeEach(async () => {
     await con_auth_register(mockReq({ email: testEmail, password }));
     loginData = await con_auth_login(
-      mockReq({ email: testEmail, password }, { 'user-agent': 'jest-test-agent' }));
+      mockReq({ email: testEmail, password }));
   });
 
   test('invalid input', async () => {
@@ -114,7 +114,7 @@ describe('authController: con_auth_logout', () => {
   beforeEach(async () => {
     await con_auth_register(mockReq({ email: testEmail, password }));
     loginData = await con_auth_login(
-      mockReq({ email: testEmail, password }, { 'user-agent': 'jest-test-agent' })
+      mockReq({ email: testEmail, password })
     );
   });
 

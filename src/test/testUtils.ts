@@ -54,46 +54,30 @@ export async function testInvalidStringInputs({
 }
 
 /******************************************************************************************************************
- * Call a controller function with mock auth
- *
- * @param fn - the controller function to call
- * @param userId - userId
- * @param body - the req.body object to pass
- * @param params - (optional) the req.params object to pass
- * @returns the result of the controller function
- ******************************************************************************************************************/
-export async function callConFn(
-  fn: (req: any) => Promise<any>,
-  userId: Types.ObjectId,
-  body: Record<string, any>,
-  params?: Record<string, any>
-): Promise<any> {
-  const req: any = {
-    body,
-    user: { userId }
-  };
-  if (params) {
-    req.params = params;
-  }
-  return await fn(req);
-}
-
-/******************************************************************************************************************
  * mockReq - Utility to create a mock Express Request object for unit testing.
  *
- * Simulates a minimal Express request object with optional `body`, `headers`, and `ip` fields.
+ * Simulates a minimal Express request object with optional `headers`, `query`, `params`, `ip`, and `user` fields.
  * Useful for testing controllers or middleware without requiring a full Express context.
  *
- * @param body - The `req.body` object (required).
- * @param headers - Optional `req.headers` object to simulate request headers.
+ * @param body - The `req.body` object.
+ * @param userId - userId for mock request.
+ * @param query - `req.query` object.
+ * @param params - `req.params` object.
  * @returns A mock Request object typed as `Request`, suitable for unit tests.
  ******************************************************************************************************************/
 export function mockReq(
-  body: any,
-  headers?: Record<string, string>
+  body?: Record<string, any>,
+  userId?: Types.ObjectId,
+  params?: Record<string, any>,
+  query?: Record<string, any>
 ): Request {
-  const req: Partial<Request> = { body };
-  if (headers) req.headers = headers;
+  const req: Partial<Request> = {
+    body,
+    headers: { 'user-agent': 'jest-test-agent' }
+  };
+  if (userId) req.user = { userId, email: '' };
+  if (params) req.params = params;
+  if (query) req.query = query;
   return req as Request;
 }
 

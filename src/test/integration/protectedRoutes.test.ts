@@ -20,7 +20,7 @@ beforeEach(async () => {
   // create test user and login to get JWT
   await con_auth_register(mockReq({ email, password }));
   const loginResult = await con_auth_login(
-    mockReq({ email, password }, { 'user-agent': 'jest-agent' }));
+    mockReq({ email, password }));
 
   accessToken = loginResult.accessToken;
 

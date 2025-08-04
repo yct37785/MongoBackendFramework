@@ -18,7 +18,7 @@ beforeEach(async () => {
   req = { headers: {} };
   await con_auth_register(mockReq({ email, password }));
   const loginData = await con_auth_login(
-    mockReq({ email, password }, { 'user-agent': 'jest-test-agent' }));
+    mockReq({ email, password }));
   accessToken = loginData.accessToken;
 });
 
