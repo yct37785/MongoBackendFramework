@@ -2,7 +2,7 @@
  * Base application error class.
  * All custom errors extend this and include a status code for standardized HTTP responses.
  ******************************************************************************************************************/
-class AppError extends Error {
+export class AppError extends Error {
   statusCode: number;
 
   constructor(message: string, statusCode = 500) {
