@@ -1,45 +1,70 @@
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
+import type { MongoServerError } from 'mongodb';
+import type { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
+import { AppError } from './AppError';
 
 /******************************************************************************************************************
  * globalErrorHandler - Express error-handling middleware
  *
- * Centralizes error processing for the app. Detects custom AppErrors, MongoDB errors, validation issues,
- * and defaults to a 500 fallback.
+ * Centralized error handler for all errors thrown in the app. Handles:
+ * - Custom AppErrors
+ * - Mongoose validation and cast errors
+ * - MongoDB duplicate key errors
+ * - JWT-related errors
+ * - Fallback 500 for unknown issues
  ******************************************************************************************************************/
 export const globalErrorHandler: ErrorRequestHandler = (
-  err: any,
+  err: unknown,
   req: Request,
   res: Response,
   _next: NextFunction
 ) => {
-  // AppError (explicitly thrown from code)
-  if (err.name === 'CustomAppError') {
-    res.status(err.statusCode).json({ err: err.message });
+  // custom AppError and subclasses
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({ err: err.message });
   }
-
   console.log('❌ Unhandled error:', err);
 
-  // Mongoose validation error
-  if (err.name === 'ValidationError') {
-    res.status(400).json({ err: 'Validation failed' });
+  // Mongoose ValidationError
+  if (isMongooseValidationError(err)) {
+    return res.status(400).json({ err: 'Validation failed' });
   }
 
-  // Mongoose bad ObjectId (e.g., malformed _id)
-  if (err.name === 'CastError') {
-    res.status(400).json({ err: 'Invalid resource ID' });
+  // Mongoose CastError (e.g., invalid ObjectId)
+  if (isMongooseCastError(err)) {
+    return res.status(400).json({ err: 'Invalid resource ID' });
   }
 
-  // duplicate key (e.g., unique email conflict)
-  if (err.code === 11000) {
-    const duplicatedField = Object.keys(err.keyValue)[0];
-    res.status(409).json({ err: `${duplicatedField} is already in use` });
+  // MongoDB duplicate key error (e.g., unique email conflict)
+  if (isMongoDuplicateKeyError(err)) {
+    const duplicatedField = Object.keys(err.keyValue ?? {})[0] || 'Field';
+    return res.status(409).json({ err: `${duplicatedField} is already in use` });
   }
 
-  // token-related error (optional if using JWT)
-  if (err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
-    res.status(401).json({ err: 'Invalid or expired token' });
+  // JWT errors
+  if (isJwtError(err)) {
+    return res.status(401).json({ err: 'Invalid or expired token' });
   }
 
-  // default fallback
-  res.status(500).json({ err: 'Internal server error' });
+  // fallback
+  return res.status(500).json({ err: 'Internal server error' });
+};
+
+/******************************************************************************************************************
+ * Type guards for specific error types
+ ******************************************************************************************************************/
+function isMongooseValidationError(err: any): err is Error {
+  return err?.name === 'ValidationError';
+}
+
+function isMongooseCastError(err: any): err is Error {
+  return err?.name === 'CastError';
+}
+
+function isMongoDuplicateKeyError(err: any): err is MongoServerError {
+  return err?.code === 11000 && !!err.keyValue;
+}
+
+function isJwtError(err: any): err is JsonWebTokenError | TokenExpiredError {
+  return err?.name === 'JsonWebTokenError' || err?.name === 'TokenExpiredError';
 }
