@@ -4,7 +4,7 @@
  * @param message - error message to display
  * @param statusCode - HTTP status code (default 500)
  * 
- * @returns obj - custom error instance with message and status code
+ * @returns AppError - custom error instance with message and status code
  ******************************************************************************************************************/
 export class AppError extends Error {
   statusCode: number;
@@ -24,7 +24,7 @@ export class AppError extends Error {
  * 
  * @param message - description of the invalid input
  * 
- * @returns obj - error instance
+ * @returns AppError - error instance
  ******************************************************************************************************************/
 export class InputError extends AppError {
   constructor(message: string) {
@@ -39,7 +39,7 @@ export class InputError extends AppError {
  *
  * @param message - reason for authentication failure
  * 
- * @returns obj - error instance
+ * @returns AppError - error instance
  ******************************************************************************************************************/
 export class AuthError extends AppError {
   constructor(message: string) {
@@ -54,7 +54,7 @@ export class AuthError extends AppError {
  * 
  * @param message - reason for permission denial
  * 
- * @returns obj - error instance
+ * @returns AppError - error instance
  ******************************************************************************************************************/
 export class PermissionError extends AppError {
   constructor(message: string) {
@@ -69,7 +69,7 @@ export class PermissionError extends AppError {
  * 
  * @param message - description of the missing resource
  * 
- * @returns obj - error instance
+ * @returns AppError - error instance
  ******************************************************************************************************************/
 export class NotFoundError extends AppError {
   constructor(message: string) {
@@ -84,7 +84,7 @@ export class NotFoundError extends AppError {
  * 
  * @param message - description of the conflict
  * 
- * @returns obj - error instance
+ * @returns AppError - error instance
  ******************************************************************************************************************/
 export class ConflictError extends AppError {
   constructor(message: string) {
@@ -99,7 +99,7 @@ export class ConflictError extends AppError {
  * 
  * @param message - description of the internal failure
  * 
- * @returns obj - error instance
+ * @returns AppError - error instance
  ******************************************************************************************************************/
 export class InternalError extends AppError {
   constructor(message: string) {

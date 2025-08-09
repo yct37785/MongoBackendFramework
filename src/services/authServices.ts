@@ -9,7 +9,7 @@ import { ConflictError } from '../error/AppError';
  * @param email - user's email address
  * @param password - user's password in plaintext
  *
- * @returns obj - created user document
+ * @returns IUser - created user document
  *
  * @throws {ConflictError} if the email is already registered
  ******************************************************************************************************************/
