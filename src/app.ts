@@ -6,7 +6,7 @@ import { verifyAccessTokenMiddleware } from './middleware/authMiddleware';
 import { globalErrorHandler } from './error/globalErrorHandler';
 import { validateEnv } from './utils/misc';
 
-/**
+/******************************************************************************************************************
  * Initializes and returns an Express app instance with core middleware,
  * MongoDB connection, and optional routes provided by applications using the framework.
  *
@@ -21,8 +21,9 @@ import { validateEnv } from './utils/misc';
  *
  * @param unprotectedRoutes - Express Router containing public routes (no auth required)
  * @param protectedRoutes - Express Router containing protected routes (requires valid access token)
- * @returns Configured Express app instance
- */
+ * 
+ * @returns Express - configured Express app instance
+ ******************************************************************************************************************/
 export function createApp(unprotectedRoutes: Router, protectedRoutes: Router) {
   // ensure all required env vars are provided
   validateEnv();

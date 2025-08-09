@@ -1,19 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 
 /******************************************************************************************************************
- * asyncHandler - Utility wrapper for async route handlers.
+ * Wraps an async Express route handler to automatically catch and forward errors.
  *
  * Automatically catches errors thrown inside async functions and passes them to the Express error handler,
  * eliminating repetitive try/catch blocks in each route.
  *
- * Usage:
- *   router.get('/route', asyncHandler(async (req, res) => {
- *     const data = await someAsyncOp();
- *     res.json(data);
- *   }));
- *
- * @param fn - The async function to wrap (standard Express handler signature)
- * @returns A new function that handles errors using next()
+ * @param fn - async route handler function to wrap
+ * 
+ * @returns func - wrapped function that calls next() with any thrown error
  ******************************************************************************************************************/
 export const asyncHandler = (
   fn: (req: Request, res: Response, next: NextFunction) => Promise<any>

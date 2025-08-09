@@ -1,14 +1,14 @@
 import dotenv from 'dotenv';
 import { REQUIRED_ENV_VARS } from '../consts';
 
-/**
+/******************************************************************************************************************
  * Validates required environment variables:
- * - All must be defined
- * - All string values must be non-empty
- * - All number values must be valid numbers
- *
- * Throws an error if any check fails.
- */
+ * - must be defined
+ * - string values must be non-empty
+ * - number values must be valid numbers
+ * 
+ * @throws {Error} if any environment variable is missing or invalid
+ ******************************************************************************************************************/
 export function validateEnv(): void {
   const missingOrInvalid: string[] = [];
 
@@ -30,10 +30,11 @@ export function validateEnv(): void {
   }
 }
 
-/**
- * load .env vars:
- * - call at top level of client index.ts
- */
+/******************************************************************************************************************
+ * Loads environment variables from a `.env` file.
+ *
+ * @param path - path to the .env file
+ ******************************************************************************************************************/
 export function loadEnv(path = '.env') {
   dotenv.config({ path, quiet: true });
 }

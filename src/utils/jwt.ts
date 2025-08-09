@@ -6,15 +6,14 @@ import { REFRESH_TOKEN_LEN } from '../consts';
 const ACCESS_TOKEN_EXPIRES_IN_S = Number(process.env.ACCESS_TOKEN_EXPIRES_IN_S);
 
 /******************************************************************************************************************
- * Generates a short-lived access token (JWT) for API authorization.
+ * Generates a signed JWT access token for a given user.
  * 
- * @param user - user id
- * @param email - user email
- * @returns a signed JWT access token string
- *
- * - Payload: { sub, email }
- * - Secret: ACCESS_TOKEN_SECRET
- * - Expiry: e.g. 60s
+ * @param userId - user's ObjectId
+ * @param email - user's email
+ * 
+ * @returns string - signed JWT access token string
+ * 
+ * @throws {Error} if signing fails
  ******************************************************************************************************************/
 export function generateAccessToken(userId: Types.ObjectId, email: string): string {
   if (!userId || !Types.ObjectId.isValid(userId)) {
@@ -34,7 +33,7 @@ export function generateAccessToken(userId: Types.ObjectId, email: string): stri
 /******************************************************************************************************************
  * Generates a secure, opaque refresh token (non-JWT).
  * 
- * @returns a random string (e.g. 64-character hex)
+ * @returns string - a random string (e.g. 64-character hex)
  ******************************************************************************************************************/
 export function generateRefreshToken(): string {
   return crypto.randomBytes(REFRESH_TOKEN_LEN / 2).toString('hex'); // 96 characters of entropy

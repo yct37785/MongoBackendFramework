@@ -9,7 +9,13 @@ import {
 const pwErrMsg = `password must be ${PW_MIN_LEN}-${PW_MAX_LEN} chars with uppercase, lowercase, and special`;
 
 /******************************************************************************************************************
- * string fields
+ * Sanitizes an email string by trimming and lowercasing.
+ *
+ * @param email - raw email input
+ * 
+ * @returns string - sanitized email
+ * 
+ * @throws {InputError} if email is invalid
  ******************************************************************************************************************/
 export function sanitizeEmail(input: unknown): string {
   if (typeof input !== 'string') throw new InputError('email');
@@ -24,6 +30,15 @@ export function sanitizeEmail(input: unknown): string {
   return email;
 }
 
+/******************************************************************************************************************
+ * Sanitizes a password string by trimming.
+ *
+ * @param password - raw password input
+ * 
+ * @returns string - sanitized password
+ * 
+ * @throws {InputError} if password is invalid
+ ******************************************************************************************************************/
 export function sanitizePassword(input: unknown): string {
   if (typeof input !== 'string') throw new InputError(pwErrMsg);
   const password = input;
@@ -37,6 +52,18 @@ export function sanitizePassword(input: unknown): string {
   return password;
 }
 
+/******************************************************************************************************************
+ * Utility function to sanitize a string field.
+ *
+ * @param input - raw input
+ * @param fieldName - field name for error logging
+ * @param minLen - min length
+ * @param maxLen - max length
+ * 
+ * @returns string - sanitized string
+ * 
+ * @throws {InputError} if string is invalid
+ ******************************************************************************************************************/
 function sanitizeStringField(input: unknown, fieldName: string, minLen: number, maxLen: number): string {
   if (typeof input !== 'string') throw new InputError(fieldName);
   const str = input.trim();
@@ -46,16 +73,29 @@ function sanitizeStringField(input: unknown, fieldName: string, minLen: number, 
   return str;
 }
 
+/******************************************************************************************************************
+ * @refer sanitizeStringField
+ ******************************************************************************************************************/
 export function sanitizeTitle(input: unknown): string {
   return sanitizeStringField(input, 'title', TITLE_MIN_LEN, TITLE_MAX_LEN);
 }
 
+/******************************************************************************************************************
+ * @refer sanitizeStringField
+ ******************************************************************************************************************/
 export function sanitizeDesc(input: unknown): string {
   return sanitizeStringField(input, 'desc', 0, DESC_MAX_LEN);
 }
 
 /******************************************************************************************************************
- * datestring fields
+ * Utility function to sanitize ISO datestring to JS Date obj.
+ *
+ * @param input - raw input
+ * @param fieldName - field name for error logging
+ * 
+ * @returns Date - JS Date obj
+ * 
+ * @throws {InputError} if type or format is invalid
  ******************************************************************************************************************/
 function datestrToDate(input: unknown, fieldName: string): Date {
   if (typeof input !== 'string') throw new InputError(fieldName);
@@ -67,12 +107,25 @@ function datestrToDate(input: unknown, fieldName: string): Date {
   return parsed;
 }
 
+/******************************************************************************************************************
+ * @refer datestrToDate
+ ******************************************************************************************************************/
 export function sanitizeTargetCompletionDate(input: unknown): Date {
   return datestrToDate(input, 'targetCompletionDate');
 }
 
 /******************************************************************************************************************
- * string array fields
+ * TODO: throw err instead.
+ * Utility function to sanitize an array of strings.
+ * Filters out string elems that does not conform to the length requirements.
+ * Slices extra elems.
+ *
+ * @param input - raw input
+ * @param max - max elems
+ * @param minLen - min length of each str elem
+ * @param maxLen - max length of each str elem
+ * 
+ * @returns string[] - sanitized string array
  ******************************************************************************************************************/
 export function cleanStringArray(input: unknown[], max: number, minLen: number, maxLen: number): string[] {
   return input
@@ -82,6 +135,15 @@ export function cleanStringArray(input: unknown[], max: number, minLen: number, 
     .slice(0, max);
 }
 
+/******************************************************************************************************************
+ * Sanitize default sprint columns input.
+ *
+ * @param input - raw input
+ * 
+ * @returns string[] - sanitized string array
+ * 
+ * @throws {InputError} if type is invalid
+ ******************************************************************************************************************/
 export function sanitizeDefaultSprintColumns(input: unknown): string[] {
   if (!Array.isArray(input)) throw new InputError('defaultSprintColumns');
   const trimmed = cleanStringArray(input, SPRINT_COLS_MAX, TITLE_MIN_LEN, TITLE_MAX_LEN);
@@ -89,7 +151,13 @@ export function sanitizeDefaultSprintColumns(input: unknown): string[] {
 }
 
 /******************************************************************************************************************
- * sanitize objectId
+ * Sanitizes an ObjectId string.
+ *
+ * @param id - input representing a MongoDB ObjectId
+ * 
+ * @returns ObjectId - valid Mongoose ObjectId
+ * 
+ * @throws {InputError} if type or format is invalid
  ******************************************************************************************************************/
 export function sanitizeObjectId(input: unknown): Types.ObjectId {
   if (typeof input !== 'string') throw new InputError('ID given');

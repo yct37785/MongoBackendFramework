@@ -7,19 +7,12 @@ import { InputError, AuthError } from '../error/AppError';
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
 
 /******************************************************************************************************************
- * Middleware: verifyAccessTokenMiddleware
+ * Verifies a JWT access token from the `Authorization` header and attaches the user to the request object.
  *
- * Verifies incoming JWT access token and attaches user info to req.user.
+ * @param req - Express request containing `Authorization: Bearer <token>` header
  *
- * Expects:
- *   Authorization: Bearer <access_token>
- *
- * On success:
- *   - Proceeds to next handler
- *   - Sets req.user = { userId: ObjectId, email }
- *
- * On failure:
- *   - Responds with 400 or 401
+ * @throws {InputError} if the Authorization header is missing or malformed
+ * @throws {AuthError} if the token is invalid, expired, or the user cannot be found
  ******************************************************************************************************************/
 export async function verifyAccessToken(req: Request) {
   const authHeader = req.headers.authorization;
@@ -58,6 +51,15 @@ export async function verifyAccessToken(req: Request) {
   }
 }
 
+/******************************************************************************************************************
+ * Express middleware wrapper for verifyAccessToken.
+ *
+ * @param req - Express request
+ * @param res - Express response
+ * @param next - Express next function
+ *
+ * @throws refer to verifyAccessToken
+ ******************************************************************************************************************/
 export async function verifyAccessTokenMiddleware(req: Request, res: Response, next: NextFunction) {
   await verifyAccessToken(req);
   next();

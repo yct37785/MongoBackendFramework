@@ -13,11 +13,11 @@ import { ser_createUser, ser_findUserViaEmail, ser_findUserViaRT } from '../serv
  * Registers a new user using the provided email and password.
  *
  * @param req - Express request containing:
- *   - `req.body.email`: str - user's email address
- *   - `req.body.password`: str - user's password
+ *   - `req.body.email`: string - user's email address
+ *   - `req.body.password`: string - user's password
  *
  * @returns obj:
- *   - `msg`: str - confirmation message that user was registered
+ *   - `msg`: string - confirmation message that user was registered
  *
  * @throws {ConflictError} if the email is already registered
  * @throws {InputError} if the email or password is missing or invalid
@@ -42,16 +42,16 @@ export async function con_auth_register(req: Request) {
  * Logs in a user using the provided credentials and issues new access + refresh tokens.
  *
  * @param req - Express request containing:
- *   - `req.body.email`: str - user's email
- *   - `req.body.password`: str - user's password
+ *   - `req.body.email`: string - user's email
+ *   - `req.body.password`: string - user's password
  *   - `req.headers['user-agent']`: str (optional) - to record device info
  *   - `req.ip`: str (optional) - to record IP address
  *
  * @returns obj:
- *   - `accessToken`: str - JWT access token
- *   - `refreshToken`: str - JWT refresh token
- *   - `atExpiresAt`: str - ISO datetime of access token expiry
- *   - `rtExpiresAt`: str - ISO datetime of refresh token expiry
+ *   - `accessToken`: string - JWT access token
+ *   - `refreshToken`: string - JWT refresh token
+ *   - `atExpiresAt`: string - ISO datetime of access token expiry
+ *   - `rtExpiresAt`: string - ISO datetime of refresh token expiry
  *
  * @throws {InputError} if input is missing or invalid
  * @throws {AuthError} if email or password is incorrect
@@ -102,15 +102,15 @@ export async function con_auth_login(req: Request) {
  * Rotates a valid refresh token to issue new tokens and update session metadata.
  * 
  * @param req - Express request containing:
- *   - `req.body.refreshToken`: str - JWT refresh token
+ *   - `req.body.refreshToken`: string - JWT refresh token
  *   - `req.headers['user-agent']`: str (optional) - to record device info
  *   - `req.ip`: str (optional) - to record IP address
  *
  * @returns obj:
- *   - `accessToken`: str - new JWT access token
- *   - `refreshToken`: str - new JWT refresh token
- *   - `atExpiresAt`: str - ISO datetime of new access token expiry
- *   - `rtExpiresAt`: str - ISO datetime of refresh token expiry, will still be the same as before
+ *   - `accessToken`: string - new JWT access token
+ *   - `refreshToken`: string - new JWT refresh token
+ *   - `atExpiresAt`: string - ISO datetime of new access token expiry
+ *   - `rtExpiresAt`: string - ISO datetime of refresh token expiry, will still be the same as before
  *
  * @throws {InputError} if refresh token is missing or invalid
  * @throws {AuthError} if the token is reused or invalid
@@ -178,10 +178,10 @@ export async function con_auth_refresh(req: Request) {
  * Logs the user out by invalidating a single refresh token session.
  *
  * @param req - Express request containing:
- *   - `req.body.refreshToken`: str - refresh token to invalidate
+ *   - `req.body.refreshToken`: string - refresh token to invalidate
  *
  * @returns obj:
- *   - `msg`: str - confirmation message that logout was successful
+ *   - `msg`: string - confirmation message that logout was successful
  *
  * @throws {InputError} if the refresh token is missing or invalid
  * @throws {AuthError} if token reuse is detected or token is not found
