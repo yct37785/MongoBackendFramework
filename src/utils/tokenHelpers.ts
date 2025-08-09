@@ -48,8 +48,8 @@ export function generateNewTokens(userId: Types.ObjectId, email: string): {
  * 
  * @param tokenHash - hashed refresh token
  * @param rtExpiresAt - refresh token expiry date
- * @param userAgent (optional) - device info
- * @param ip (optional) - IP address
+ * @param userAgent? - device info
+ * @param ip? - IP address
  ******************************************************************************************************************/
 export function createRefreshTokenEntry(
   tokenHash: string,

@@ -44,8 +44,8 @@ export async function con_auth_register(req: Request) {
  * @param req - Express request containing:
  *   - `req.body.email`: string - user's email
  *   - `req.body.password`: string - user's password
- *   - `req.headers['user-agent']`: str (optional) - to record device info
- *   - `req.ip`: str (optional) - to record IP address
+ *   - `req.headers['user-agent']?`: string - to record device info
+ *   - `req.ip?`: string - to record IP address
  *
  * @returns obj:
  *   - `accessToken`: string - JWT access token
@@ -103,8 +103,8 @@ export async function con_auth_login(req: Request) {
  * 
  * @param req - Express request containing:
  *   - `req.body.refreshToken`: string - JWT refresh token
- *   - `req.headers['user-agent']`: str (optional) - to record device info
- *   - `req.ip`: str (optional) - to record IP address
+ *   - `req.headers['user-agent']?`: string - to record device info
+ *   - `req.ip?`: string - to record IP address
  *
  * @returns obj:
  *   - `accessToken`: string - new JWT access token
