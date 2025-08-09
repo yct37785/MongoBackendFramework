@@ -65,39 +65,28 @@ describe('inputSanitizer', () => {
   });
 
   /*---------------------------------------------------------------------------------------------------------------
-   * sanitizeTitle and sanitizeDesc
+   * sanitizeStringField by extension of:
+   * - sanitizeTitle
+   * - sanitizeDesc
    ---------------------------------------------------------------------------------------------------------------*/
-  test('sanitizeTitle should trim and pass valid title', () => {
-    expect(sanitizeTitle('  My Title  ')).toBe('My Title');
+  test('sanitizeStringField should trim and pass valid string', () => {
+    expect(sanitizeDesc('  My Desc  ')).toBe('My Desc');
+    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
+    expect(sanitizeTitle(maxLen + '  ')).toBe(maxLen);
   });
 
-  test('sanitizeTitle should throw if too short or long', () => {
-    expect(() => sanitizeTitle('')).toThrow(InputError);
+  test('sanitizeStringField should throw if too short or long', () => {
+    // too long
+    expect(() => sanitizeDesc('a'.repeat(DESC_MAX_LEN + 1))).toThrow(InputError);
+    // too short
     expect(() => sanitizeTitle('a'.repeat(TITLE_MIN_LEN - 1))).toThrow(InputError);
-    expect(() => sanitizeTitle('a'.repeat(TITLE_MAX_LEN + 1))).toThrow(InputError);
+    expect(() => sanitizeTitle('')).toThrow(InputError);
     expect(() => sanitizeTitle('        ')).toThrow(InputError);  // trim into length 0
   });
 
-  test('sanitizeTitle should throw on non-string input types', async () => {
+  test('sanitizeStringField should throw on non-string input types', async () => {
     await testInvalidStringInputs({
       fn: sanitizeTitle,
-      arity: 1,
-      expectedError: InputError,
-    });
-  });
-
-  test('sanitizeDesc allows empty string and trims', () => {
-    expect(sanitizeDesc('    ')).toBe('');
-    expect(sanitizeDesc('  Some Description   ')).toBe('Some Description');
-  });
-
-  test('sanitizeDesc throws if exceeds max length', () => {
-    expect(() => sanitizeDesc('a'.repeat(DESC_MAX_LEN + 1))).toThrow(InputError);
-  });
-
-  test('sanitizeDesc should throw on non-string input types', async () => {
-    await testInvalidStringInputs({
-      fn: sanitizeDesc,
       arity: 1,
       expectedError: InputError,
     });
@@ -127,35 +116,45 @@ describe('inputSanitizer', () => {
   /*---------------------------------------------------------------------------------------------------------------
    * sanitizeDefaultSprintColumns
    ---------------------------------------------------------------------------------------------------------------*/
-  test('sanitizeDefaultSprintColumns trims and filters valid strings', () => {
-    const input = [' col1  ', 'col2', '', 'a'.repeat(TITLE_MAX_LEN), 'a'.repeat(TITLE_MAX_LEN + 10)];
-    const result = sanitizeDefaultSprintColumns(input);
-    expect(result).toEqual(['col1', 'col2', 'a'.repeat(TITLE_MAX_LEN)]);
-    const result2 = sanitizeDefaultSprintColumns(['', '', '']);
-    expect(result2).toEqual([]);
-    const result3 = sanitizeDefaultSprintColumns(['', '', 23, null, undefined]);
-    expect(result3).toEqual([]);
-    const result4 = sanitizeDefaultSprintColumns(['', '', 'mixed', ' test 1  ', null, undefined]);
-    expect(result4).toEqual(['mixed', 'test 1']);
-    const result5 = sanitizeDefaultSprintColumns([]);
-    expect(result5).toEqual([]);
+  test('sanitizeDefaultSprintColumns passes empty array', () => {
+    expect(sanitizeDefaultSprintColumns([])).toEqual([]);
   });
 
-  test('sanitizeDefaultSprintColumns trims if columns exceeds', () => {
+  test('sanitizeDefaultSprintColumns trims valid strings', () => {
+    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
+    const result = sanitizeDefaultSprintColumns(['mixed', ' test 1  ', 'test 2 ', '    ' + maxLen + '      ']);
+    expect(result).toEqual(['mixed', 'test 1', 'test 2', maxLen]);
+  });
+
+  test('sanitizeDefaultSprintColumns fails if post-trim string elem fails length validation', () => {
+    const validInput = [' col1  ', 'col2', 'a'.repeat(TITLE_MAX_LEN)];
+    const input = validInput.concat(['a'.repeat(TITLE_MAX_LEN + 1)]);
+    expect(() => sanitizeDefaultSprintColumns(input)).toThrow(InputError);
+
+    const input2 = validInput.concat(['']);
+    expect(() => sanitizeDefaultSprintColumns(input2)).toThrow(InputError);
+
+    const input3 = validInput.concat(['        ']);
+    expect(() => sanitizeDefaultSprintColumns(input3)).toThrow(InputError);
+  });
+
+  test('sanitizeDefaultSprintColumns fails on invalid elem types', () => {
+    expect(() => sanitizeDefaultSprintColumns([23])).toThrow(InputError);
+    expect(() => sanitizeDefaultSprintColumns([null])).toThrow(InputError);
+    expect(() => sanitizeDefaultSprintColumns([undefined])).toThrow(InputError);
+    expect(() => sanitizeDefaultSprintColumns(['mixed', ' test 1  ', null, undefined])).toThrow(InputError);
+  });
+
+  test('sanitizeDefaultSprintColumns fails if column count exceeds', () => {
     const input = Array(SPRINT_COLS_MAX + 1).fill(['abc']).flat();
-    const result = sanitizeDefaultSprintColumns(input);
-    expect(result).toEqual(Array(SPRINT_COLS_MAX).fill(['abc']).flat());
+    expect(() => sanitizeDefaultSprintColumns(input)).toThrow(InputError);
   });
 
-  test('sanitizeDefaultSprintColumns throws if not an array', () => {
+  test('sanitizeDefaultSprintColumns fails if not an array', () => {
     expect(() => sanitizeDefaultSprintColumns(23)).toThrow(InputError);
     expect(() => sanitizeDefaultSprintColumns({})).toThrow(InputError);
-  });
-
-  test('sanitizeDefaultSprintColumns filters out invalid mixed types', () => {
-    const input = ['valid', 123, {}, [], null, '  trimmed  ', undefined];
-    const result = sanitizeDefaultSprintColumns(input as any[]);
-    expect(result).toEqual(['valid', 'trimmed']);
+    expect(() => sanitizeDefaultSprintColumns(null)).toThrow(InputError);
+    expect(() => sanitizeDefaultSprintColumns(undefined)).toThrow(InputError);
   });
 
   /*---------------------------------------------------------------------------------------------------------------

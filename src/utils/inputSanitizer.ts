@@ -115,24 +115,44 @@ export function sanitizeTargetCompletionDate(input: unknown): Date {
 }
 
 /******************************************************************************************************************
- * TODO: throw err instead.
- * Utility function to sanitize an array of strings.
- * Filters out string elems that does not conform to the length requirements.
- * Slices extra elems.
+ * Utility function to validate an array of strings.
+ * Requirements:
+ * - input must be an array of strings
+ * - string elems must meet length validation
+ * - array cannot exceed max allowed elems
  *
  * @param input - raw input
  * @param max - max elems
  * @param minLen - min length of each str elem
  * @param maxLen - max length of each str elem
  * 
- * @returns string[] - sanitized string array
+ * @returns Sanitized string array
+ * 
+ * @throws {InputError} if above requirements not met
  ******************************************************************************************************************/
-export function cleanStringArray(input: unknown[], max: number, minLen: number, maxLen: number): string[] {
-  return input
-    .filter((v): v is string => typeof v === 'string')
-    .map(str => str.trim())
-    .filter(str => str.length >= minLen && str.length <= maxLen)
-    .slice(0, max);
+export function sanitizeStringArray(input: unknown, max: number, minLen: number, maxLen: number): string[] {
+  if (!Array.isArray(input)) {
+    throw new InputError('Expected an array of strings');
+  }
+  // check for non-string elements
+  if (!input.every(v => typeof v === 'string')) {
+    throw new InputError('All elements must be strings');
+  }
+  // trim strings
+  const trimmed = input.map(str => str.trim());
+  // check length constraints
+   for (const str of trimmed) {
+    if (str.length < minLen || str.length > maxLen) {
+      throw new InputError(
+        `Each string must be between ${minLen} and ${maxLen} characters`
+      );
+    }
+  }
+  // enforce element count limit
+  if (trimmed.length > max) {
+    throw new InputError(`Array cannot have more than ${max} elements`);
+  }
+  return trimmed;
 }
 
 /******************************************************************************************************************
@@ -142,11 +162,10 @@ export function cleanStringArray(input: unknown[], max: number, minLen: number, 
  * 
  * @returns string[] - sanitized string array
  * 
- * @throws {InputError} if type is invalid
+ * @throws {InputError} if validation via sanitizeStringArray fails
  ******************************************************************************************************************/
 export function sanitizeDefaultSprintColumns(input: unknown): string[] {
-  if (!Array.isArray(input)) throw new InputError('defaultSprintColumns');
-  const trimmed = cleanStringArray(input, SPRINT_COLS_MAX, TITLE_MIN_LEN, TITLE_MAX_LEN);
+  const trimmed = sanitizeStringArray(input, SPRINT_COLS_MAX, TITLE_MIN_LEN, TITLE_MAX_LEN);
   return trimmed;
 }
 
