@@ -4,8 +4,7 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 let mongo: MongoMemoryServer;
 
 /******************************************************************************************************************
- * Global Jest setup file for tests that require MongoDB access.
- * 
+ * Sets up an in-memory MongoDB instance for Jest tests and wires Mongoose lifecycle hooks.
  * - Spins up a temporary in-memory MongoDB instance before all tests
  * - Connects Mongoose to this instance
  * - Cleans all collections after each test

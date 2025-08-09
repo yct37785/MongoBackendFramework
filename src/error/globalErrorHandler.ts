@@ -5,13 +5,19 @@ import { AppError } from './AppError';
 
 /******************************************************************************************************************
  * globalErrorHandler - Express error-handling middleware
- *
  * Centralized error handler for all errors thrown in the app. Handles:
  * - Custom AppErrors
  * - Mongoose validation and cast errors
  * - MongoDB duplicate key errors
  * - JWT-related errors
  * - Fallback 500 for unknown issues
+ * 
+ * @param err - error object thrown in the application
+ * @param req - Express request object
+ * @param res - Express response object
+ * @param _next - Express next function (unused)
+ * 
+ * @returns obj - JSON response containing the error message
  ******************************************************************************************************************/
 export const globalErrorHandler: ErrorRequestHandler = (
   err: unknown,
@@ -52,6 +58,10 @@ export const globalErrorHandler: ErrorRequestHandler = (
 
 /******************************************************************************************************************
  * Type guards for specific error types
+ *
+ * @param err - error object to check
+ * 
+ * @returns bool - true if the error is of specific type
  ******************************************************************************************************************/
 function isMongooseValidationError(err: any): err is Error {
   return err?.name === 'ValidationError';

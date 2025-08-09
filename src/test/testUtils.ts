@@ -2,17 +2,21 @@ import type { Request } from 'express';
 import mongoose, { Types } from 'mongoose';
 
 /******************************************************************************************************************
- * misc utilities
+ * Waits for a number of seconds before resolving.
+ *
+ * @param s - number of seconds to wait
+ * @returns Promise - promise that resolves after the delay
  ******************************************************************************************************************/
 export const wait = (s: number) => new Promise(res => setTimeout(res, s * 1000));
 
 /******************************************************************************************************************
- * Dynamically test invalid non-string inputs for each argument of a function.
+ * Dynamically verifies that a function rejects invalid non-string inputs for each parameter position.
  *
- * @param fn - The function to test
- * @param arity - Number of parameters the function expects
- * @param fixedArgs - Fixed values for non-targeted parameters
- * @param expectedError - The error class expected to be thrown
+ * @param config - options object:
+ *   - `fn`: function - target function to invoke
+ *   - `arity`: number - total parameters the function expects
+ *   - `fixedArgs?`: any[] - fixed values for positions not under test
+ *   - `expectedError?`: Error - error class expected to be thrown
  ******************************************************************************************************************/
 export async function testInvalidStringInputs({
   fn,
@@ -54,16 +58,16 @@ export async function testInvalidStringInputs({
 }
 
 /******************************************************************************************************************
- * mockReq - Utility to create a mock Express Request object for unit testing.
- *
+ * Creates a mock Express Request for controller/middleware tests.
  * Simulates a minimal Express request object with optional `headers`, `query`, `params`, `ip`, and `user` fields.
  * Useful for testing controllers or middleware without requiring a full Express context.
  *
- * @param body - The `req.body` object.
- * @param userId - userId for mock request.
- * @param query - `req.query` object.
- * @param params - `req.params` object.
- * @returns A mock Request object typed as `Request`, suitable for unit tests.
+ * @param body? - value for `req.body`
+ * @param userId? - sets `req.user = { userId, email: '' }`
+ * @param params? - value for `req.params`
+ * @param query? - value for `req.query`
+ *
+ * @returns obj - mock request shaped like Express `Request`
  ******************************************************************************************************************/
 export function mockReq(
   body?: Record<string, any>,
@@ -82,21 +86,37 @@ export function mockReq(
 }
 
 /******************************************************************************************************************
- * Test for data types.
+ * Asserts that a value is a Mongoose document/model instance.
+ *
+ * @param value - value to check
  ******************************************************************************************************************/
 export function expectMongooseDoc(value: unknown) {
   expect(value).toBeInstanceOf(mongoose.Model);
 }
 
+/******************************************************************************************************************
+ * Asserts that a value is a plain object (not a Mongoose document).
+ *
+ * @param value - value to check
+ ******************************************************************************************************************/
 export function expectObj(value: unknown) {
-  // to strictly confirm it’s not a Mongoose doc
   expect(value?.constructor.name).toBe('Object');
 }
 
+/******************************************************************************************************************
+ * Asserts that a value is a string.
+ *
+ * @param value - value to check
+ ******************************************************************************************************************/
 export function expectString(value: unknown) {
   expect(typeof value === 'string').toBeTruthy();
 }
 
+/******************************************************************************************************************
+ * Asserts that a value is a JS Date instance.
+ *
+ * @param value - value to check
+ ******************************************************************************************************************/
 export function expectDate(value: unknown) {
   expect(value).toBeInstanceOf(Date);
 }

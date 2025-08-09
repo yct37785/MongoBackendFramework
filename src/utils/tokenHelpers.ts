@@ -8,11 +8,19 @@ const REFRESH_TOKEN_EXPIRES_IN_S = Number(process.env.REFRESH_TOKEN_EXPIRES_IN_S
 const MAX_SESSIONS = Number(process.env.MAX_SESSIONS);
 
 /******************************************************************************************************************
- * Generate a new access + refresh token pair, and compute expiry timestamps.
+ * Generates a new access + refresh token pair with expiry timestamps.
  * 
- * @param userId - User's ObjectId
- * @param email - User's email
- * @returns Tokens + hashed refresh token and expiry dates
+ * @param userId - user's ObjectId
+ * @param email - user's email
+ * 
+ * @returns obj:
+ *   - `accessToken`: string
+ *   - `refreshToken`: string
+ *   - `hashedToken`: string - hashed refresh token for storing in DB
+ *   - `atExpiresAt`: Date - access token expiry date
+ *   - `rtExpiresAt`: Date - refresh token expiry date
+ * 
+ * @throws {Error} if token generation fails
  ******************************************************************************************************************/
 export function generateNewTokens(userId: Types.ObjectId, email: string): {
   accessToken: string;
@@ -38,10 +46,10 @@ export function generateNewTokens(userId: Types.ObjectId, email: string): {
 /******************************************************************************************************************
  * Create a refresh token entry object for storing in DB.
  * 
- * @param tokenHash - Hashed refresh token
- * @param rtExpiresAt - Refresh token expiry date
- * @param userAgent - Optional device info
- * @param ip - Optional IP address
+ * @param tokenHash - hashed refresh token
+ * @param rtExpiresAt - refresh token expiry date
+ * @param userAgent? - device info
+ * @param ip? - IP address
  ******************************************************************************************************************/
 export function createRefreshTokenEntry(
   tokenHash: string,
@@ -62,12 +70,13 @@ export function createRefreshTokenEntry(
 
 /******************************************************************************************************************
  * Clean up a user's refresh token list:
- *  - Removes expired tokens
- *  - Sorts by createdAt descending
- *  - Slices to enforce max session limit
+ *  - removes expired tokens
+ *  - sorts by createdAt descending
+ *  - slices to enforce max session limit
  * 
- * @param tokens - Array of IRefreshToken
- * @returns Cleaned and sorted list of active sessions
+ * @param tokens - array of IRefreshToken entries
+ * 
+ * @returns IRefreshToken[] - cleaned and sorted array of IRefreshToken
  ******************************************************************************************************************/
 export function pruneAndSortRefreshTokens(tokens: IRefreshToken[]): IRefreshToken[] {
   const now = new Date();
@@ -80,8 +89,9 @@ export function pruneAndSortRefreshTokens(tokens: IRefreshToken[]): IRefreshToke
 /******************************************************************************************************************
  * Check if a refresh token is expired based on `expiresAt`.
  * 
- * @param token - the IRefreshToken entry
- * @returns true if expired
+ * @param token - IRefreshToken entry
+ * 
+ * @returns bool - true if expired
  ******************************************************************************************************************/
 export function isRefreshTokenExpired(token: IRefreshToken): boolean {
   return token.expiresAt.getTime() < Date.now();
@@ -91,8 +101,9 @@ export function isRefreshTokenExpired(token: IRefreshToken): boolean {
  * Remove a specific token (by hash) from a list of IRefreshToken.
  * 
  * @param tokens - array of IRefreshToken
- * @param tokenHash - hash to remove
- * @returns new array without the token
+ * @param tokenHash - token hash to remove
+ * 
+ * @returns IRefreshToken[] - new array without the removed token
  ******************************************************************************************************************/
 export function removeTokenFromList(tokens: IRefreshToken[], tokenHash: string): IRefreshToken[] {
   return tokens.filter(rt => rt.tokenHash !== tokenHash);
