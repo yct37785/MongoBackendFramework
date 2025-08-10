@@ -67,7 +67,7 @@ export async function testInvalidStringInputs({
  * @param params? - value for `req.params`
  * @param query? - value for `req.query`
  *
- * @returns obj - mock request shaped like Express `Request`
+ * @returns any - mock request shaped like Express `Request`
  ******************************************************************************************************************/
 export function mockReq(
   body?: Record<string, any>,

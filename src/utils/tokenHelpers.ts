@@ -13,7 +13,7 @@ const MAX_SESSIONS = Number(process.env.MAX_SESSIONS);
  * @param userId - user's ObjectId
  * @param email - user's email
  * 
- * @returns obj:
+ * @returns any:
  *   - `accessToken`: string
  *   - `refreshToken`: string
  *   - `hashedToken`: string - hashed refresh token for storing in DB

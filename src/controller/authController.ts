@@ -16,7 +16,7 @@ import { ser_createUser, ser_findUserViaEmail, ser_findUserViaRT } from '../serv
  *   - `req.body.email`: string - user's email address
  *   - `req.body.password`: string - user's password
  *
- * @returns obj:
+ * @returns any:
  *   - `msg`: string - confirmation message that user was registered
  *
  * @throws {ConflictError} if the email is already registered
@@ -47,7 +47,7 @@ export async function con_auth_register(req: Request) {
  *   - `req.headers['user-agent']?`: string - to record device info
  *   - `req.ip?`: string - to record IP address
  *
- * @returns obj:
+ * @returns any:
  *   - `accessToken`: string - JWT access token
  *   - `refreshToken`: string - JWT refresh token
  *   - `atExpiresAt`: string - ISO datetime of access token expiry
@@ -106,7 +106,7 @@ export async function con_auth_login(req: Request) {
  *   - `req.headers['user-agent']?`: string - to record device info
  *   - `req.ip?`: string - to record IP address
  *
- * @returns obj:
+ * @returns any:
  *   - `accessToken`: string - new JWT access token
  *   - `refreshToken`: string - new JWT refresh token
  *   - `atExpiresAt`: string - ISO datetime of new access token expiry
@@ -180,7 +180,7 @@ export async function con_auth_refresh(req: Request) {
  * @param req - Express request containing:
  *   - `req.body.refreshToken`: string - refresh token to invalidate
  *
- * @returns obj:
+ * @returns any:
  *   - `msg`: string - confirmation message that logout was successful
  *
  * @throws {InputError} if the refresh token is missing or invalid

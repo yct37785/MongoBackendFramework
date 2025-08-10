@@ -17,7 +17,8 @@ import { AppError } from './AppError';
  * @param res - Express response object
  * @param _next - Express next function (unused)
  * 
- * @returns obj - JSON response containing the error message
+ * @returns any:
+ *   - `err`: string - error message
  ******************************************************************************************************************/
 export const globalErrorHandler: ErrorRequestHandler = (
   err: unknown,
