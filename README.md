@@ -211,3 +211,25 @@ The framework automatically connects to the MongoDB URI during createApp(...) wh
 - The required MONGO_URI and MONGO_DB_NAME are present
 
 If the connection fails, an error will be thrown at startup.
+
+## Contributions
+### Function Comment Block Guidelines
+All functions will include a standardized JSDoc comment block for clarity, maintainability, and automated documentation support.
+
+Use the following format:
+```javascript
+/**
+ * <brief description of the function's purpose and behavior>
+ *
+ * @param <typedParamName> - <description of the parameter with a defined TypeScript type>
+ * @param <anyParamName> - <description of the loose/any-typed object parameter>:
+ *   - `<fieldName1>`: <type> - <description of this field>
+ *   - `<fieldName2_optional?>`: <type> - <description of this optional field>
+ *
+ * @returns <typed> - <description of the returned primitive or named type>
+ * @returns obj:
+ *   - `<fieldName1>`: <type> - <description of this field in the returned object>
+ *
+ * @throws {<ErrorType>} <condition under which the error is thrown>
+ */
+```
