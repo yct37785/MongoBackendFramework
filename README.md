@@ -227,8 +227,8 @@ Use the following format:
  *   - `<fieldName2_optional?>`: <type> - <description of this optional field>
  *
  * @returns <typed> - <description of the returned primitive or named type>
- * @returns obj:
- *   - `<fieldName1>`: <type> - <description of this field in the returned object>
+ * @returns any:
+ *   - `<fieldName1>`: <type> - <description of this field in the returned loose/any-typed object>
  *
  * @throws {<ErrorType>} <condition under which the error is thrown>
  */
