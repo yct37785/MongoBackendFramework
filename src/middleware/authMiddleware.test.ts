@@ -1,7 +1,7 @@
 import { setUpInMemDB } from '../test/setupTestDB';
-import { verifyAccessToken } from './authMiddleware';
+import { verifyAccessToken, verifyAccessTokenMiddleware } from './authMiddleware';
 import { ser_findUserViaId } from '../services/authServices';
-import { mockReq } from '../test/testUtils';
+import { mockReq, genTestEmail, TEST_PW } from '../test/testUtils';
 import { con_auth_register, con_auth_login } from '../controller/authController';
 import jwt from 'jsonwebtoken';
 import { InputError, AuthError } from '../error/AppError';
@@ -9,30 +9,43 @@ import { Types } from 'mongoose';
 
 setUpInMemDB();
 
+/******************************************************************************************************************
+ * setup
+ ******************************************************************************************************************/
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
-const email = `user${Date.now()}98@test.com`;
-const password = 'StrongPass123!';
+const testEmail = genTestEmail();
 let accessToken = '';
 let req: any;
 beforeEach(async () => {
   req = { headers: {} };
-  await con_auth_register(mockReq({ email, password }));
+  await con_auth_register(mockReq({ email: testEmail, password: TEST_PW }));
   const loginData = await con_auth_login(
-    mockReq({ email, password }));
+    mockReq({ email: testEmail, password: TEST_PW }));
   accessToken = loginData.accessToken;
 });
 
+/******************************************************************************************************************
+ * verifyAccessToken
+ ******************************************************************************************************************/
 describe('verifyAccessToken', () => {
-  test('should throw InputError if Authorization header is missing', async () => {
+  
+  test('InputError', async () => {
+    // Authorization header is missing
     await expect(verifyAccessToken(req)).rejects.toThrow(InputError);
-  });
-
-  test('should throw InputError if Authorization header is invalid', async () => {
+    // Authorization header is invalid
     req.headers.authorization = 'InvalidHeader';
     await expect(verifyAccessToken(req)).rejects.toThrow(InputError);
+    req.headers.authorization = undefined;
+    await expect(verifyAccessToken(req)).rejects.toThrow(InputError);
+    req.headers.authorization = null;
+    await expect(verifyAccessToken(req)).rejects.toThrow(InputError);
+    req.headers.authorization = 123;
+    await expect(verifyAccessToken(req)).rejects.toThrow(InputError);
+    req.headers.authorization = {};
+    await expect(verifyAccessToken(req)).rejects.toThrow(InputError);
   });
 
-  test('should throw AuthError if token is malformed or invalid', async () => {
+  test('AuthError: invalid or malformed token value', async () => {
     // totally invalid token
     req.headers.authorization = 'Bearer badtoken';
     await expect(verifyAccessToken(req)).rejects.toThrow(AuthError);
@@ -42,7 +55,7 @@ describe('verifyAccessToken', () => {
     await expect(verifyAccessToken(req)).rejects.toThrow(AuthError);
     // expired-like token
     const expiredToken = jwt.sign(
-      { sub: (new Types.ObjectId).toString(), email },
+      { sub: (new Types.ObjectId).toString(), email: testEmail },
       ACCESS_TOKEN_SECRET,
       { expiresIn: -10 }  // already expired
     );
@@ -50,7 +63,7 @@ describe('verifyAccessToken', () => {
     await expect(verifyAccessToken(req)).rejects.toThrow(AuthError);
   });
 
-  test('should throw AuthError if claims are missing', async () => {
+  test('AuthError: claims are missing', async () => {
     // missing all
     const badToken = jwt.sign({}, ACCESS_TOKEN_SECRET);
     req.headers.authorization = `Bearer ${badToken}`;
@@ -61,27 +74,46 @@ describe('verifyAccessToken', () => {
     await expect(verifyAccessToken(req)).rejects.toThrow(AuthError);
   });
 
-  test('should throw AuthError if sub is invalid ObjectId', async () => {
-    const badToken = jwt.sign({ sub: 'notanid', email }, ACCESS_TOKEN_SECRET);
+  test('AuthError: sub is invalid', async () => {
+    // invalid ObjectID
+    const badToken = jwt.sign({ sub: 'notanid', email: testEmail }, ACCESS_TOKEN_SECRET);
     req.headers.authorization = `Bearer ${badToken}`;
     await expect(verifyAccessToken(req)).rejects.toThrow(AuthError);
-  });
-
-  test('should throw AuthError if user does not exist', async () => {
-    const nonExistentUserToken = jwt.sign({ sub: (new Types.ObjectId).toString(), email }, ACCESS_TOKEN_SECRET);
+    // user id is non-existent
+    const nonExistentUserToken = jwt.sign({ sub: (new Types.ObjectId).toString(), email: testEmail }, ACCESS_TOKEN_SECRET);
     req.headers.authorization = `Bearer ${nonExistentUserToken}`;
     await expect(verifyAccessToken(req)).rejects.toThrow(AuthError);
   });
 
-  test('should attach req.user if verification passes', async () => {
+  test('verification success', async () => {
     req.headers.authorization = `Bearer ${accessToken}`;
     await verifyAccessToken(req);
+    // expect req.user to be attached
     expect(req.user).toBeDefined();
     expect(req.user).toStrictEqual({
       userId: expect.any(Object),
-      email
+      email: testEmail
     });
+    // user found and id matches
     const user = await ser_findUserViaId(req.user.userId);
     expect(req.user.userId.toString()).toBe(user?._id.toString());
+  });
+});
+
+/******************************************************************************************************************
+ * verifyAccessToken
+ ******************************************************************************************************************/
+describe('verifyAccessTokenMiddleware', () => {
+  test('calls next on successful verification and attaches req.user', async () => {
+    const req: any = { headers: { authorization: `Bearer ${accessToken}` } };
+    const res: any = {};
+    const next = jest.fn();
+
+    await verifyAccessTokenMiddleware(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(req.user).toBeDefined();
+    expect(req.user.email).toBe(testEmail);
+    expect(req.user.userId).toBeDefined();
   });
 });

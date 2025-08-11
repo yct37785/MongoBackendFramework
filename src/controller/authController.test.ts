@@ -1,5 +1,5 @@
 import { setUpInMemDB } from '../test/setupTestDB';
-import { wait, expectString, expectDate, mockReq } from '../test/testUtils';
+import { wait, expectString, expectDate, mockReq, genTestEmail, TEST_PW } from '../test/testUtils';
 import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from './authController';
 import { InputError, AuthError, ConflictError } from '../error/AppError';
 
@@ -8,53 +8,72 @@ setUpInMemDB();
 /******************************************************************************************************************
  * con_auth_register
  ******************************************************************************************************************/
-describe('authController: con_auth_register', () => {
-  const testEmail = `user${Date.now()}1@test.com`;
-  const password = 'StrongPass123!';
+describe('con_auth_register', () => {
 
-  test('invalid input', async () => {
+  test('InputError', async () => {
     // invalid email
-    await expect(con_auth_register(mockReq({ email: 'sfrfsxsafdsf', password }))).rejects.toThrow(InputError);
-    await expect(con_auth_register(mockReq({ email: '', password }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: 'sfrfsxsafdsf', password: TEST_PW }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: '', password: TEST_PW }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: undefined, password: TEST_PW }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: null, password: TEST_PW }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: 123, password: TEST_PW }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: {}, password: TEST_PW }))).rejects.toThrow(InputError);
     // invalid password
-    await expect(con_auth_register(mockReq({ email: testEmail, password: 'asdasdasdsadasdasdasdsad' }))).rejects.toThrow(InputError);
-    await expect(con_auth_register(mockReq({ email: testEmail, password: '' }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: genTestEmail(), password: 'asdasdasdsadasdasdasdsad' }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: genTestEmail(), password: '' }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: genTestEmail(), password: undefined }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: genTestEmail(), password: null }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: genTestEmail(), password: 123 }))).rejects.toThrow(InputError);
+    await expect(con_auth_register(mockReq({ email: genTestEmail(), password: {} }))).rejects.toThrow(InputError);
   });
 
-  test('success', async () => {
-    const result = await con_auth_register(mockReq({ email: testEmail, password }));
+  test('ConflictError', async () => {
+    const sameEmail = genTestEmail();
+    await con_auth_register(mockReq({ email: sameEmail, password: TEST_PW }));
+    await expect(con_auth_register(mockReq({ email: sameEmail, password: TEST_PW }))).rejects.toThrow(ConflictError);
+  });
+
+  test('registered successfully', async () => {
+    const result = await con_auth_register(mockReq({ email: genTestEmail(), password: TEST_PW }));
     expect(result.msg).toBe('User registered successfully');
-  });
-
-  test('conflict', async () => {
-    await con_auth_register(mockReq({ email: testEmail, password }));
-    await expect(con_auth_register(mockReq({ email: testEmail, password }))).rejects.toThrow(ConflictError);
   });
 });
 
 /******************************************************************************************************************
  * con_auth_login
  ******************************************************************************************************************/
-describe('authController: con_auth_login', () => {
-  const testEmail = `user${Date.now()}2@test.com`;
-  const password = 'StrongPass123!';
+describe('con_auth_login', () => {
+  const sameEmail = genTestEmail();
 
   beforeEach(async () => {
     await con_auth_register(
-      mockReq({ email: testEmail, password }));
+      mockReq({ email: sameEmail, password: TEST_PW }));
   });
 
-  test('invalid input/unauthorized', async () => {
-    // invalid/wrong email
-    await expect(con_auth_login(mockReq({ email: 'sfrfsxsafdsf', password }))).rejects.toThrow(AuthError);
-    await expect(con_auth_login(mockReq({ email: '', password }))).rejects.toThrow(AuthError);
-    // invalid/wrong password
-    await expect(con_auth_login(mockReq({ email: testEmail, password: 'asdasdasdsadasdasdasdsad' }))).rejects.toThrow(AuthError);
-    await expect(con_auth_login(mockReq({ email: testEmail, password: '' }))).rejects.toThrow(AuthError);
+  test('InputError', async () => {
+    // invalid email
+    await expect(con_auth_login(mockReq({ email: undefined, password: TEST_PW }))).rejects.toThrow(InputError);
+    await expect(con_auth_login(mockReq({ email: null, password: TEST_PW }))).rejects.toThrow(InputError);
+    await expect(con_auth_login(mockReq({ email: 23, password: TEST_PW }))).rejects.toThrow(InputError);
+    await expect(con_auth_login(mockReq({ email: {}, password: TEST_PW }))).rejects.toThrow(InputError);
+    // invalid password
+    await expect(con_auth_login(mockReq({ email: sameEmail, password: undefined }))).rejects.toThrow(InputError);
+    await expect(con_auth_login(mockReq({ email: sameEmail, password: null }))).rejects.toThrow(InputError);
+    await expect(con_auth_login(mockReq({ email: sameEmail, password: 23 }))).rejects.toThrow(InputError);
+    await expect(con_auth_login(mockReq({ email: sameEmail, password: {} }))).rejects.toThrow(InputError);
   });
 
-  test('success', async () => {
-    const result = await con_auth_login(mockReq({ email: testEmail, password }));
+  test('AuthError', async () => {
+    // wrong email
+    await expect(con_auth_login(mockReq({ email: 'sfrfsxsafdsf', password: TEST_PW }))).rejects.toThrow(AuthError);
+    await expect(con_auth_login(mockReq({ email: '', password: TEST_PW }))).rejects.toThrow(AuthError);
+    // wrong password
+    await expect(con_auth_login(mockReq({ email: sameEmail, password: 'asdasdasdsadasdasdasdsad' }))).rejects.toThrow(AuthError);
+    await expect(con_auth_login(mockReq({ email: sameEmail, password: '' }))).rejects.toThrow(AuthError);
+  });
+
+  test('login successfully', async () => {
+    const result = await con_auth_login(mockReq({ email: sameEmail, password: TEST_PW }));
     expectString(result.accessToken);
     expectString(result.refreshToken);
     expectDate(result.atExpiresAt);
@@ -65,31 +84,36 @@ describe('authController: con_auth_login', () => {
 /******************************************************************************************************************
  * con_auth_refresh
  ******************************************************************************************************************/
-describe('authController: con_auth_refresh', () => {
-  const testEmail = `user${Date.now()}3@test.com`;
-  const password = 'StrongPass123!';
+describe('con_auth_refresh', () => {
+  const sameEmail = genTestEmail();
   let loginData: any;
 
   beforeEach(async () => {
-    await con_auth_register(mockReq({ email: testEmail, password }));
+    await con_auth_register(mockReq({ email: sameEmail, password: TEST_PW }));
     loginData = await con_auth_login(
-      mockReq({ email: testEmail, password }));
+      mockReq({ email: sameEmail, password: TEST_PW }));
   });
 
-  test('invalid input', async () => {
+  test('InputError', async () => {
     // invalid refresh token type
+    await expect(con_auth_refresh(mockReq({ refreshToken: undefined }))).rejects.toThrow(InputError);
+    await expect(con_auth_refresh(mockReq({ refreshToken: null }))).rejects.toThrow(InputError);
     await expect(con_auth_refresh(mockReq({ refreshToken: 341341334123434 }))).rejects.toThrow(InputError);
-    // empty refresh token
+    await expect(con_auth_refresh(mockReq({ refreshToken: {} }))).rejects.toThrow(InputError);
+    // wrong refresh token format
+    await expect(con_auth_refresh(mockReq({ refreshToken: 'dsfgfdgdfgdfgdfgdfgdfg' }))).rejects.toThrow(InputError);
     await expect(con_auth_refresh(mockReq({ refreshToken: '' }))).rejects.toThrow(InputError);
   });
 
-  test('unauthorized', async () => {
+  test('AuthError', async () => {
     // malformed refresh token value
     const malformed_rt = loginData.refreshToken.slice(0, -1) + (loginData.refreshToken.at(-1) === 'a' ? 'b' : 'a');
     await expect(con_auth_refresh(mockReq({ refreshToken: malformed_rt }))).rejects.toThrow(AuthError);
   });
 
-  test('success', async () => {
+  // TODO: NotFoundError
+
+  test('refresh successfully, access token expriy updated but refresh token expiry remains the same', async () => {
     await wait(2);  // ensure that timestamp based seed will not generate same values
     const result = await con_auth_refresh(mockReq({ refreshToken: loginData.refreshToken }));
     expectString(result.accessToken);
@@ -100,39 +124,48 @@ describe('authController: con_auth_refresh', () => {
     expect(result.refreshToken).not.toBe(loginData.refreshToken);
     expect(result.atExpiresAt.toISOString()).not.toBe(loginData.atExpiresAt.toISOString());   // access token expiry updated
     expect(result.rtExpiresAt.toISOString()).toBe(loginData.rtExpiresAt.toISOString());       // refresh token expiry always stay the same
+    // refresh will fail (refresh token rotated)
+    await expect(con_auth_refresh(mockReq({ refreshToken: loginData.refreshToken }))).rejects.toThrow(AuthError);
   });
 });
 
 /******************************************************************************************************************
  * con_auth_logout
  ******************************************************************************************************************/
-describe('authController: con_auth_logout', () => {
-  const testEmail = `user${Date.now()}3@test.com`;
-  const password = 'StrongPass123!';
+describe('con_auth_logout', () => {
+  const sameEmail = genTestEmail();
   let loginData: any;
 
   beforeEach(async () => {
-    await con_auth_register(mockReq({ email: testEmail, password }));
+    await con_auth_register(mockReq({ email: sameEmail, password: TEST_PW }));
     loginData = await con_auth_login(
-      mockReq({ email: testEmail, password })
+      mockReq({ email: sameEmail, password: TEST_PW })
     );
   });
 
-  test('invalid input', async () => {
+  test('InputError', async () => {
     // invalid refresh token type
+    await expect(con_auth_logout(mockReq({ refreshToken: undefined }))).rejects.toThrow(InputError);
+    await expect(con_auth_logout(mockReq({ refreshToken: null }))).rejects.toThrow(InputError);
     await expect(con_auth_logout(mockReq({ refreshToken: 341341334123434 }))).rejects.toThrow(InputError);
-    // empty refresh token
+    await expect(con_auth_logout(mockReq({ refreshToken: {} }))).rejects.toThrow(InputError);
+    // wrong refresh token format
+    await expect(con_auth_logout(mockReq({ refreshToken: 'dsfgfdgdfgdfgdfgdfgdfg' }))).rejects.toThrow(InputError);
     await expect(con_auth_logout(mockReq({ refreshToken: '' }))).rejects.toThrow(InputError);
   });
 
-  test('unauthorized', async () => {
+  test('AuthError', async () => {
     // malformed refresh token value
     const malformed_rt = loginData.refreshToken.slice(0, -1) + (loginData.refreshToken.at(-1) === 'a' ? 'b' : 'a');
     await expect(con_auth_logout(mockReq({ refreshToken: malformed_rt }))).rejects.toThrow(AuthError);
   });
 
-  test('success', async () => {
+  // TODO: NotFoundError
+
+  test('logout successfully', async () => {
     const result = await con_auth_logout(mockReq({ refreshToken: loginData.refreshToken }));
     expect(result.msg).toBe('Logged out of session');
+    // refresh will fail (session removed)
+    await expect(con_auth_refresh(mockReq({ refreshToken: loginData.refreshToken }))).rejects.toThrow(AuthError);
   });
 });

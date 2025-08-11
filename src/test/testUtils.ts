@@ -120,3 +120,12 @@ export function expectString(value: unknown) {
 export function expectDate(value: unknown) {
   expect(value).toBeInstanceOf(Date);
 }
+
+/******************************************************************************************************************
+ * Common testing placeholder values.
+ ******************************************************************************************************************/
+export function genTestEmail(): string {
+  const rand = Math.random().toString(36).slice(2, 10); // 8 random chars
+  return `user${rand}@test.com`;
+}
+export const TEST_PW = 'StrongP@ss123!';

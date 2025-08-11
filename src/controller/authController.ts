@@ -19,8 +19,8 @@ import { ser_createUser, ser_findUserViaEmail, ser_findUserViaRT } from '../serv
  * @returns any:
  *   - `msg`: string - confirmation message that user was registered
  *
- * @throws {ConflictError} if the email is already registered
  * @throws {InputError} if the email or password is missing or invalid
+ * @throws {ConflictError} if the email is already registered
  ******************************************************************************************************************/
 export async function con_auth_register(req: Request) {
   // validate required fields
