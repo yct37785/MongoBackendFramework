@@ -1,6 +1,6 @@
 import mongoose, { Types } from 'mongoose';
 import { setUpInMemDB } from '../test/setupTestDB';
-import { expectMongooseDoc } from '../test/testUtils';
+import { expectMongooseDoc, genTestEmail, TEST_PW } from '../test/testUtils';
 import {
   ser_createUser,
   ser_findUserViaEmail, ser_findUserViaRT, ser_findUserViaId,
@@ -13,50 +13,62 @@ import { hashValue } from '../utils/hash';
 setUpInMemDB();
 
 /******************************************************************************************************************
- * Create
+ * ser_createUser
  ******************************************************************************************************************/
-describe('Create services: auth', () => {
-  /*---------------------------------------------------------------------------------------------------------------
-   * createUser
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('createUser should create a user and return it', async () => {
-    const user = await ser_createUser('test@example.com', 'Valid@123');
-    expect(user).toHaveProperty('_id');
-    expect(user.email).toBe('test@example.com');
-    expect(user.passwordHash).toMatch(/^\$2[aby]\$.{56}$/); // bcrypt hash
-    expect(user.refreshTokens).toEqual([]);
+describe('ser_createUser', () => {
+
+  test('ConflictError', async () => {
+    const dupEmail = genTestEmail();
+    await ser_createUser(dupEmail, TEST_PW);
+    await expect(ser_createUser(dupEmail, 'Another@123')).rejects.toThrow(ConflictError);
   });
 
-  test('createUser should throw ConflictError if email already exists', async () => {
-    await ser_createUser('duplicate@example.com', 'Valid@123');
-    await expect(ser_createUser('duplicate@example.com', 'Another@123')).rejects.toThrow(ConflictError);
+  test('create user and return created user doc', async () => {
+    const sameEmail = genTestEmail();
+    const user = await ser_createUser(sameEmail, TEST_PW);
+    expectMongooseDoc(user);
+    expect(user).toHaveProperty('_id');
+    expect(user.email).toBe(sameEmail);
+    expect(user.passwordHash).toMatch(/^\$2[aby]\$.{56}$/); // bcrypt hash
+    expect(user.refreshTokens).toEqual([]);
   });
 });
 
 /******************************************************************************************************************
- * Read
+ * ser_findUserViaEmail
  ******************************************************************************************************************/
-describe('Get services: auth', () => {
-  /*---------------------------------------------------------------------------------------------------------------
-   * findUserViaEmail
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('findUserViaEmail should return user if email matches', async () => {
-    const created = await ser_createUser('findme@example.com', 'Valid@123');
-    const fetched = await ser_findUserViaEmail('findme@example.com');
-    expectMongooseDoc(fetched);
-    expect(fetched?.email).toBe(created.email);
-  });
+describe('ser_findUserViaEmail', () => {
 
-  test('findUserViaEmail returns null if user not found/unauthorized', async () => {
-    const user = await ser_findUserViaEmail('missing@example.com');
+  test('return null if user not found/unauthorized', async () => {
+    const user = await ser_findUserViaEmail(genTestEmail());
     expect(user).toBe(null);
   });
 
-  /*---------------------------------------------------------------------------------------------------------------
-   * findUserViaRT
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('findUserViaRT should find user by correct refresh token hash', async () => {
-    const user = await ser_createUser('rtuser@example.com', 'Valid@123');
+  test('return user doc if email matches', async () => {
+    const sameEmail = genTestEmail();
+    const created = await ser_createUser(sameEmail, TEST_PW);
+    const fetched = await ser_findUserViaEmail(sameEmail);
+    expectMongooseDoc(fetched);
+    expect(fetched?.email).toBe(created.email);
+  });
+});
+
+/******************************************************************************************************************
+ * ser_findUserViaRT
+ ******************************************************************************************************************/
+describe('ser_findUserViaRT', () => {
+
+  test('return null if user not found/unauthorized', async () => {
+    // non-existent hashes
+    let user = await ser_findUserViaRT(await hashValue('nonexistenttoken'));
+    expect(user).toBe(null);
+    user = await ser_findUserViaRT(await hashValue(''));
+    expect(user).toBe(null);
+  });
+
+ test('find user by correct refresh token hash, return user doc', async () => {
+    const sameEmail = genTestEmail();
+    const user = await ser_createUser(sameEmail, TEST_PW);
     const tokenHash = await hashValue('somerandomtoken');
     await mongoose.model('User').findByIdAndUpdate(user._id, {
       $push: {
@@ -71,59 +83,51 @@ describe('Get services: auth', () => {
     // correct hash
     const result = await ser_findUserViaRT(tokenHash);
     expectMongooseDoc(result);
-    expect(result?.email).toBe('rtuser@example.com');
-  });
-  
-  test('ser_findUserViaRT returns null if user not found/unauthorized', async () => {
-    // non-existent hashes
-    let user = await ser_findUserViaRT(await hashValue('nonexistenttoken'));
-    expect(user).toBe(null);
-    user = await ser_findUserViaRT(await hashValue(''));
-    expect(user).toBe(null);
-  });
-
-  /*---------------------------------------------------------------------------------------------------------------
-   * ser_findUserViaId
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('ser_findUserViaId returns user when valid ID provided', async () => {
-    const user = await ser_createUser('testid@example.com', 'Password@123');
-    const foundUser = await ser_findUserViaId(user._id);
-    expect(foundUser).not.toBeNull();
-    expectMongooseDoc(foundUser);
-    expect(foundUser?.email).toBe('testid@example.com');
-  });
-
-  test('ser_findUserViaId returns null for unknown ID', async () => {
-    const randomId = new Types.ObjectId();
-    const foundUser = await ser_findUserViaId(randomId);
-    expect(foundUser).toBeNull();
+    expect(result?.email).toBe(sameEmail);
   });
 });
 
 /******************************************************************************************************************
- * Delete
+ * ser_findUserViaId
  ******************************************************************************************************************/
-describe('Delete services: auth', () => {
-    let userId: Types.ObjectId;
-    let otherUserId: Types.ObjectId;
-  
-    beforeEach(async () => {
-      const user = await ser_createUser('owner@example.com', 'Password@123');
-      userId = user._id;
-      const otherUser = await ser_createUser('other@example.com', 'Password@123');
-      otherUserId = otherUser._id;
-    });
+describe('ser_findUserViaRT', () => {
 
-    /*---------------------------------------------------------------------------------------------------------------
-     * ser_deleteUser
-     ---------------------------------------------------------------------------------------------------------------*/
-    test('deleteUser deletes user', async () => {
-      await ser_deleteUser(userId);
+  test('return null if user not found/unauthorized', async () => {
+    const randomId = new Types.ObjectId();
+    const foundUser = await ser_findUserViaId(randomId);
+    expect(foundUser).toBeNull();
+  });
+
+  test('find user by correct _id, return user doc', async () => {
+    const sameEmail = genTestEmail();
+    const user = await ser_createUser(sameEmail, TEST_PW);
+    const foundUser = await ser_findUserViaId(user._id);
+    expectMongooseDoc(foundUser);
+    expect(foundUser?.email).toBe(sameEmail);
+  });
+});
+
+/******************************************************************************************************************
+ * ser_deleteUser
+ ******************************************************************************************************************/
+describe('ser_deleteUser', () => {
+  let userId: Types.ObjectId;
+  let otherUserId: Types.ObjectId;
+
+  beforeEach(async () => {
+    const user = await ser_createUser(genTestEmail(), TEST_PW);
+    userId = user._id;
+    const otherUser = await ser_createUser(genTestEmail(), TEST_PW);
+    otherUserId = otherUser._id;
+  });
   
-      const user = await UserModel.findById(userId);
-      expect(user).toBeNull();
-  
-      const otherUser = await UserModel.findById(otherUserId);
-      expect(otherUser).not.toBeNull(); // untouched
-    });
+  test('deletes user specified by userId, other user remains untouched', async () => {
+    await ser_deleteUser(userId);
+
+    const user = await UserModel.findById(userId);
+    expect(user).toBeNull();
+
+    const otherUser = await UserModel.findById(otherUserId);
+    expect(otherUser).not.toBeNull(); // untouched
+  });
 });
