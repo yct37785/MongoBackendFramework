@@ -56,35 +56,21 @@ export function sanitizePassword(input: unknown): string {
  * Utility function to sanitize a string field.
  *
  * @param input - raw input
- * @param fieldName - field name for error logging
  * @param minLen - min length
  * @param maxLen - max length
+ * @param fieldName - field name for error logging
  * 
  * @returns string - sanitized string
  * 
  * @throws {InputError} if string is invalid
  ******************************************************************************************************************/
-function sanitizeStringField(input: unknown, fieldName: string, minLen: number, maxLen: number): string {
+export function sanitizeStringField(input: unknown, minLen: number, maxLen: number, fieldName: string): string {
   if (typeof input !== 'string') throw new InputError(fieldName);
   const str = input.trim();
   if (str.length < minLen || str.length > maxLen) {
     throw new InputError(`${fieldName} must be ${minLen}-${maxLen} characters`);
   }
   return str;
-}
-
-/******************************************************************************************************************
- * @refer sanitizeStringField
- ******************************************************************************************************************/
-export function sanitizeTitle(input: unknown): string {
-  return sanitizeStringField(input, 'title', TITLE_MIN_LEN, TITLE_MAX_LEN);
-}
-
-/******************************************************************************************************************
- * @refer sanitizeStringField
- ******************************************************************************************************************/
-export function sanitizeDesc(input: unknown): string {
-  return sanitizeStringField(input, 'desc', 0, DESC_MAX_LEN);
 }
 
 /******************************************************************************************************************

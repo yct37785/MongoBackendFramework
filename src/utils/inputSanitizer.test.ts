@@ -2,8 +2,7 @@ import { Types } from 'mongoose';
 import {
   sanitizeEmail,
   sanitizePassword,
-  sanitizeTitle,
-  sanitizeDesc,
+  sanitizeStringField,
   sanitizeTargetCompletionDate,
   sanitizeDefaultSprintColumns,
   sanitizeObjectId
@@ -66,31 +65,29 @@ describe('sanitizePassword', () => {
 });
 
 /******************************************************************************************************************
- * sanitizeStringField by extension of:
-   * - sanitizeTitle
-   * - sanitizeDesc
+ * sanitizeStringField
  ******************************************************************************************************************/
 describe('sanitizeStringField', () => {
 
   test('InputError', async () => {
     // too long
-    expect(() => sanitizeDesc('a'.repeat(DESC_MAX_LEN + 1))).toThrow(InputError);
+    expect(() => sanitizeStringField('a'.repeat(101), 0, 100, '')).toThrow(InputError);
     // too short
-    expect(() => sanitizeTitle('a'.repeat(TITLE_MIN_LEN - 1))).toThrow(InputError);
-    expect(() => sanitizeTitle('')).toThrow(InputError);
-    expect(() => sanitizeTitle('        ')).toThrow(InputError);  // trim into length 0
+    expect(() => sanitizeStringField('', 1, 100, '')).toThrow(InputError);
+    expect(() => sanitizeStringField('a', 2, 100, '')).toThrow(InputError);
+    expect(() => sanitizeStringField('        ', 1, 100, '')).toThrow(InputError);  // trim into length 0
     // non-string values
     await testInvalidStringInputs({
-      fn: sanitizeTitle,
+      fn: (v: string) => sanitizeStringField(v, 0, 100, ''),
       arity: 1,
       expectedError: InputError,
     });
   });
 
   test('should trim and pass valid string', () => {
-    expect(sanitizeDesc('  My Desc  ')).toBe('My Desc');
-    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
-    expect(sanitizeTitle(maxLen + '  ')).toBe(maxLen);
+    expect(sanitizeStringField('    My Desc  ', 0, 100, '')).toBe('My Desc');
+    const maxLen = 'a'.repeat(100);
+    expect(sanitizeStringField(maxLen + '    ', 1, 100, '')).toBe(maxLen);
   });
 });
 
