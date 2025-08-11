@@ -3,7 +3,7 @@ import {
   sanitizeEmail,
   sanitizePassword,
   sanitizeStringField,
-  sanitizeTargetCompletionDate,
+  datestrToDate,
   sanitizeDefaultSprintColumns,
   sanitizeObjectId
 } from './inputSanitizer';
@@ -92,17 +92,16 @@ describe('sanitizeStringField', () => {
 });
 
 /******************************************************************************************************************
- * datestrToDate by extension of:
-   * - sanitizeTargetCompletionDate
+ * datestrToDate
  ******************************************************************************************************************/
 describe('datestrToDate', () => {
 
   test('InputError', async () => {
     // non ISO datestrings
-    expect(() => sanitizeTargetCompletionDate('not-a-date')).toThrow(InputError);
+    expect(() => datestrToDate('not-a-date', '')).toThrow(InputError);
     // non-string values
     await testInvalidStringInputs({
-      fn: sanitizeTargetCompletionDate,
+      fn: (v) => datestrToDate(v, ''),
       arity: 1,
       expectedError: InputError,
     });
@@ -110,9 +109,9 @@ describe('datestrToDate', () => {
 
   test('should return JS Date object from valid ISO datestring', () => {
     const date = new Date().toISOString();
-    expect(sanitizeTargetCompletionDate(date)).toBeInstanceOf(Date);
+    expect(datestrToDate(date, '')).toBeInstanceOf(Date);
     const date2 = new Date().toISOString();
-    expect(sanitizeTargetCompletionDate(' ' + date2 + '  ')).toBeInstanceOf(Date);
+    expect(datestrToDate(' ' + date2 + '  ', '')).toBeInstanceOf(Date);
   });
 });
 

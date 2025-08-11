@@ -83,7 +83,7 @@ export function sanitizeStringField(input: unknown, minLen: number, maxLen: numb
  * 
  * @throws {InputError} if type or format is invalid
  ******************************************************************************************************************/
-function datestrToDate(input: unknown, fieldName: string): Date {
+export function datestrToDate(input: unknown, fieldName: string): Date {
   if (typeof input !== 'string') throw new InputError(fieldName);
   const str = input.trim();
   const parsed = new Date(str);
@@ -91,13 +91,6 @@ function datestrToDate(input: unknown, fieldName: string): Date {
     throw new InputError(fieldName);
   }
   return parsed;
-}
-
-/******************************************************************************************************************
- * @refer datestrToDate
- ******************************************************************************************************************/
-export function sanitizeTargetCompletionDate(input: unknown): Date {
-  return datestrToDate(input, 'targetCompletionDate');
 }
 
 /******************************************************************************************************************
