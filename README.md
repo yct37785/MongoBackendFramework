@@ -1,4 +1,4 @@
-# MongoBackendFramework
+# Mongo Backend Framework
 Modular, extensible plug-and-play Node.js backend framework built with TypeScript, Express, Mongoose, and JWT authentication.
 
 ## Features
@@ -18,7 +18,7 @@ Modular, extensible plug-and-play Node.js backend framework built with TypeScrip
 
 📁 Strict project structure for clarity and modularity
 
-## Project Structure
+## Project structure
 	MongoBackendFramework/
 	├── dist/          # compiled output
 	├── exports/       # dependency exports
@@ -31,13 +31,13 @@ Modular, extensible plug-and-play Node.js backend framework built with TypeScrip
 	├── start-dev.bat  # run standalone mode
 	└── package.json   # package metadata and exports
 
-## Getting Started
-### Place framework and client Side-by-Side:
+## Getting started
+### Place framework and client side-by-side:
 	root/
 	├── MongoBackendFramework/
 	└── MyProject/
 
-### Place framework and client Side-by-Side:
+### Build
 In MongoBackendFramework/, run:
 ```bash
 ./build.bat
@@ -45,7 +45,7 @@ In MongoBackendFramework/, run:
 
 This compiles to ```dist/``` and enables proper exports
 
-### Link the Framework in Your Client
+### Link the framework in your client
 In your client (```MyProject/```), reference the framework as a local dependency:
 ```javascript
 "dependencies": {
@@ -58,13 +58,13 @@ Install:
 npm i
 ```
 
-### Dev Dependencies (Client)
+### Dev dependencies (client)
 Install the following dev dependencies in your client project:
 ```bash
 npm install --save-dev @types/cors @types/express @types/jest @types/jsonwebtoken @types/node cross-env jest mongodb-memory-server nodemon supertest ts-jest ts-node typescript
 ```
 
-### TypeScript Configuration (Client)
+### TypeScript configuration (client)
 In your ```tsconfig.json```:
 ```javascript
 "compilerOptions": {
@@ -74,7 +74,7 @@ In your ```tsconfig.json```:
   }
 ```
 
-### Basic Usage Example
+### Basic usage example
 index.ts:
 ```javascript
 import {} from '@yourname/mongo-backend-framework/types'; // type argumentation
@@ -106,7 +106,7 @@ app.listen(PORT, () => {
 });
 ```
 
-### Environment Variables (.env)
+### Environment variables (.env)
 Create a .env file in your client project with the following required values:
 
 | Variable  | Description |
@@ -130,7 +130,7 @@ openssl rand -hex 64
 
 Use different values for access and refresh token secrets.
 
-## Sample Starter Project
+## Sample starter project
 Alternatively start your backend app with the [sample starter project](https://github.com/yct37785/MongoBackendFrameworkSample).
 
 ### Usage
@@ -161,10 +161,10 @@ Run your project and test GET ```/test-unprotected``` returns 200.
 
 You can now start building off of the start code provided.
 
-## MongoDB Setup
+## MongoDB setup
 The framework uses Mongoose to interact with MongoDB. You can connect to a remote MongoDB Atlas cluster or a local MongoDB instance.
 
-### Link Your MongoDB Database
+### Link your MongoDB database
 Using either MongoDB Atlas or local MongoDB (MongoDB Community Edition), create a cluster and a database under that cluster. Fill in the relevant .env variables.
 
 MONGO_URI (MongoDB connection URI to cluster):
@@ -177,7 +177,7 @@ MONGO_DB_NAME (Database name):
 myDatabaseDB
 ```
 
-### Collections Creation
+### Collections creation
 You do not need to create collections manually. When you use one of the provided models, Mongoose will:
 - Automatically create the corresponding collection (e.g. users)
 - Apply the defined schema fields and types
@@ -203,7 +203,7 @@ The framework would have defined the following model ```userModel``` for auth:
 
 This will be saved to a ```users``` collection under your defined MONGO_DB_NAME.
 
-### When Is the Database Connected?
+### When is the database connected?
 The framework automatically connects to the MongoDB URI during createApp(...) when your app launches. You just need to make sure:
 
 - .env is provided
@@ -213,7 +213,7 @@ The framework automatically connects to the MongoDB URI during createApp(...) wh
 If the connection fails, an error will be thrown at startup.
 
 ## Contributions
-### Function Comment Block Guidelines
+### Function comment block guidelines
 All functions will include a standardized JSDoc comment block for clarity, maintainability, and automated documentation support.
 
 Use the following format:
@@ -233,3 +233,129 @@ Use the following format:
  * @throws {<ErrorType>} <condition under which the error is thrown>
  */
 ```
+
+## Authentication
+The framework ships with a complete auth flow using JWT access tokens (short-lived) and opaque refresh tokens (rotatable). Device/user-agent/IP are stored alongside sessions for reference, but not currently used for enforcement.
+
+### How it works
+- **Register** → create user with bcrypt-hashed password.
+
+- **Login** → issues access token (JWT) + refresh token (opaque); refresh token is HMAC-hashed (never stored in plaintext) and saved on the user with timestamps + optional UA/IP.
+
+- **Refresh** → validates the refresh token by hash, rotates it (new token/hash) and issues a new access token. The refresh expiry does not extend.
+
+- **Logout** → invalidates just that one refresh session.
+
+- **Session limits** → sessions are pruned to env var MAX_SESSIONS (newest kept).
+
+### Setup
+No extra wiring needed, the /auth routes are mounted internally in the framework. From your client app, just do the normal setup and env:
+
+- Use createApp from the framework.
+
+- Ensure your .env is filled out fully (see your main env section for details).
+
+To protect your own routes, add them to the **protectedRoutes** param of createApp (the framework applies **verifyAccessTokenMiddleware** before protected routes).
+
+### API
+**POST /auth/register**
+Body
+```json
+{ "email": "user@example.com", "password": "ValidP@ssw0rd" }
+```
+
+200
+```json
+{
+  "accessToken": "<jwt>",
+  "refreshToken": "<opaque>",
+  "atExpiresAt": "2025-08-11T13:37:00.000Z",
+  "rtExpiresAt": "2025-08-18T13:37:00.000Z"
+}
+```
+
+Errors
+- 400: invalid input shape
+- 409: email already in use
+
+**POST /auth/login**
+Body
+```json
+{ "email": "user@example.com", "password": "ValidP@ssw0rd" }
+```
+
+200
+```json
+{
+  "accessToken": "<jwt>",
+  "refreshToken": "<opaque>",
+  "atExpiresAt": "2025-08-11T13:37:00.000Z",
+  "rtExpiresAt": "2025-08-18T13:37:00.000Z"
+}
+```
+
+Errors
+- 400: invalid input shape
+- 401: wrong email/password
+
+**POST /auth/refresh**
+Body
+```json
+{ "refreshToken": "<opaque>" }
+```
+
+200
+```json
+{
+  "accessToken": "<new-jwt>",
+  "refreshToken": "<new-opaque>",
+  "atExpiresAt": "2025-08-11T14:37:00.000Z",
+  "rtExpiresAt": "2025-08-18T13:37:00.000Z"
+}
+```
+
+Errors
+- 400: missing/invalid refresh token
+- 401: invalid/reused/expired token
+- 404: session not found
+
+**POST /auth/logout**
+Body
+```json
+{ "refreshToken": "<opaque>" }
+```
+
+200
+```json
+{ "msg": "Logged out of session" }
+```
+
+Errors
+- 400: missing/invalid token
+- 401: token not associated with any user
+- 404: session not found
+
+### Using protected routes in your app
+In your client app:
+```javascript
+import { express } from '@yourname/mongo-backend-framework/express';
+import { createApp } from '@yourname/mongo-backend-framework/createApp';
+
+const publicRoutes = express.Router();
+publicRoutes.get('/ping', (_req, res) => res.send('pong'));
+
+const protectedRoutes = express.Router();
+protectedRoutes.get('/me', (req, res) => {
+  // req.user is set by the framework's verifyAccessTokenMiddleware
+  res.json({ user: req.user });
+});
+
+const app = createApp(publicRoutes, protectedRoutes);
+```
+
+Users must send the access token in:
+```json
+Authorization: Bearer <accessToken>
+```
+
+Refresh tokens should be stored securely on the client and only sent to **/auth/refresh** and **/auth/logout**.
