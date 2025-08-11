@@ -12,51 +12,44 @@ import { testInvalidStringInputs } from '../test/testUtils';
 import { EMAIL_MAX_LEN, PW_MAX_LEN, TITLE_MIN_LEN, TITLE_MAX_LEN, DESC_MAX_LEN, SPRINT_COLS_MAX } from '../consts';
 import { InputError } from '../error/AppError';
 
-describe('inputSanitizer', () => {
-  /*---------------------------------------------------------------------------------------------------------------
-   * sanitizeEmail
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('sanitizeEmail should trim and lowercase valid email', () => {
-    expect(sanitizeEmail('  TEST@Example.com  ')).toBe('test@example.com');
-  });
+/******************************************************************************************************************
+ * sanitizeEmail
+ ******************************************************************************************************************/
+describe('sanitizeEmail', () => {
 
-  test('sanitizeEmail should throw on empty or invalid value', () => {
+  test('InputError', async () => {
+    // invalid email format
     expect(() => sanitizeEmail('a@.c')).toThrow(InputError);
     expect(() => sanitizeEmail('invalid')).toThrow(InputError);
     expect(() => sanitizeEmail('                    ')).toThrow(InputError);
     expect(() => sanitizeEmail('')).toThrow(InputError);
-  });  
-
-  test('sanitizeEmail should throw on email exceeding length', () => {
+    // exceeding length validation
     expect(() => sanitizeEmail(`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`)).toThrow(InputError);
-    const validEmail = `${'a'.repeat(EMAIL_MAX_LEN - 12)}@example.com`;
-    expect(sanitizeEmail(`     ${validEmail}      `)).toBe(`${validEmail}`);
-  });
-
-  test('sanitizeEmail should throw on non-string input types', async () => {
-    await testInvalidStringInputs({
+    // non-string values
+     await testInvalidStringInputs({
       fn: sanitizeEmail,
       arity: 1,
       expectedError: InputError,
     });
   });
 
-  /*---------------------------------------------------------------------------------------------------------------
-   * sanitizePassword
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('sanitizePassword should accept valid password', () => {
-    const pw = 'Valid@123';
-    expect(sanitizePassword(pw)).toBe(pw);
+  test('should trim and lowercase valid email', () => {
+    expect(sanitizeEmail('  TEST@Example.com  ')).toBe('test@example.com');
   });
+});
 
-  test('sanitizePassword should throw on too short, long or missing requirements', () => {
+/******************************************************************************************************************
+ * sanitizePassword
+ ******************************************************************************************************************/
+describe('sanitizePassword', () => {
+
+  test('InputError', async () => {
+    // failed password policy
     expect(() => sanitizePassword('Valid@3')).toThrow(InputError);
     expect(() => sanitizePassword(`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`)).toThrow(InputError);
     expect(() => sanitizePassword('Valid01234')).toThrow(InputError);
     expect(() => sanitizePassword('')).toThrow(InputError);
-  });
-
-  test('sanitizePassword should throw on non-string input types', async () => {
+    // non-string values
     await testInvalidStringInputs({
       fn: sanitizePassword,
       arity: 1,
@@ -64,27 +57,29 @@ describe('inputSanitizer', () => {
     });
   });
 
-  /*---------------------------------------------------------------------------------------------------------------
-   * sanitizeStringField by extension of:
+  test('should accept valid password', () => {
+    const pw = 'Valid@123';
+    expect(sanitizePassword(pw)).toBe(pw);
+    const pw2 = 'aaaaaaaaaaaaA@';
+    expect(sanitizePassword(pw2)).toBe(pw2);
+  });
+});
+
+/******************************************************************************************************************
+ * sanitizeStringField by extension of:
    * - sanitizeTitle
    * - sanitizeDesc
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('sanitizeStringField should trim and pass valid string', () => {
-    expect(sanitizeDesc('  My Desc  ')).toBe('My Desc');
-    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
-    expect(sanitizeTitle(maxLen + '  ')).toBe(maxLen);
-  });
+ ******************************************************************************************************************/
+describe('sanitizeStringField', () => {
 
-  test('sanitizeStringField should throw if too short or long', () => {
+  test('InputError', async () => {
     // too long
     expect(() => sanitizeDesc('a'.repeat(DESC_MAX_LEN + 1))).toThrow(InputError);
     // too short
     expect(() => sanitizeTitle('a'.repeat(TITLE_MIN_LEN - 1))).toThrow(InputError);
     expect(() => sanitizeTitle('')).toThrow(InputError);
     expect(() => sanitizeTitle('        ')).toThrow(InputError);  // trim into length 0
-  });
-
-  test('sanitizeStringField should throw on non-string input types', async () => {
+    // non-string values
     await testInvalidStringInputs({
       fn: sanitizeTitle,
       arity: 1,
@@ -92,20 +87,23 @@ describe('inputSanitizer', () => {
     });
   });
 
-  /*---------------------------------------------------------------------------------------------------------------
-   * sanitizeTargetCompletionDate
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('sanitizeTargetCompletionDate returns valid Date', () => {
-    const date = new Date().toISOString();
-    expect(sanitizeTargetCompletionDate(date)).toBeInstanceOf(Date);
+  test('should trim and pass valid string', () => {
+    expect(sanitizeDesc('  My Desc  ')).toBe('My Desc');
+    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
+    expect(sanitizeTitle(maxLen + '  ')).toBe(maxLen);
   });
+});
 
-  test('sanitizeTargetCompletionDate throws on invalid date input', () => {
+/******************************************************************************************************************
+ * datestrToDate by extension of:
+   * - sanitizeTargetCompletionDate
+ ******************************************************************************************************************/
+describe('datestrToDate', () => {
+
+  test('InputError', async () => {
+    // non ISO datestrings
     expect(() => sanitizeTargetCompletionDate('not-a-date')).toThrow(InputError);
-    expect(() => sanitizeTargetCompletionDate(null)).toThrow(InputError);
-  });
-
-  test('sanitizeTargetCompletionDate should throw on non-string input types', async () => {
+    // non-string values
     await testInvalidStringInputs({
       fn: sanitizeTargetCompletionDate,
       arity: 1,
@@ -113,78 +111,85 @@ describe('inputSanitizer', () => {
     });
   });
 
-  /*---------------------------------------------------------------------------------------------------------------
-   * sanitizeDefaultSprintColumns
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('sanitizeDefaultSprintColumns passes empty array', () => {
-    expect(sanitizeDefaultSprintColumns([])).toEqual([]);
+  test('should return JS Date object from valid ISO datestring', () => {
+    const date = new Date().toISOString();
+    expect(sanitizeTargetCompletionDate(date)).toBeInstanceOf(Date);
+    const date2 = new Date().toISOString();
+    expect(sanitizeTargetCompletionDate(' ' + date2 + '  ')).toBeInstanceOf(Date);
   });
+});
 
-  test('sanitizeDefaultSprintColumns trims valid strings', () => {
-    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
-    const result = sanitizeDefaultSprintColumns(['mixed', ' test 1  ', 'test 2 ', '    ' + maxLen + '      ']);
-    expect(result).toEqual(['mixed', 'test 1', 'test 2', maxLen]);
-  });
+/******************************************************************************************************************
+ * sanitizeDefaultSprintColumns
+ ******************************************************************************************************************/
+describe('sanitizeDefaultSprintColumns', () => {
 
-  test('sanitizeDefaultSprintColumns fails if post-trim string elem fails length validation', () => {
+  test('InputError: post-trim string elem fails length validation', () => {
+    // post-trim string elem fails length validation
     const validInput = [' col1  ', 'col2', 'a'.repeat(TITLE_MAX_LEN)];
     const input = validInput.concat(['a'.repeat(TITLE_MAX_LEN + 1)]);
     expect(() => sanitizeDefaultSprintColumns(input)).toThrow(InputError);
 
-    const input2 = validInput.concat(['']);
-    expect(() => sanitizeDefaultSprintColumns(input2)).toThrow(InputError);
+    expect(() => sanitizeDefaultSprintColumns(validInput.concat(['']))).toThrow(InputError);
 
-    const input3 = validInput.concat(['        ']);
-    expect(() => sanitizeDefaultSprintColumns(input3)).toThrow(InputError);
-  });
+    expect(() => sanitizeDefaultSprintColumns(validInput.concat(['        ']))).toThrow(InputError);
 
-  test('sanitizeDefaultSprintColumns fails on invalid elem types', () => {
+    // invalid elem types
     expect(() => sanitizeDefaultSprintColumns([23])).toThrow(InputError);
     expect(() => sanitizeDefaultSprintColumns([null])).toThrow(InputError);
     expect(() => sanitizeDefaultSprintColumns([undefined])).toThrow(InputError);
     expect(() => sanitizeDefaultSprintColumns(['mixed', ' test 1  ', null, undefined])).toThrow(InputError);
-  });
 
-  test('sanitizeDefaultSprintColumns fails if column count exceeds', () => {
-    const input = Array(SPRINT_COLS_MAX + 1).fill(['abc']).flat();
-    expect(() => sanitizeDefaultSprintColumns(input)).toThrow(InputError);
-  });
+    // column count exceeds
+    expect(() => sanitizeDefaultSprintColumns(
+      Array(SPRINT_COLS_MAX + 1).fill(['abc']).flat()
+    )).toThrow(InputError);
 
-  test('sanitizeDefaultSprintColumns fails if not an array', () => {
+    // input type is not an array
     expect(() => sanitizeDefaultSprintColumns(23)).toThrow(InputError);
     expect(() => sanitizeDefaultSprintColumns({})).toThrow(InputError);
     expect(() => sanitizeDefaultSprintColumns(null)).toThrow(InputError);
     expect(() => sanitizeDefaultSprintColumns(undefined)).toThrow(InputError);
+    expect(() => sanitizeDefaultSprintColumns('["sadsad", "sdfsd"]')).toThrow(InputError);
   });
 
-  /*---------------------------------------------------------------------------------------------------------------
-   * sanitizeObjectId
-   ---------------------------------------------------------------------------------------------------------------*/
-  test('sanitizeObjectId throws ObjectId instance from valid string', () => {
-    const validId = new Types.ObjectId().toString();
-    const result = sanitizeObjectId(validId);
-    expect(result).toBeInstanceOf(Types.ObjectId);
-    expect(result.toString()).toBe(validId);
+  test('valid input', () => {
+    // trims trailing whitespaces for each elems
+    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
+    const result = sanitizeDefaultSprintColumns(['mixed', ' test 1  ', 'test 2 ', '    ' + maxLen + '      ']);
+    expect(result).toEqual(['mixed', 'test 1', 'test 2', maxLen]);
+    // empty array is also valid
+    expect(sanitizeDefaultSprintColumns([])).toEqual([]);
   });
+});
 
-  test('sanitizeObjectId throws whitespace from input and return ObjectId', () => {
-    const id = new Types.ObjectId().toString();
-    const result = sanitizeObjectId(`   ${id}   `);
-    expect(result.toString()).toBe(id);
-  });
+/******************************************************************************************************************
+ * sanitizeObjectId
+ ******************************************************************************************************************/
+describe('sanitizeObjectId', () => {
 
-  test('sanitizeObjectId throws on invalid ObjectId string', () => {
+  test('InputError', async () => {
+    // invalid ObjectID format
     expect(() => sanitizeObjectId('123')).toThrow(InputError);
     expect(() => sanitizeObjectId('zzzzzzzzzzzzzzzzzzzzzzzz')).toThrow(InputError);
     expect(() => sanitizeObjectId('')).toThrow(InputError);
     expect(() => sanitizeObjectId(' '.repeat(24))).toThrow(InputError);
-  });
-
-  test('sanitizeObjectId should throw on non-string input types', async () => {
+    // non-string values
     await testInvalidStringInputs({
       fn: sanitizeObjectId,
       arity: 1,
       expectedError: InputError,
     });
+  });
+
+  test('returns ObjectId instance from valid string', () => {
+    const validId = new Types.ObjectId().toString();
+    const result = sanitizeObjectId(validId);
+    expect(result).toBeInstanceOf(Types.ObjectId);
+    expect(result.toString()).toBe(validId);
+    // with trailing whitespaces
+    const validId2 = new Types.ObjectId().toString();
+    const result2 = sanitizeObjectId(`   ${validId2}   `);
+    expect(result2.toString()).toBe(validId2);
   });
 });
