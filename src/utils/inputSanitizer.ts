@@ -2,9 +2,7 @@ import { Types } from 'mongoose';
 import { InputError } from '../error/AppError';
 import {
   EMAIL_REGEX, EMAIL_MIN_LEN, EMAIL_MAX_LEN,
-  PW_POLICY, PW_MIN_LEN, PW_MAX_LEN,
-  TITLE_MIN_LEN, TITLE_MAX_LEN,
-  DESC_MAX_LEN, SPRINT_COLS_MAX
+  PW_POLICY, PW_MIN_LEN, PW_MAX_LEN
 } from '../consts';
 const pwErrMsg = `password must be ${PW_MIN_LEN}-${PW_MAX_LEN} chars with uppercase, lowercase, and special`;
 
@@ -131,20 +129,6 @@ export function sanitizeStringArray(input: unknown, max: number, minLen: number,
   if (trimmed.length > max) {
     throw new InputError(`Array cannot have more than ${max} elements`);
   }
-  return trimmed;
-}
-
-/******************************************************************************************************************
- * Sanitize default sprint columns input.
- *
- * @param input - raw input
- * 
- * @returns string[] - sanitized string array
- * 
- * @throws {InputError} if validation via sanitizeStringArray fails
- ******************************************************************************************************************/
-export function sanitizeDefaultSprintColumns(input: unknown): string[] {
-  const trimmed = sanitizeStringArray(input, SPRINT_COLS_MAX, TITLE_MIN_LEN, TITLE_MAX_LEN);
   return trimmed;
 }
 

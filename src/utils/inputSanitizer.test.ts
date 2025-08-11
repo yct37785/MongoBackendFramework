@@ -4,11 +4,11 @@ import {
   sanitizePassword,
   sanitizeStringField,
   datestrToDate,
-  sanitizeDefaultSprintColumns,
+  sanitizeStringArray,
   sanitizeObjectId
 } from './inputSanitizer';
 import { testInvalidStringInputs } from '../test/testUtils';
-import { EMAIL_MAX_LEN, PW_MAX_LEN, TITLE_MIN_LEN, TITLE_MAX_LEN, DESC_MAX_LEN, SPRINT_COLS_MAX } from '../consts';
+import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../consts';
 import { InputError } from '../error/AppError';
 
 /******************************************************************************************************************
@@ -116,46 +116,52 @@ describe('datestrToDate', () => {
 });
 
 /******************************************************************************************************************
- * sanitizeDefaultSprintColumns
+ * sanitizeStringArray
  ******************************************************************************************************************/
-describe('sanitizeDefaultSprintColumns', () => {
+describe('sanitizeStringArray', () => {
+  const MIN_LEN = 1;
+  const MAX_LEN = 100;
+  const MAX_ELEMS = 10;
+
+  const callSanitizeStringArray = (input: unknown) =>
+    sanitizeStringArray(input, MAX_ELEMS, MIN_LEN, MAX_LEN);
 
   test('InputError: post-trim string elem fails length validation', () => {
     // post-trim string elem fails length validation
-    const validInput = [' col1  ', 'col2', 'a'.repeat(TITLE_MAX_LEN)];
-    const input = validInput.concat(['a'.repeat(TITLE_MAX_LEN + 1)]);
-    expect(() => sanitizeDefaultSprintColumns(input)).toThrow(InputError);
+    const validInput = [' col1  ', 'col2', 'a'.repeat(MAX_LEN)];
+    const input = validInput.concat(['a'.repeat(MAX_LEN + 1)]);
+    expect(() => callSanitizeStringArray(input)).toThrow(InputError);
 
-    expect(() => sanitizeDefaultSprintColumns(validInput.concat(['']))).toThrow(InputError);
+    expect(() => callSanitizeStringArray(validInput.concat(['']))).toThrow(InputError);
 
-    expect(() => sanitizeDefaultSprintColumns(validInput.concat(['        ']))).toThrow(InputError);
+    expect(() => callSanitizeStringArray(validInput.concat(['        ']))).toThrow(InputError);
 
     // invalid elem types
-    expect(() => sanitizeDefaultSprintColumns([23])).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns([null])).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns([undefined])).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns(['mixed', ' test 1  ', null, undefined])).toThrow(InputError);
+    expect(() => callSanitizeStringArray([23])).toThrow(InputError);
+    expect(() => callSanitizeStringArray([null])).toThrow(InputError);
+    expect(() => callSanitizeStringArray([undefined])).toThrow(InputError);
+    expect(() => callSanitizeStringArray(['mixed', ' test 1  ', null, undefined])).toThrow(InputError);
 
-    // column count exceeds
-    expect(() => sanitizeDefaultSprintColumns(
-      Array(SPRINT_COLS_MAX + 1).fill(['abc']).flat()
+    // elem count exceeds
+    expect(() => callSanitizeStringArray(
+      Array(MAX_ELEMS + 1).fill(['abc']).flat()
     )).toThrow(InputError);
 
     // input type is not an array
-    expect(() => sanitizeDefaultSprintColumns(23)).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns({})).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns(null)).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns(undefined)).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns('["sadsad", "sdfsd"]')).toThrow(InputError);
+    expect(() => callSanitizeStringArray(23)).toThrow(InputError);
+    expect(() => callSanitizeStringArray({})).toThrow(InputError);
+    expect(() => callSanitizeStringArray(null)).toThrow(InputError);
+    expect(() => callSanitizeStringArray(undefined)).toThrow(InputError);
+    expect(() => callSanitizeStringArray('["sadsad", "sdfsd"]')).toThrow(InputError);
   });
 
   test('valid input', () => {
     // trims trailing whitespaces for each elems
-    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
-    const result = sanitizeDefaultSprintColumns(['mixed', ' test 1  ', 'test 2 ', '    ' + maxLen + '      ']);
+    const maxLen = 'a'.repeat(MAX_LEN);
+    const result = callSanitizeStringArray(['mixed', ' test 1  ', 'test 2 ', '    ' + maxLen + '      ']);
     expect(result).toEqual(['mixed', 'test 1', 'test 2', maxLen]);
     // empty array is also valid
-    expect(sanitizeDefaultSprintColumns([])).toEqual([]);
+    expect(callSanitizeStringArray([])).toEqual([]);
   });
 });
 
