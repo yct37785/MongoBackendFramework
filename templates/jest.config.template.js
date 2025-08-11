@@ -6,11 +6,11 @@ const tsJestTransformCfg = createDefaultPreset().transform;
 module.exports = {
   testEnvironment: "node",
   setupFiles: ['<rootDir>/jest/jest.setup.ts'],
-  roots: ["<rootDir>/src"], // explicitly tells Jest to only look inside /src
+  roots: ["<rootDir>"], // explicitly tells Jest to only look inside <rootDir>/
   transform: {
     ...tsJestTransformCfg,
   },
-  testMatch: ["**/*.test.ts"], // runs any *.test.ts inside /src
+  testMatch: ["**/*.test.ts"], // runs any *.test.ts found
   moduleFileExtensions: ["ts", "js", "json", "node"], // default extensions
 
   // coverage settings

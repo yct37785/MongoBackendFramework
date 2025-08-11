@@ -1,7 +1,7 @@
-import { setUpInMemDB } from '../../test/setupTestDB';
-import { wait, mockReq } from '../../test/testUtils';
-import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from '../../controller/authController';
-import { AuthError } from '../../error/AppError';
+import { setUpInMemDB } from '../src/test/setupTestDB';
+import { wait, mockReq } from '../src/test/testUtils';
+import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from '../src/controller/authController';
+import { AuthError } from '../src/error/AppError';
 
 setUpInMemDB();
 

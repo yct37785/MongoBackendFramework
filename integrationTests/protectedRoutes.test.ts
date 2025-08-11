@@ -1,9 +1,9 @@
 const request = require('supertest');
-import { setUpInMemDB } from '../../test/setupTestDB';
-import { createApp } from '../../app'; // framework app
+import { setUpInMemDB } from '../src/test/setupTestDB';
+import { createApp } from '../src/app'; // framework app
 import express from 'express';
-import { con_auth_register, con_auth_login } from '../../controller/authController';
-import { mockReq } from '../../test/testUtils';
+import { con_auth_register, con_auth_login } from '../src/controller/authController';
+import { mockReq } from '../src/test/testUtils';
 import { Types } from 'mongoose';
 
 setUpInMemDB();
