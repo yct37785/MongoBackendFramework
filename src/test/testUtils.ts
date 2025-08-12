@@ -122,6 +122,15 @@ export function expectDate(value: unknown) {
 }
 
 /******************************************************************************************************************
+ * Asserts that a string is a valid Mongoose objectId.
+ *
+ * @param value - value to check
+ ******************************************************************************************************************/
+export function expectObjectIdStr(value: string) {
+  expect(value).toMatch(/^[a-f\d]{24}$/i);
+}
+
+/******************************************************************************************************************
  * Common testing placeholder values.
  ******************************************************************************************************************/
 export function genTestEmail(): string {
