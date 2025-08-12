@@ -2,9 +2,7 @@ import { Types } from 'mongoose';
 import { InputError } from '../error/AppError';
 import {
   EMAIL_REGEX, EMAIL_MIN_LEN, EMAIL_MAX_LEN,
-  PW_POLICY, PW_MIN_LEN, PW_MAX_LEN,
-  TITLE_MIN_LEN, TITLE_MAX_LEN,
-  DESC_MAX_LEN, SPRINT_COLS_MAX
+  PW_POLICY, PW_MIN_LEN, PW_MAX_LEN
 } from '../consts';
 const pwErrMsg = `password must be ${PW_MIN_LEN}-${PW_MAX_LEN} chars with uppercase, lowercase, and special`;
 
@@ -56,35 +54,21 @@ export function sanitizePassword(input: unknown): string {
  * Utility function to sanitize a string field.
  *
  * @param input - raw input
- * @param fieldName - field name for error logging
  * @param minLen - min length
  * @param maxLen - max length
+ * @param fieldName - field name for error logging
  * 
  * @returns string - sanitized string
  * 
  * @throws {InputError} if string is invalid
  ******************************************************************************************************************/
-function sanitizeStringField(input: unknown, fieldName: string, minLen: number, maxLen: number): string {
+export function sanitizeStringField(input: unknown, minLen: number, maxLen: number, fieldName: string): string {
   if (typeof input !== 'string') throw new InputError(fieldName);
   const str = input.trim();
   if (str.length < minLen || str.length > maxLen) {
     throw new InputError(`${fieldName} must be ${minLen}-${maxLen} characters`);
   }
   return str;
-}
-
-/******************************************************************************************************************
- * @refer sanitizeStringField
- ******************************************************************************************************************/
-export function sanitizeTitle(input: unknown): string {
-  return sanitizeStringField(input, 'title', TITLE_MIN_LEN, TITLE_MAX_LEN);
-}
-
-/******************************************************************************************************************
- * @refer sanitizeStringField
- ******************************************************************************************************************/
-export function sanitizeDesc(input: unknown): string {
-  return sanitizeStringField(input, 'desc', 0, DESC_MAX_LEN);
 }
 
 /******************************************************************************************************************
@@ -97,7 +81,7 @@ export function sanitizeDesc(input: unknown): string {
  * 
  * @throws {InputError} if type or format is invalid
  ******************************************************************************************************************/
-function datestrToDate(input: unknown, fieldName: string): Date {
+export function datestrToDate(input: unknown, fieldName: string): Date {
   if (typeof input !== 'string') throw new InputError(fieldName);
   const str = input.trim();
   const parsed = new Date(str);
@@ -105,13 +89,6 @@ function datestrToDate(input: unknown, fieldName: string): Date {
     throw new InputError(fieldName);
   }
   return parsed;
-}
-
-/******************************************************************************************************************
- * @refer datestrToDate
- ******************************************************************************************************************/
-export function sanitizeTargetCompletionDate(input: unknown): Date {
-  return datestrToDate(input, 'targetCompletionDate');
 }
 
 /******************************************************************************************************************
@@ -152,20 +129,6 @@ export function sanitizeStringArray(input: unknown, max: number, minLen: number,
   if (trimmed.length > max) {
     throw new InputError(`Array cannot have more than ${max} elements`);
   }
-  return trimmed;
-}
-
-/******************************************************************************************************************
- * Sanitize default sprint columns input.
- *
- * @param input - raw input
- * 
- * @returns string[] - sanitized string array
- * 
- * @throws {InputError} if validation via sanitizeStringArray fails
- ******************************************************************************************************************/
-export function sanitizeDefaultSprintColumns(input: unknown): string[] {
-  const trimmed = sanitizeStringArray(input, SPRINT_COLS_MAX, TITLE_MIN_LEN, TITLE_MAX_LEN);
   return trimmed;
 }
 

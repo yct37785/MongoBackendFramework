@@ -2,14 +2,13 @@ import { Types } from 'mongoose';
 import {
   sanitizeEmail,
   sanitizePassword,
-  sanitizeTitle,
-  sanitizeDesc,
-  sanitizeTargetCompletionDate,
-  sanitizeDefaultSprintColumns,
+  sanitizeStringField,
+  datestrToDate,
+  sanitizeStringArray,
   sanitizeObjectId
 } from './inputSanitizer';
 import { testInvalidStringInputs } from '../test/testUtils';
-import { EMAIL_MAX_LEN, PW_MAX_LEN, TITLE_MIN_LEN, TITLE_MAX_LEN, DESC_MAX_LEN, SPRINT_COLS_MAX } from '../consts';
+import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../consts';
 import { InputError } from '../error/AppError';
 
 /******************************************************************************************************************
@@ -66,46 +65,43 @@ describe('sanitizePassword', () => {
 });
 
 /******************************************************************************************************************
- * sanitizeStringField by extension of:
-   * - sanitizeTitle
-   * - sanitizeDesc
+ * sanitizeStringField
  ******************************************************************************************************************/
 describe('sanitizeStringField', () => {
 
   test('InputError', async () => {
     // too long
-    expect(() => sanitizeDesc('a'.repeat(DESC_MAX_LEN + 1))).toThrow(InputError);
+    expect(() => sanitizeStringField('a'.repeat(101), 0, 100, '')).toThrow(InputError);
     // too short
-    expect(() => sanitizeTitle('a'.repeat(TITLE_MIN_LEN - 1))).toThrow(InputError);
-    expect(() => sanitizeTitle('')).toThrow(InputError);
-    expect(() => sanitizeTitle('        ')).toThrow(InputError);  // trim into length 0
+    expect(() => sanitizeStringField('', 1, 100, '')).toThrow(InputError);
+    expect(() => sanitizeStringField('a', 2, 100, '')).toThrow(InputError);
+    expect(() => sanitizeStringField('        ', 1, 100, '')).toThrow(InputError);  // trim into length 0
     // non-string values
     await testInvalidStringInputs({
-      fn: sanitizeTitle,
+      fn: (v: string) => sanitizeStringField(v, 0, 100, ''),
       arity: 1,
       expectedError: InputError,
     });
   });
 
   test('should trim and pass valid string', () => {
-    expect(sanitizeDesc('  My Desc  ')).toBe('My Desc');
-    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
-    expect(sanitizeTitle(maxLen + '  ')).toBe(maxLen);
+    expect(sanitizeStringField('    My Desc  ', 0, 100, '')).toBe('My Desc');
+    const maxLen = 'a'.repeat(100);
+    expect(sanitizeStringField(maxLen + '    ', 1, 100, '')).toBe(maxLen);
   });
 });
 
 /******************************************************************************************************************
- * datestrToDate by extension of:
-   * - sanitizeTargetCompletionDate
+ * datestrToDate
  ******************************************************************************************************************/
 describe('datestrToDate', () => {
 
   test('InputError', async () => {
     // non ISO datestrings
-    expect(() => sanitizeTargetCompletionDate('not-a-date')).toThrow(InputError);
+    expect(() => datestrToDate('not-a-date', '')).toThrow(InputError);
     // non-string values
     await testInvalidStringInputs({
-      fn: sanitizeTargetCompletionDate,
+      fn: (v) => datestrToDate(v, ''),
       arity: 1,
       expectedError: InputError,
     });
@@ -113,53 +109,59 @@ describe('datestrToDate', () => {
 
   test('should return JS Date object from valid ISO datestring', () => {
     const date = new Date().toISOString();
-    expect(sanitizeTargetCompletionDate(date)).toBeInstanceOf(Date);
+    expect(datestrToDate(date, '')).toBeInstanceOf(Date);
     const date2 = new Date().toISOString();
-    expect(sanitizeTargetCompletionDate(' ' + date2 + '  ')).toBeInstanceOf(Date);
+    expect(datestrToDate(' ' + date2 + '  ', '')).toBeInstanceOf(Date);
   });
 });
 
 /******************************************************************************************************************
- * sanitizeDefaultSprintColumns
+ * sanitizeStringArray
  ******************************************************************************************************************/
-describe('sanitizeDefaultSprintColumns', () => {
+describe('sanitizeStringArray', () => {
+  const MIN_LEN = 1;
+  const MAX_LEN = 100;
+  const MAX_ELEMS = 10;
+
+  const callSanitizeStringArray = (input: unknown) =>
+    sanitizeStringArray(input, MAX_ELEMS, MIN_LEN, MAX_LEN);
 
   test('InputError: post-trim string elem fails length validation', () => {
     // post-trim string elem fails length validation
-    const validInput = [' col1  ', 'col2', 'a'.repeat(TITLE_MAX_LEN)];
-    const input = validInput.concat(['a'.repeat(TITLE_MAX_LEN + 1)]);
-    expect(() => sanitizeDefaultSprintColumns(input)).toThrow(InputError);
+    const validInput = [' col1  ', 'col2', 'a'.repeat(MAX_LEN)];
+    const input = validInput.concat(['a'.repeat(MAX_LEN + 1)]);
+    expect(() => callSanitizeStringArray(input)).toThrow(InputError);
 
-    expect(() => sanitizeDefaultSprintColumns(validInput.concat(['']))).toThrow(InputError);
+    expect(() => callSanitizeStringArray(validInput.concat(['']))).toThrow(InputError);
 
-    expect(() => sanitizeDefaultSprintColumns(validInput.concat(['        ']))).toThrow(InputError);
+    expect(() => callSanitizeStringArray(validInput.concat(['        ']))).toThrow(InputError);
 
     // invalid elem types
-    expect(() => sanitizeDefaultSprintColumns([23])).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns([null])).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns([undefined])).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns(['mixed', ' test 1  ', null, undefined])).toThrow(InputError);
+    expect(() => callSanitizeStringArray([23])).toThrow(InputError);
+    expect(() => callSanitizeStringArray([null])).toThrow(InputError);
+    expect(() => callSanitizeStringArray([undefined])).toThrow(InputError);
+    expect(() => callSanitizeStringArray(['mixed', ' test 1  ', null, undefined])).toThrow(InputError);
 
-    // column count exceeds
-    expect(() => sanitizeDefaultSprintColumns(
-      Array(SPRINT_COLS_MAX + 1).fill(['abc']).flat()
+    // elem count exceeds
+    expect(() => callSanitizeStringArray(
+      Array(MAX_ELEMS + 1).fill(['abc']).flat()
     )).toThrow(InputError);
 
     // input type is not an array
-    expect(() => sanitizeDefaultSprintColumns(23)).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns({})).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns(null)).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns(undefined)).toThrow(InputError);
-    expect(() => sanitizeDefaultSprintColumns('["sadsad", "sdfsd"]')).toThrow(InputError);
+    expect(() => callSanitizeStringArray(23)).toThrow(InputError);
+    expect(() => callSanitizeStringArray({})).toThrow(InputError);
+    expect(() => callSanitizeStringArray(null)).toThrow(InputError);
+    expect(() => callSanitizeStringArray(undefined)).toThrow(InputError);
+    expect(() => callSanitizeStringArray('["sadsad", "sdfsd"]')).toThrow(InputError);
   });
 
   test('valid input', () => {
     // trims trailing whitespaces for each elems
-    const maxLen = 'a'.repeat(TITLE_MAX_LEN);
-    const result = sanitizeDefaultSprintColumns(['mixed', ' test 1  ', 'test 2 ', '    ' + maxLen + '      ']);
+    const maxLen = 'a'.repeat(MAX_LEN);
+    const result = callSanitizeStringArray(['mixed', ' test 1  ', 'test 2 ', '    ' + maxLen + '      ']);
     expect(result).toEqual(['mixed', 'test 1', 'test 2', maxLen]);
     // empty array is also valid
-    expect(sanitizeDefaultSprintColumns([])).toEqual([]);
+    expect(callSanitizeStringArray([])).toEqual([]);
   });
 });
 
