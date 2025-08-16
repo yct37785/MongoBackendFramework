@@ -22,7 +22,7 @@ const email = genTestEmail();
  ******************************************************************************************************************/
 describe('generateNewTokens', () => {
 
-  test('should throw if userId or email is invalid', () => {
+  test('throw InternalError if userId or email is invalid', () => {
     // @ts-expect-error
     expect(() => generateNewTokens(null, email)).toThrow(InternalError);
     // @ts-expect-error
@@ -32,7 +32,7 @@ describe('generateNewTokens', () => {
     expect(() => generateNewTokens(userId, null)).toThrow(InternalError);
   });
 
-  test('should return valid token pair and expiry dates', () => {
+  test('return valid token pair and expiry dates', () => {
     const result = generateNewTokens(userId, email);
     expect(typeof result.accessToken).toBe('string');
     expect(typeof result.refreshToken).toBe('string');
@@ -41,7 +41,7 @@ describe('generateNewTokens', () => {
     expect(result.rtExpiresAt).toBeInstanceOf(Date);
   });
 
-  test('should set expiry dates in the future', () => {
+  test('set expiry dates in the future', () => {
     const before = Date.now();
     const { atExpiresAt, rtExpiresAt } = generateNewTokens(userId, email);
     const after = Date.now();
@@ -58,7 +58,7 @@ describe('generateNewTokens', () => {
  ******************************************************************************************************************/
 describe('createRefreshTokenEntry', () => {
 
-  test('returns properly structured object', () => {
+  test('return properly structured object', () => {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 60000);
     const entry = createRefreshTokenEntry('hashedToken123', expiresAt, 'agent', '127.0.0.1');
@@ -71,7 +71,7 @@ describe('createRefreshTokenEntry', () => {
     expect(entry.ip).toBe('127.0.0.1');
   });
 
-  test('works with missing userAgent and ip', () => {
+  test('works even with missing userAgent and ip', () => {
     const expiresAt = new Date(Date.now() + 60000);
     const entry = createRefreshTokenEntry('hash123', expiresAt);
 
@@ -89,7 +89,7 @@ describe('createRefreshTokenEntry', () => {
  ******************************************************************************************************************/
 describe('pruneAndSortRefreshTokens', () => {
 
-  test('should filter expired and enforce max sessions', () => {
+  test('filter by expired and enforces max sessions', () => {
     const now = new Date();
     const expired = new Date(now.getTime() - 10000);
     const valid = new Date(now.getTime() + 100000);
@@ -117,7 +117,7 @@ describe('pruneAndSortRefreshTokens', () => {
     expect(result[0].tokenHash).toBe('valid-0');
   });
 
-   test('should return empty array if all tokens are expired', () => {
+   test('return empty array if all tokens are expired', () => {
     const now = new Date();
     const expired = new Date(now.getTime() - 10000);
 
@@ -132,7 +132,7 @@ describe('pruneAndSortRefreshTokens', () => {
     expect(result).toEqual([]);
   });
 
-  test('should sort by createdAt descending', () => {
+  test('sort by createdAt descending', () => {
     const now = new Date();
     const tokens: IRefreshToken[] = [
       { tokenHash: 'b', createdAt: new Date(now.getTime() - 1000), lastUsedAt: now, expiresAt: new Date(now.getTime() + 60000) },
@@ -150,12 +150,12 @@ describe('pruneAndSortRefreshTokens', () => {
  ******************************************************************************************************************/
 describe('isRefreshTokenExpired', () => {
 
-  test('should return true for expired token', () => {
+  test('return true for expired token', () => {
     const expiredToken = { tokenHash: '', createdAt: new Date(), lastUsedAt: new Date(), expiresAt: new Date(Date.now() - 10000) };
     expect(isRefreshTokenExpired(expiredToken)).toBe(true);
   });
 
-  test('should return false for valid token', () => {
+  test('return false for valid token', () => {
     const validToken = { tokenHash: '', createdAt: new Date(), lastUsedAt: new Date(), expiresAt: new Date(Date.now() + 10000) };
     expect(isRefreshTokenExpired(validToken)).toBe(false);
   });
@@ -166,7 +166,7 @@ describe('isRefreshTokenExpired', () => {
  ******************************************************************************************************************/
 describe('removeTokenFromList', () => {
 
-  test('should remove token by hash', () => {
+  test('remove token by hash', () => {
     const list: IRefreshToken[] = [
       { tokenHash: 'abc', createdAt: new Date(), lastUsedAt: new Date(), expiresAt: new Date() },
       { tokenHash: 'def', createdAt: new Date(), lastUsedAt: new Date(), expiresAt: new Date() },
@@ -176,7 +176,7 @@ describe('removeTokenFromList', () => {
     expect(result[0].tokenHash).toBe('def');
   });
 
-  test('should return same list if token not found', () => {
+  test('return same list if token not found', () => {
     const list: IRefreshToken[] = [
       { tokenHash: 'abc', createdAt: new Date(), lastUsedAt: new Date(), expiresAt: new Date() },
     ];

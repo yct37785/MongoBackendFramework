@@ -32,7 +32,7 @@ describe('sanitizeEmail', () => {
     });
   });
 
-  test('should trim and lowercase valid email', () => {
+  test('trim and lowercase valid email', () => {
     expect(sanitizeEmail('  TEST@Example.com  ')).toBe('test@example.com');
   });
 });
@@ -56,7 +56,7 @@ describe('sanitizePassword', () => {
     });
   });
 
-  test('should accept valid password', () => {
+  test('accept valid password', () => {
     const pw = 'Valid@123';
     expect(sanitizePassword(pw)).toBe(pw);
     const pw2 = 'aaaaaaaaaaaaA@';
@@ -84,7 +84,7 @@ describe('sanitizeStringField', () => {
     });
   });
 
-  test('should trim and pass valid string', () => {
+  test('trim and pass valid string', () => {
     expect(sanitizeStringField('    My Desc  ', 0, 100, '')).toBe('My Desc');
     const maxLen = 'a'.repeat(100);
     expect(sanitizeStringField(maxLen + '    ', 1, 100, '')).toBe(maxLen);
@@ -107,7 +107,7 @@ describe('datestrToDate', () => {
     });
   });
 
-  test('should return JS Date object from valid ISO datestring', () => {
+  test('return JS Date object from valid ISO datestring', () => {
     const date = new Date().toISOString();
     expect(datestrToDate(date, '')).toBeInstanceOf(Date);
     const date2 = new Date().toISOString();
@@ -126,7 +126,7 @@ describe('sanitizeStringArray', () => {
   const callSanitizeStringArray = (input: unknown) =>
     sanitizeStringArray(input, MAX_ELEMS, MIN_LEN, MAX_LEN);
 
-  test('InputError: post-trim string elem fails length validation', () => {
+  test('InputError', () => {
     // post-trim string elem fails length validation
     const validInput = [' col1  ', 'col2', 'a'.repeat(MAX_LEN)];
     const input = validInput.concat(['a'.repeat(MAX_LEN + 1)]);
@@ -184,7 +184,7 @@ describe('sanitizeObjectId', () => {
     });
   });
 
-  test('returns ObjectId instance from valid string', () => {
+  test('return ObjectId instance from valid string', () => {
     const validId = new Types.ObjectId().toString();
     const result = sanitizeObjectId(validId);
     expect(result).toBeInstanceOf(Types.ObjectId);

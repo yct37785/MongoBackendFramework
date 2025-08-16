@@ -23,7 +23,7 @@ describe('ser_createUser', () => {
     await expect(ser_createUser(dupEmail, 'Another@123')).rejects.toThrow(ConflictError);
   });
 
-  test('create user and return created user doc', async () => {
+  test('create user, ensure created user exists in DB', async () => {
     const sameEmail = genTestEmail();
     const user = await ser_createUser(sameEmail, TEST_PW);
     // check in DB
@@ -67,7 +67,7 @@ describe('ser_findUserViaRT', () => {
     expect(user).toBe(null);
   });
 
- test('find user by correct refresh token hash, return user doc', async () => {
+ test('find user by correct refresh token hash', async () => {
     const sameEmail = genTestEmail();
     const user = await ser_createUser(sameEmail, TEST_PW);
     const tokenHash = await hashValue('somerandomtoken');
@@ -99,7 +99,7 @@ describe('ser_findUserViaRT', () => {
     expect(foundUser).toBeNull();
   });
 
-  test('find user by correct _id, return user doc', async () => {
+  test('find user by correct _id', async () => {
     const sameEmail = genTestEmail();
     const user = await ser_createUser(sameEmail, TEST_PW);
     const foundUser = await ser_findUserViaId(user._id);
@@ -122,7 +122,7 @@ describe('ser_deleteUser', () => {
     otherUserId = otherUser._id;
   });
   
-  test('deletes user specified by userId, other user remains untouched', async () => {
+  test('delete user specified by userId, ensure no longer in DB', async () => {
     await ser_deleteUser(userId);
 
     const user = await UserModel.findById(userId);
