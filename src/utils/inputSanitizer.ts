@@ -142,10 +142,10 @@ export function sanitizeStringArray(input: unknown, max: number, minLen: number,
  * @throws {InputError} if type or format is invalid
  ******************************************************************************************************************/
 export function sanitizeObjectId(input: unknown): Types.ObjectId {
-  if (typeof input !== 'string') throw new InputError('ID given');
+  if (typeof input !== 'string') throw new InputError('Mongo ObjectId given');
   const idStr = input.trim();
   if (!Types.ObjectId.isValid(idStr)) {
-    throw new InputError('ID given');
+    throw new InputError('Mongo ObjectId given');
   }
   return new Types.ObjectId(idStr);
 }
