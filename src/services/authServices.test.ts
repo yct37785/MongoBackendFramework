@@ -26,11 +26,12 @@ describe('ser_createUser', () => {
   test('create user and return created user doc', async () => {
     const sameEmail = genTestEmail();
     const user = await ser_createUser(sameEmail, TEST_PW);
-    expectMongooseDoc(user);
-    expect(user).toHaveProperty('_id');
-    expect(user.email).toBe(sameEmail);
-    expect(user.passwordHash).toMatch(/^\$2[aby]\$.{56}$/); // bcrypt hash
-    expect(user.refreshTokens).toEqual([]);
+    // check in DB
+    const res = await UserModel.findById(user.id);
+    if (!res) fail();
+    expect(res.email).toBe(sameEmail);
+    expect(res.passwordHash).toMatch(/^\$2[aby]\$.{56}$/); // bcrypt hash
+    expect(res.refreshTokens).toEqual([]);
   });
 });
 
