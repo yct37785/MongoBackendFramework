@@ -1,10 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 
-echo =============================================
-echo  mongoBackendFramework - DEV Launcher
-echo =============================================
-
 echo [1/2] Checking if port 4000 is in use...
 
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :4000 ^| findstr LISTENING') do (
@@ -14,6 +10,7 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :4000 ^| findstr LISTENING') 
 )
 
 echo [2/2] Launching development server...
+cd packages/Framework
 call npm run dev
 
 echo.

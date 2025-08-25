@@ -1,0 +1,23 @@
+{
+  "name": "framework",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "files": [
+    "dist",
+    "types",
+    "templates"
+  ],
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "nodemon --watch src --exec ts-node ./indexSample.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
