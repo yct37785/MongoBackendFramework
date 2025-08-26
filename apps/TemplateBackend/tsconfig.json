@@ -1,0 +1,13 @@
+{
+  "extends": "../../templates/tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "."
+  },
+  "references": [
+    {
+      "path": "../../packages/Framework"
+    }
+  ],
+  "include": ["index.ts", "src/**/*"],
+  "exclude": ["node_modules"]
+}
