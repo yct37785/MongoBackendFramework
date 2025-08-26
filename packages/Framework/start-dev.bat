@@ -10,7 +10,6 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :4000 ^| findstr LISTENING') 
 )
 
 echo [2/2] Launching development server...
-cd packages/Framework
 call npm run dev
 
 echo.
