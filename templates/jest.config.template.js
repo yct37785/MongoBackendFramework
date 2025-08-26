@@ -6,7 +6,7 @@ const tsJestTransformCfg = createDefaultPreset().transform;
 module.exports = {
   testEnvironment: "node",
   testTimeout: 30000,
-  setupFiles: ['<rootDir>/jest/jest.setup.ts'],
+  setupFiles: ['<rootDir>/jest.setup.ts'],
   roots: ["<rootDir>"], // explicitly tells Jest to only look inside <rootDir>/
   transform: {
     ...tsJestTransformCfg,
