@@ -28,9 +28,6 @@
     "consts": ["src/Consts.ts"]
     }
   },
-  "scripts": {
-    "dev": "nodemon --watch src --exec ts-node ./indexSample.ts"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
