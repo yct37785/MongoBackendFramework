@@ -41,16 +41,13 @@ export async function testInvalidStringInputs({
           : 'valid'
       );
 
-      try {
-        const result = fn(...args);
-        if (result instanceof Promise) {
-          await expect(result).rejects.toThrow(expectedError);
-        } else {
-          // if no error thrown yet, throw to fail test
-          fail(`Expected fn(${args}) to throw synchronously, but it returned: ${result}`);
-        }
-      } catch (err) {
-        // expected sync throw
+      const result = fn(...args);
+
+      if (result instanceof Promise) {
+        // async function: must reject
+        await expect(result).rejects.toThrow(expectedError);
+      } else {
+        // sync function: must throw immediately
         expect(() => fn(...args)).toThrow(expectedError);
       }
     }
