@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "lib": ["ES2022", "DOM"],
-    "typeRoots": ["./types", "./node_modules/@types"],
+    "typeRoots": ["./types", "../../node_modules/@types"],
     "declaration": true,
     "declarationMap": true
   },
