@@ -29,10 +29,10 @@ beforeEach(async () => {
  ******************************************************************************************************************/
 describe('verifyAccessToken', () => {
   
-  test('InputError', async () => {
-    // Authorization header is missing
+  test('InputError: missing or invalid authorization header', async () => {
+    // is missing
     await expect(verifyAccessToken(req)).rejects.toThrow(InputError);
-    // Authorization header is invalid
+    // is invalid
     req.headers.authorization = 'InvalidHeader';
     await expect(verifyAccessToken(req)).rejects.toThrow(InputError);
     req.headers.authorization = undefined;

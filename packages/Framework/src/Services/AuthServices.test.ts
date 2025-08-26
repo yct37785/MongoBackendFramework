@@ -17,7 +17,7 @@ setUpInMemDB();
  ******************************************************************************************************************/
 describe('ser_createUser', () => {
 
-  test('ConflictError', async () => {
+  test('ConflictError: duplicate email', async () => {
     const dupEmail = genTestEmail();
     await ser_createUser(dupEmail, TEST_PW);
     await expect(ser_createUser(dupEmail, 'Another@123')).rejects.toThrow(ConflictError);

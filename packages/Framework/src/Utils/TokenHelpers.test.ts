@@ -91,15 +91,13 @@ describe('pruneAndSortRefreshTokens', () => {
 
   test('filter by expired and enforces max sessions', () => {
     const now = new Date();
-    const expired = new Date(now.getTime() - 10000);
-    const valid = new Date(now.getTime() + 100000);
 
     // create MAX_SESSIONS + 2 valid tokens to exceed the limit
     const tokens = Array.from({ length: MAX_SESSIONS + 2 }, (_, i) => ({
       tokenHash: `valid-${i}`,
       createdAt: new Date(now.getTime() - i * 1000),
       lastUsedAt: now,
-      expiresAt: valid,
+      expiresAt: new Date(now.getTime() + 100000),
     }));
 
     // add 1 expired token (should be filtered out regardless)
@@ -107,7 +105,7 @@ describe('pruneAndSortRefreshTokens', () => {
       tokenHash: 'expired',
       createdAt: new Date(now.getTime() - 999999),
       lastUsedAt: now,
-      expiresAt: expired,
+      expiresAt: new Date(now.getTime() - 10000),
     });
     const result = pruneAndSortRefreshTokens(tokens);
 
@@ -138,6 +136,8 @@ describe('pruneAndSortRefreshTokens', () => {
       { tokenHash: 'b', createdAt: new Date(now.getTime() - 1000), lastUsedAt: now, expiresAt: new Date(now.getTime() + 60000) },
       { tokenHash: 'a', createdAt: new Date(now.getTime() - 500), lastUsedAt: now, expiresAt: new Date(now.getTime() + 60000) },
       { tokenHash: 'c', createdAt: new Date(now.getTime() - 2000), lastUsedAt: now, expiresAt: new Date(now.getTime() + 60000) },
+      // expired, expected to be removed
+      { tokenHash: 'd', createdAt: new Date(now.getTime() - 2500), lastUsedAt: now, expiresAt: new Date(now.getTime() - 100) },
     ];
 
     const result = pruneAndSortRefreshTokens(tokens);

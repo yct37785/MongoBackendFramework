@@ -138,6 +138,7 @@ export async function con_auth_refresh(req: Request) {
 
   // locate the specific token entry in the user's session list
   const tokenEntry = user.refreshTokens.find(rt => rt.tokenHash === hashedToken);
+  // it is guranteed to not be null, included however for TS safety
   if (!tokenEntry) {
     throw new NotFoundError('session not found');
   }
@@ -204,12 +205,7 @@ export async function con_auth_logout(req: Request) {
   }
 
   // filter out the matching token
-  const before = user.refreshTokens.length;
   user.refreshTokens = user.refreshTokens.filter(rt => rt.tokenHash !== hashedToken);
-
-  if (user.refreshTokens.length === before) {
-    throw new NotFoundError('session not found');
-  }
 
   await user.save();
 
