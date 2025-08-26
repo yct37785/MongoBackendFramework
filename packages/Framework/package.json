@@ -14,7 +14,7 @@
     "models": ["exports/Models.ts"],
     "services": ["exports/Services.ts"],
     "tests": ["exports/Tests.ts"],
-    "consts": ["src/consts.ts"]
+    "consts": ["src/Consts.ts"]
     }
   },
   "scripts": {
