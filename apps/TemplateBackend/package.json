@@ -5,9 +5,6 @@
   "description": "",
   "main": "./index.ts",
   "types": "./index.ts",
-  "files": [
-    "types"
-  ],
   "scripts": {
     "dev": "nodemon --watch src --exec ts-node ./index.ts"
   },
