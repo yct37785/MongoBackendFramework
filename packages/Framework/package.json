@@ -6,7 +6,15 @@
   "main": "./index.ts",
   "types": "./index.ts",
   "exports": {
-    ".": "./index.ts"
+    ".": "./index.ts",
+    "./core": "./exports/Core.ts",
+    "./error": "./exports/Error.ts",
+    "./middleware": "./exports/Middleware.ts",
+    "./models": "./exports/Models.ts",
+    "./services": "./exports/Services.ts",
+    "./tests": "./exports/Tests.ts",
+    "./Utils": "./exports/Utils.ts",
+    "./consts": "./src/consts.ts"
   },
   "scripts": {
     "dev": "nodemon --watch src --exec ts-node ./indexSample.ts"
