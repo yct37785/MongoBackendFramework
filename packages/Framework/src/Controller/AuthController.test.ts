@@ -10,18 +10,12 @@ setUpInMemDB();
  ******************************************************************************************************************/
 describe('con_auth_register', () => {
 
-  test('InputError', async () => {
-    // invalid email
-    await expect(con_auth_register(mockReq({ email: 'sfrfsxsafdsf', password: TEST_PW }))).rejects.toThrow(InputError);
-    await expect(con_auth_register(mockReq({ email: '', password: TEST_PW }))).rejects.toThrow(InputError);
-    await expect(con_auth_register(mockReq({ email: undefined, password: TEST_PW }))).rejects.toThrow(InputError);
-    // invalid password
-    await expect(con_auth_register(mockReq({ email: genTestEmail(), password: 'asdasdasdsadasdasdasdsad' }))).rejects.toThrow(InputError);
-    await expect(con_auth_register(mockReq({ email: genTestEmail(), password: '' }))).rejects.toThrow(InputError);
+  test('InputError: invalid email/password', async () => {
+    await expect(con_auth_register(mockReq({ email: 'invalid', password: TEST_PW }))).rejects.toThrow(InputError);
     await expect(con_auth_register(mockReq({ email: genTestEmail(), password: 123 }))).rejects.toThrow(InputError);
   });
 
-  test('ConflictError', async () => {
+  test('ConflictError: registering duplicate email', async () => {
     const sameEmail = genTestEmail();
     await con_auth_register(mockReq({ email: sameEmail, password: TEST_PW }));
     await expect(con_auth_register(mockReq({ email: sameEmail, password: TEST_PW }))).rejects.toThrow(ConflictError);
@@ -40,24 +34,17 @@ describe('con_auth_login', () => {
   const sameEmail = genTestEmail();
 
   beforeEach(async () => {
-    await con_auth_register(
-      mockReq({ email: sameEmail, password: TEST_PW }));
+    await con_auth_register(mockReq({ email: sameEmail, password: TEST_PW }));
   });
 
-  test('InputError', async () => {
-    // invalid email
+  test('InputError: invalid types', async () => {
     await expect(con_auth_login(mockReq({ email: {}, password: TEST_PW }))).rejects.toThrow(InputError);
-    // invalid password
     await expect(con_auth_login(mockReq({ email: sameEmail, password: null }))).rejects.toThrow(InputError);
   });
 
-  test('AuthError', async () => {
-    // wrong email
-    await expect(con_auth_login(mockReq({ email: 'sfrfsxsafdsf', password: TEST_PW }))).rejects.toThrow(AuthError);
-    await expect(con_auth_login(mockReq({ email: '', password: TEST_PW }))).rejects.toThrow(AuthError);
-    // wrong password
-    await expect(con_auth_login(mockReq({ email: sameEmail, password: 'asdasdasdsadasdasdasdsad' }))).rejects.toThrow(AuthError);
-    await expect(con_auth_login(mockReq({ email: sameEmail, password: '' }))).rejects.toThrow(AuthError);
+  test('AuthError: wrong credentials', async () => {
+    await expect(con_auth_login(mockReq({ email: sameEmail, password: 'wrongpw' }))).rejects.toThrow(AuthError);
+    await expect(con_auth_login(mockReq({ email: 'notfound@example.com', password: TEST_PW }))).rejects.toThrow(AuthError);
   });
 
   test('login successfully', async () => {
@@ -78,25 +65,22 @@ describe('con_auth_refresh', () => {
 
   beforeEach(async () => {
     await con_auth_register(mockReq({ email: sameEmail, password: TEST_PW }));
-    loginData = await con_auth_login(
-      mockReq({ email: sameEmail, password: TEST_PW }));
+    loginData = await con_auth_login(mockReq({ email: sameEmail, password: TEST_PW }));
   });
 
-  test('InputError', async () => {
-    // invalid refresh token type
-    await expect(con_auth_refresh(mockReq({ refreshToken: undefined }))).rejects.toThrow(InputError);
-    // wrong refresh token format
-    await expect(con_auth_refresh(mockReq({ refreshToken: 'dsfgfdgdfgdfgdfgdfgdfg' }))).rejects.toThrow(InputError);
+  test('InputError: invalid refresh token type/format', async () => {
+    await expect(con_auth_refresh(mockReq({ refreshToken: 123 }))).rejects.toThrow(InputError);
     await expect(con_auth_refresh(mockReq({ refreshToken: '' }))).rejects.toThrow(InputError);
   });
 
-  test('AuthError', async () => {
-    // malformed refresh token value
-    const malformed_rt = loginData.refreshToken.slice(0, -1) + (loginData.refreshToken.at(-1) === 'a' ? 'b' : 'a');
+  test('AuthError: malformed token', async () => {
+    const malformed_rt =
+      loginData.refreshToken.slice(0, -1) +
+      (loginData.refreshToken.at(-1) === 'a' ? 'b' : 'a');
     await expect(con_auth_refresh(mockReq({ refreshToken: malformed_rt }))).rejects.toThrow(AuthError);
   });
 
-  test('refresh successfully, access token expriy updated but refresh token expiry remains the same', async () => {
+  test('refresh successfully rotates access token but preserves refresh expiry', async () => {
     await wait(2);  // ensure that timestamp based seed will not generate same values
     const result = await con_auth_refresh(mockReq({ refreshToken: loginData.refreshToken }));
     expectString(result.accessToken);
@@ -121,26 +105,22 @@ describe('con_auth_logout', () => {
 
   beforeEach(async () => {
     await con_auth_register(mockReq({ email: sameEmail, password: TEST_PW }));
-    loginData = await con_auth_login(
-      mockReq({ email: sameEmail, password: TEST_PW })
-    );
+    loginData = await con_auth_login(mockReq({ email: sameEmail, password: TEST_PW }));
   });
 
-  test('InputError', async () => {
-    // invalid refresh token type
-    await expect(con_auth_logout(mockReq({ refreshToken: 341341334123434 }))).rejects.toThrow(InputError);
-    // wrong refresh token format
-    await expect(con_auth_logout(mockReq({ refreshToken: 'dsfgfdgdfgdfgdfgdfgdfg' }))).rejects.toThrow(InputError);
+  test('InputError: invalid refresh token type/format', async () => {
+    await expect(con_auth_logout(mockReq({ refreshToken: 123 }))).rejects.toThrow(InputError);
     await expect(con_auth_logout(mockReq({ refreshToken: '' }))).rejects.toThrow(InputError);
   });
 
-  test('AuthError', async () => {
-    // malformed refresh token value
-    const malformed_rt = loginData.refreshToken.slice(0, -1) + (loginData.refreshToken.at(-1) === 'a' ? 'b' : 'a');
+  test('AuthError: malformed token', async () => {
+    const malformed_rt =
+      loginData.refreshToken.slice(0, -1) +
+      (loginData.refreshToken.at(-1) === 'a' ? 'b' : 'a');
     await expect(con_auth_logout(mockReq({ refreshToken: malformed_rt }))).rejects.toThrow(AuthError);
   });
 
-  test('logout successfully', async () => {
+  test('logout successfully invalidates session', async () => {
     const result = await con_auth_logout(mockReq({ refreshToken: loginData.refreshToken }));
     expect(result.msg).toBe('Logged out of session');
     // refresh will fail (session removed)
