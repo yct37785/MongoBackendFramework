@@ -5,6 +5,17 @@
   "description": "",
   "main": "./index.ts",
   "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./utils": "./exports/Utils.ts",
+    "./core": "./exports/Core.ts",
+    "./error": "./exports/Error.ts",
+    "./middleware": "./exports/Middleware.ts",
+    "./models": "./exports/Models.ts",
+    "./services": "./exports/Services.ts",
+    "./tests": "./exports/Tests.ts",
+    "./consts": "./src/Consts.ts"
+  },
   "typesVersions": {
   "*": {
     "utils": ["exports/Utils.ts"],
