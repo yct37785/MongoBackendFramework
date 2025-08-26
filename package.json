@@ -1,46 +1,11 @@
 {
-  "name": "@yourname/mongo-backend-framework",
-  "version": "1.0.0",
+  "name": "monorepo",
   "private": true,
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "types",
-    "templates"
+  "version": "0.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
   ],
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "nodemon --watch src --exec ts-node ./indexSample.ts"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "exports": {
-    ".": "./dist/index.js",
-    "./types": "./types/index.d.ts",
-    "./axios": "./dist/exports/deps/axios.js",
-    "./express": "./dist/exports/deps/express.js",
-    "./mongoose": "./dist/exports/deps/mongoose.js",
-    "./uuid": "./dist/exports/deps/uuid.js",
-
-    "./createApp": "./dist/exports/src/core/createApp.js",
-    "./AppError": "./dist/exports/src/error/AppError.js",
-    "./globalErrorHandler": "./dist/exports/src/error/globalErrorHandler.js",
-    "./asyncHandler": "./dist/exports/src/middleware/asyncHandler.js",
-    "./authMiddleware": "./dist/exports/src/middleware/authMiddleware.js",
-    "./userModel": "./dist/exports/src/models/userModel.js",
-    "./authServices": "./dist/exports/src/services/authServices.js",
-    "./setupTestDB": "./dist/exports/src/test/setupTestDB.js",
-    "./testUtils": "./dist/exports/src/test/testUtils.js",
-    "./inputSanitizer": "./dist/exports/src/utils/inputSanitizer.js",
-    "./miscUtils": "./dist/exports/src/utils/misc.js",
-    "./consts": "./dist/exports/src/consts.js",
-
-    "./jest-setup-template": "./dist/templates/jest.setup.template.js",
-    "./jest-config-template": "./templates/jest.config.template.js"
-  },
   "dependencies": {
     "axios": "^1.10.0",
     "bcryptjs": "^3.0.2",

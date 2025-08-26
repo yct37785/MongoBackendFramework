@@ -1,0 +1,10 @@
+{
+  "extends": "../../templates/tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "."
+  },
+  "include": ["index.ts", "src/**/*", "types/**/*", "exports/**/*", "integrationTests/**/*"],
+  "exclude": ["node_modules"],
+  "files": ["types/index.d.ts"] // explicitly include augmentations
+}
