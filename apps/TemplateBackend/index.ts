@@ -3,10 +3,10 @@
  **************************************************************************************************/
 import {} from 'framework/types'; // type argumentation
 import express from 'express';
-import { loadEnv } from 'f';
-import { createApp } from '@yourname/mongo-backend-framework/createApp';
-import workspaceRoutes from './src/routes/workspaceRoutes';
-import projectRoutes from './src/routes/projectRoutes';
+import { loadEnv } from 'framework/utils';
+import { createApp } from 'framework/core';
+// import workspaceRoutes from './src/routes/workspaceRoutes';
+// import projectRoutes from './src/routes/projectRoutes';
 
 loadEnv();
 
@@ -21,8 +21,8 @@ const app = createApp(
   unprotectedRouter, // optional unprotected routes (if any)
   express
     .Router()
-    .use('/workspace', workspaceRoutes)
-    .use('/project', projectRoutes)
+    // .use('/workspace', workspaceRoutes)
+    // .use('/project', projectRoutes)
 );
 
 // start server
