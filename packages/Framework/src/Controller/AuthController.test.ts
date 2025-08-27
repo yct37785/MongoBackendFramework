@@ -109,8 +109,9 @@ describe('con_auth_logout', () => {
   });
 
   test('InputError: invalid refresh token type/format', async () => {
-    await expect(con_auth_logout(mockReq({ refreshToken: 123 }))).rejects.toThrow(InputError);
     await expect(con_auth_logout(mockReq({ refreshToken: '' }))).rejects.toThrow(InputError);
+    await expect(con_auth_logout(mockReq({ refreshToken: null }))).rejects.toThrow(InputError);
+    await expect(con_auth_logout(mockReq({ refreshToken: undefined }))).rejects.toThrow(InputError);
   });
 
   test('AuthError: malformed token', async () => {

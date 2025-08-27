@@ -24,11 +24,9 @@ beforeEach(async () => {
 /******************************************************************************************************************
  * Test token invalidation.
  ******************************************************************************************************************/
-describe('int: token invalidation test', () => {
-  /**
-   * test invalidation via logout
-   */
-  test('test invalidation via logout', async () => {
+describe('int: token invalidation tests', () => {
+
+  test('invalidation via logout', async () => {
     // logout
     let result = await con_auth_logout(mockReq({ refreshToken }));
     expect(typeof result.msg === 'string').toBeTruthy();
@@ -36,20 +34,14 @@ describe('int: token invalidation test', () => {
     await expect(con_auth_refresh(mockReq({ refreshToken }))).rejects.toThrow(AuthError);
   });
 
-  /**
-   * test invalidation via timeout
-   */
-  test('test invalidation via timeout', async () => {
+  test('invalidation via timeout', async () => {
     // wait for timeout + 1
     await wait(rtExpiresIn + 1);
     // throw auth error when attempt to refresh
     await expect(con_auth_refresh(mockReq({ refreshToken }))).rejects.toThrow(AuthError);
   }, (rtExpiresIn + 2) * 1000);
 
-  /**
-   * test invalidation via max session trim
-   */
-  test('test invalidation via max session trim', async () => {
+  test('invalidation via max session trim', async () => {
     // login maxSessions times
     for (let i = 0; i < maxSessions; ++i) {
       await con_auth_login(mockReq({ email: testEmail, password }));

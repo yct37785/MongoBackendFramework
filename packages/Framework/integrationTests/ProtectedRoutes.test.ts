@@ -24,11 +24,15 @@ beforeEach(async () => {
 
   accessToken = loginResult.accessToken;
 
-  // setup framework app with protected test route
+  // setup framework app with protected + unprotected test routes
   const protectedRoutes = express.Router();
   protectedRoutes.get('/dev/protected', (req, res) => {
     const user = req.user;
     res.status(200).json({ userId: user?.userId.toString() });
+  });
+  protectedRoutes.post('/dev/protected', (req, res) => {
+    const user = req.user;
+    res.status(200).json({ msg: 'POST success', userId: user?.userId.toString() });
   });
 
   const unprotectedRoutes = express.Router();
@@ -39,33 +43,24 @@ beforeEach(async () => {
 /******************************************************************************************************************
  * Protected routes test.
  ******************************************************************************************************************/
-describe('int: protected route test', () => {
-  /**
-   * no token
-   */
-  test('should reject request with no token', async () => {
-    const res = await server.get('/dev/protected');
+describe('int: protected route tests', () => {
 
-    expect(res.status).toBe(400); // missing or invalid header
+  test('reject request with no token', async () => {
+    const res = await server.get('/dev/protected');
+    expect(res.status).toBe(400);
     expect(res.body.err).toMatch('Invalid input: missing or invalid auth header');
   });
 
-  /**
-   * wrong token
-   */
-  test('should reject request with wrong token', async () => {
+  test('reject request with wrong token', async () => {
     const res = await server
-      .get('/dev/protected')
+      .post('/dev/protected')
       .set('Authorization', 'Bearer wrong.token.here');
 
     expect(res.status).toBe(401);
     expect(res.body.err).toMatch('Unauthorized: invalid or expired access token');
   });
 
-  /**
-   * valid token
-   */
-  test('should allow access with valid token', async () => {
+  test('allow access with valid token', async () => {
     const res = await server
       .get('/dev/protected')
       .set('Authorization', `Bearer ${accessToken}`);
