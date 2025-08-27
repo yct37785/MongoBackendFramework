@@ -1,13 +1,13 @@
 import { Request } from 'express';
+import { UserModel } from '../Models/UserModel';
 import { InputError, AuthError, NotFoundError, ConflictError } from '../Error/AppError';
-import { compareHash, hmacHash } from '../Utils/Hash';
+import { compareHash, hmacHash, hashValue } from '../Utils/Hash';
 import {
   generateNewTokens, createRefreshTokenEntry, pruneAndSortRefreshTokens,
   isRefreshTokenExpired, removeTokenFromList
 } from '../Utils/TokenHelpers';
 import { sanitizeEmail, sanitizePassword } from '../Utils/InputSanitizer';
 import { REFRESH_TOKEN_LEN } from '../Consts';
-import { ser_createUser, ser_findUserViaEmail, ser_findUserViaRT } from '../Services/AuthServices';
 
 /******************************************************************************************************************
  * Registers a new user using the provided email and password.
@@ -24,17 +24,24 @@ import { ser_createUser, ser_findUserViaEmail, ser_findUserViaRT } from '../Serv
  ******************************************************************************************************************/
 export async function con_auth_register(req: Request) {
   // validate required fields
-  const validatedEmail = sanitizeEmail(req.body.email);
-  const validatedPassword = sanitizePassword(req.body.password);
+  const email = sanitizeEmail(req.body.email);
+  const password = sanitizePassword(req.body.password);
 
   // check for existing user
-  const existing = await ser_findUserViaEmail(validatedEmail);
+  const existing = await UserModel.findOne({ email }).exec();
   if (existing) {
     throw new ConflictError('email already registered');
   }
 
   // create user
-  await ser_createUser(validatedEmail, validatedPassword);
+  const passwordHash = await hashValue(password);
+  const newUser = new UserModel({
+    email,
+    passwordHash,
+    refreshTokens: [],
+  });
+  await newUser.save();
+
   return { msg: 'User registered successfully' };
 }
 
@@ -66,7 +73,7 @@ export async function con_auth_login(req: Request) {
   if (typeof password !== 'string') throw new InputError('password');
 
   // check for existing user
-  const user = await ser_findUserViaEmail(email);
+  const user = await UserModel.findOne({ email }).exec();
   if (!user || !(await compareHash(password, user.passwordHash))) {
     throw new AuthError('wrong email or password');
   }
@@ -129,7 +136,7 @@ export async function con_auth_refresh(req: Request) {
   const hashedToken = hmacHash(refreshToken);
 
   // look up user by token hash
-  const user = await ser_findUserViaRT(hashedToken);
+  const user = await UserModel.findOne({ 'refreshTokens.tokenHash': hashedToken }).exec();
 
   // token reuse or not found
   if (!user) {
@@ -197,7 +204,7 @@ export async function con_auth_logout(req: Request) {
 
   // hash the provided refresh token
   const hashedToken = hmacHash(refreshToken);
-  const user = await ser_findUserViaRT(hashedToken);
+  const user = await UserModel.findOne({ 'refreshTokens.tokenHash': hashedToken }).exec();
 
   // token reuse or not found
   if (!user) {
