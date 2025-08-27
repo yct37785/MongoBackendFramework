@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 /******************************************************************************************************************
  * Interfaces
  ******************************************************************************************************************/
-export interface IEntries extends Document {
+export interface IEntry extends Document {
   // MongoDB auto --------------------------------------------/
   _id: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -17,7 +17,7 @@ export interface IEntries extends Document {
 /******************************************************************************************************************
  * Mongoose schema
  ******************************************************************************************************************/
-const EntrySchema = new mongoose.Schema<IEntries>(
+const EntrySchema = new mongoose.Schema<IEntry>(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     title: { type: String, required: true },
@@ -36,4 +36,4 @@ EntrySchema.index({ userId: 1, updatedAt: -1 });          // for dashboard-style
 /******************************************************************************************************************
  * Mongoose Model
  ******************************************************************************************************************/
-export const EntryModel: mongoose.Model<IEntries> = mongoose.model<IEntries>('Entries', EntrySchema);
+export const EntryModel: mongoose.Model<IEntry> = mongoose.model<IEntry>('Entries', EntrySchema);
