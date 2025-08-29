@@ -14,7 +14,7 @@ export const REQUIRED_ENV_VARS: Record<string, 'string' | 'number'> = {
   REFRESH_TOKEN_SECRET: 'string',
 };
 
-export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL_REGEX = /^(?!.*\.\.)[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,63}$/;
 export const EMAIL_MIN_LEN = 5;
 export const EMAIL_MAX_LEN = 50;
 

@@ -1,7 +1,12 @@
 import type { Request } from 'express';
 import mongoose, { Types } from 'mongoose';
+import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
 
 export const invalidStrs = [null, undefined, 123, true, [], {}, Symbol('sym')];
+export const invalidEmailValues = [`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`, '     ', '', 'plainaddress',
+  '@missinguser.com', 'user@.com', 'user@site..com', 'user@site.c'];
+export const invalidPwValues = [`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`, '     ', '', 'Valid@3',
+  'Valid01234', 'Valid01234'];
 
 /******************************************************************************************************************
  * Waits for a number of seconds before resolving.

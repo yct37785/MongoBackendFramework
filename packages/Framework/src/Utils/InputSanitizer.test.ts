@@ -7,8 +7,7 @@ import {
   sanitizeStringArray,
   sanitizeObjectId
 } from './InputSanitizer';
-import { invalidStrs, testInvalidInputs } from '../Test/TestUtils';
-import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
+import { invalidEmailValues, invalidPwValues, invalidStrs, testInvalidInputs } from '../Test/TestUtils';
 import { InputError } from '../Error/AppError';
 
 /******************************************************************************************************************
@@ -18,14 +17,14 @@ describe('sanitizeEmail', () => {
 
   test('InputError', async () => {
     // invalid email format
-    expect(() => sanitizeEmail('a@.c')).toThrow(InputError);
-    expect(() => sanitizeEmail('invalid')).toThrow(InputError);
-    expect(() => sanitizeEmail('                    ')).toThrow(InputError);
-    expect(() => sanitizeEmail('')).toThrow(InputError);
-    // exceeding length validation
-    expect(() => sanitizeEmail(`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`)).toThrow(InputError);
+    await testInvalidInputs({
+      fn: sanitizeEmail,
+      arity: 1,
+      values: invalidEmailValues,
+      expectedError: InputError,
+    });
     // non-string values
-     await testInvalidInputs({
+    await testInvalidInputs({
       fn: sanitizeEmail,
       arity: 1,
       values: invalidStrs,
@@ -45,10 +44,12 @@ describe('sanitizePassword', () => {
 
   test('InputError', async () => {
     // failed password policy
-    expect(() => sanitizePassword('Valid@3')).toThrow(InputError);
-    expect(() => sanitizePassword(`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`)).toThrow(InputError);
-    expect(() => sanitizePassword('Valid01234')).toThrow(InputError);
-    expect(() => sanitizePassword('')).toThrow(InputError);
+    await testInvalidInputs({
+      fn: sanitizePassword,
+      arity: 1,
+      values: invalidPwValues,
+      expectedError: InputError,
+    });
     // non-string values
     await testInvalidInputs({
       fn: sanitizePassword,
