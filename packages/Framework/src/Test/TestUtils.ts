@@ -1,6 +1,8 @@
 import type { Request } from 'express';
 import mongoose, { Types } from 'mongoose';
 
+export const invalidStrs = [null, undefined, 123, true, [], {}, Symbol('sym')];
+
 /******************************************************************************************************************
  * Waits for a number of seconds before resolving.
  *
@@ -10,34 +12,37 @@ import mongoose, { Types } from 'mongoose';
 export const wait = (s: number) => new Promise(res => setTimeout(res, s * 1000));
 
 /******************************************************************************************************************
- * Dynamically verifies that a function rejects invalid non-string inputs for each parameter position.
+ * Generic invalid value tester
+ *
+ * Dynamically verifies that a function rejects a set of invalid values for each parameter position.
  *
  * @param config - options object:
- *   - `fn`: function - target function to invoke
- *   - `arity`: number - total parameters the function expects
- *   - `fixedArgs?`: any[] - fixed values for positions not under test
- *   - `expectedError?`: Error - error class expected to be thrown
+ *   - fn: function under test
+ *   - arity: number of parameters
+ *   - values: array of invalid values to test (e.g. invalidStrValues, invalidEmailValues)
+ *   - fixedArgs?: default arguments for non-tested positions
+ *   - expectedError?: error class expected to be thrown
  ******************************************************************************************************************/
-export async function testInvalidStringInputs({
+export async function testInvalidInputs({
   fn,
   arity,
+  values,
   fixedArgs = [],
   expectedError = Error,
 }: {
   fn: (...args: any[]) => any;
   arity: number;
+  values: any[];
   fixedArgs?: any[];
   expectedError?: new (...args: any[]) => Error;
 }) {
-  const invalidValues = [null, undefined, 123, true, [], {}, Symbol('sym')];
-
   for (let paramIndex = 0; paramIndex < arity; paramIndex++) {
-    for (const invalid of invalidValues) {
+    for (const val of values) {
       const args = Array.from({ length: arity }).map((_, i) =>
         fixedArgs[i] !== undefined
           ? fixedArgs[i]
           : i === paramIndex
-          ? invalid
+          ? val
           : 'valid'
       );
 
@@ -45,14 +50,11 @@ export async function testInvalidStringInputs({
         const result = fn(...args);
 
         if (result instanceof Promise) {
-          // async function: must reject
           await expect(result).rejects.toThrow(expectedError);
         } else {
-          // sync function: must throw -> wrap call in function
           expect(() => fn(...args)).toThrow(expectedError);
         }
       } catch (err) {
-        // for sync functions that throw immediately, we end up here
         expect(err).toBeInstanceOf(expectedError);
       }
     }

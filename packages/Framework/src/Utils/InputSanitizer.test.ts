@@ -7,7 +7,7 @@ import {
   sanitizeStringArray,
   sanitizeObjectId
 } from './InputSanitizer';
-import { testInvalidStringInputs } from '../Test/TestUtils';
+import { invalidStrs, testInvalidInputs } from '../Test/TestUtils';
 import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
 import { InputError } from '../Error/AppError';
 
@@ -25,9 +25,10 @@ describe('sanitizeEmail', () => {
     // exceeding length validation
     expect(() => sanitizeEmail(`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`)).toThrow(InputError);
     // non-string values
-     await testInvalidStringInputs({
+     await testInvalidInputs({
       fn: sanitizeEmail,
       arity: 1,
+      values: invalidStrs,
       expectedError: InputError,
     });
   });
@@ -49,9 +50,10 @@ describe('sanitizePassword', () => {
     expect(() => sanitizePassword('Valid01234')).toThrow(InputError);
     expect(() => sanitizePassword('')).toThrow(InputError);
     // non-string values
-    await testInvalidStringInputs({
+    await testInvalidInputs({
       fn: sanitizePassword,
       arity: 1,
+      values: invalidStrs,
       expectedError: InputError,
     });
   });
@@ -77,9 +79,10 @@ describe('sanitizeStringField', () => {
     expect(() => sanitizeStringField('a', 2, 100, '')).toThrow(InputError);
     expect(() => sanitizeStringField('        ', 1, 100, '')).toThrow(InputError);  // trim into length 0
     // non-string values
-    await testInvalidStringInputs({
+    await testInvalidInputs({
       fn: (v: string) => sanitizeStringField(v, 0, 100, ''),
       arity: 1,
+      values: invalidStrs,
       expectedError: InputError,
     });
   });
@@ -100,9 +103,10 @@ describe('datestrToDate', () => {
     // non ISO datestrings
     expect(() => datestrToDate('not-a-date', '')).toThrow(InputError);
     // non-string values
-    await testInvalidStringInputs({
+    await testInvalidInputs({
       fn: (v) => datestrToDate(v, ''),
       arity: 1,
+      values: invalidStrs,
       expectedError: InputError,
     });
   });
@@ -177,9 +181,10 @@ describe('sanitizeObjectId', () => {
     expect(() => sanitizeObjectId('')).toThrow(InputError);
     expect(() => sanitizeObjectId(' '.repeat(24))).toThrow(InputError);
     // non-string values
-    await testInvalidStringInputs({
+    await testInvalidInputs({
       fn: sanitizeObjectId,
       arity: 1,
+      values: invalidStrs,
       expectedError: InputError,
     });
   });
