@@ -7,7 +7,7 @@ import {
   sanitizeStringArray,
   sanitizeObjectId
 } from './InputSanitizer';
-import { invalidEmailValues, invalidPwValues, invalidStrs, testInvalidInputs } from '../Test/TestUtils';
+import { invaid_strs, invalid_emails, invalid_pws, testInvalidInputs } from '../Test/TestUtils';
 import { InputError } from '../Error/AppError';
 
 /******************************************************************************************************************
@@ -17,13 +17,13 @@ describe('sanitizeEmail', () => {
 
   test('InputError', async () => {
     // invalid email format
-    await testInvalidInputs(sanitizeEmail, invalidEmailValues, InputError);
+    await testInvalidInputs(sanitizeEmail, invalid_emails, InputError);
     // non-string values
-    await testInvalidInputs(sanitizeEmail, invalidStrs, InputError);
+    await testInvalidInputs(sanitizeEmail, invaid_strs, InputError);
+  });
 
-    test('trim and lowercase valid email', () => {
-      expect(sanitizeEmail('  TEST@Example.com  ')).toBe('test@example.com');
-    });
+  test('trim and lowercase valid email', () => {
+    expect(sanitizeEmail('  TEST@Example.com  ')).toBe('test@example.com');
   });
 });
 
@@ -34,9 +34,9 @@ describe('sanitizePassword', () => {
 
   test('InputError', async () => {
     // failed password policy
-    await testInvalidInputs(sanitizePassword, invalidPwValues, InputError);
+    await testInvalidInputs(sanitizePassword, invalid_pws, InputError);
     // non-string values
-    await testInvalidInputs(sanitizePassword, invalidStrs, InputError);
+    await testInvalidInputs(sanitizePassword, invaid_strs, InputError);
   });
 
   test('accept valid password', () => {
@@ -62,8 +62,8 @@ describe('sanitizeStringField', () => {
     // non-string values
     await testInvalidInputs(
       (v: string) => sanitizeStringField(v, 0, 100, ''),
-      invalidStrs, InputError);
-    });
+      invaid_strs, InputError);
+  });
 
   test('trim and pass valid string', () => {
     expect(sanitizeStringField('    My Desc  ', 0, 100, '')).toBe('My Desc');
@@ -83,7 +83,7 @@ describe('datestrToDate', () => {
     // non-string values
     await testInvalidInputs(
       (v) => datestrToDate(v, ''),
-      invalidStrs, InputError);
+      invaid_strs, InputError);
   });
 
   test('return JS Date object from valid ISO datestring', () => {
@@ -156,7 +156,7 @@ describe('sanitizeObjectId', () => {
     expect(() => sanitizeObjectId('')).toThrow(InputError);
     expect(() => sanitizeObjectId(' '.repeat(24))).toThrow(InputError);
     // non-string values
-    await testInvalidInputs(sanitizeObjectId, invalidStrs, InputError);
+    await testInvalidInputs(sanitizeObjectId, invaid_strs, InputError);
   });
 
   test('return ObjectId instance from valid string', () => {

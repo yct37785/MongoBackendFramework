@@ -2,10 +2,13 @@ import type { Request } from 'express';
 import mongoose, { Types } from 'mongoose';
 import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
 
-export const invalidStrs = [null, undefined, 123, true, [], {}, Symbol('sym')];
-export const invalidEmailValues = [`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`, '     ', '', 'plainaddress',
+/******************************************************************************************************************
+ * Invalid values.
+ ******************************************************************************************************************/
+export const invaid_strs = [null, undefined, 123, true, [], {}, Symbol('sym')];
+export const invalid_emails = [`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`, '     ', '', 'plainaddress',
   '@missinguser.com', 'user@.com', 'user@site..com', 'user@site.c'];
-export const invalidPwValues = [`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`, '     ', '', 'Valid@3',
+export const invalid_pws = [`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`, '     ', '', 'Valid@3',
   'Valid01234', 'Valid01234'];
 
 /******************************************************************************************************************
@@ -17,7 +20,7 @@ export const invalidPwValues = [`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`, '     
 export const wait = (s: number) => new Promise(res => setTimeout(res, s * 1000));
 
 /******************************************************************************************************************
- * Generic invalid value tester
+ * Generic invalid value tester.
  *
  * @param fn - function under test (accepts one value)
  * @param values - array of invalid values to test
