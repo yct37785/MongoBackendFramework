@@ -23,14 +23,16 @@ export const wait = (s: number) => new Promise(res => setTimeout(res, s * 1000))
  * Generic invalid value tester.
  *
  * @param fn - function under test (accepts one value)
- * @param values - array of invalid values to test
  * @param expectedError - error class expected to be thrown
+ * @param valueSets - one or more arrays of invalid values
  ******************************************************************************************************************/
 export async function testInvalidInputs(
   fn: (v: any) => any,
-  values: any[],
-  expectedError: new (...args: any[]) => Error = Error
+  expectedError: new (...args: any[]) => Error = Error,
+  ...valueSets: any[][]
 ) {
+  const values = valueSets.flat();
+
   for (const val of values) {
     const result = (() => fn(val)) as any;
 
