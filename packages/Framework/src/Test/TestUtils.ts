@@ -34,13 +34,20 @@ export async function testInvalidInputs(
   const values = valueSets.flat();
 
   for (const val of values) {
-    const result = (() => fn(val)) as any;
+    let result: any;
+
+    try {
+      result = fn(val);
+    } catch (err) {
+      // sync throw (happened immediately)
+      expect(err).toBeInstanceOf(expectedError);
+      continue; // skip to next val
+    }
 
     if (result instanceof Promise) {
-      // async function: expect rejection
       await expect(result).rejects.toThrow(expectedError);
     } else {
-      // sync function: expect throw
+      // sync function that *returned* normally (rare here)
       expect(() => fn(val)).toThrow(expectedError);
     }
   }
