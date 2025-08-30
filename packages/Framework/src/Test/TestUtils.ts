@@ -1,5 +1,15 @@
 import type { Request } from 'express';
 import mongoose, { Types } from 'mongoose';
+import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
+
+/******************************************************************************************************************
+ * invalid values sets
+ ******************************************************************************************************************/
+export const invaid_strs = [null, undefined, 123, true, [], {}, Symbol('sym')];
+export const invalid_emails = [`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`, '     ', '', 'plainaddress',
+  '@missinguser.com', 'user@.com', 'user@site..com', 'user@site.c'];
+export const invalid_pws = [`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`, '     ', '', 'Valid@3',
+  'Valid01234', 'Valid01234'];
 
 /******************************************************************************************************************
  * Waits for a number of seconds before resolving.
@@ -10,51 +20,35 @@ import mongoose, { Types } from 'mongoose';
 export const wait = (s: number) => new Promise(res => setTimeout(res, s * 1000));
 
 /******************************************************************************************************************
- * Dynamically verifies that a function rejects invalid non-string inputs for each parameter position.
+ * Generic invalid value tester.
  *
- * @param config - options object:
- *   - `fn`: function - target function to invoke
- *   - `arity`: number - total parameters the function expects
- *   - `fixedArgs?`: any[] - fixed values for positions not under test
- *   - `expectedError?`: Error - error class expected to be thrown
+ * @param fn - function under test (accepts one value)
+ * @param expectedError - error class expected to be thrown
+ * @param valueSets - one or more arrays of invalid values
  ******************************************************************************************************************/
-export async function testInvalidStringInputs({
-  fn,
-  arity,
-  fixedArgs = [],
-  expectedError = Error,
-}: {
-  fn: (...args: any[]) => any;
-  arity: number;
-  fixedArgs?: any[];
-  expectedError?: new (...args: any[]) => Error;
-}) {
-  const invalidValues = [null, undefined, 123, true, [], {}, Symbol('sym')];
+export async function testInvalidInputs(
+  fn: (v: any) => any,
+  expectedError: new (...args: any[]) => Error = Error,
+  ...valueSets: any[][]
+) {
+  const values = valueSets.flat();
 
-  for (let paramIndex = 0; paramIndex < arity; paramIndex++) {
-    for (const invalid of invalidValues) {
-      const args = Array.from({ length: arity }).map((_, i) =>
-        fixedArgs[i] !== undefined
-          ? fixedArgs[i]
-          : i === paramIndex
-          ? invalid
-          : 'valid'
-      );
+  for (const val of values) {
+    let result: any;
 
-      try {
-        const result = fn(...args);
+    try {
+      result = fn(val);
+    } catch (err) {
+      // sync throw (happened immediately)
+      expect(err).toBeInstanceOf(expectedError);
+      continue; // skip to next val
+    }
 
-        if (result instanceof Promise) {
-          // async function: must reject
-          await expect(result).rejects.toThrow(expectedError);
-        } else {
-          // sync function: must throw -> wrap call in function
-          expect(() => fn(...args)).toThrow(expectedError);
-        }
-      } catch (err) {
-        // for sync functions that throw immediately, we end up here
-        expect(err).toBeInstanceOf(expectedError);
-      }
+    if (result instanceof Promise) {
+      await expect(result).rejects.toThrow(expectedError);
+    } else {
+      // sync function that *returned* normally (rare here)
+      expect(() => fn(val)).toThrow(expectedError);
     }
   }
 }
@@ -88,46 +82,42 @@ export function mockReq(
 }
 
 /******************************************************************************************************************
- * Asserts that a value is a Mongoose document/model instance.
+ * Malform given token by changing last chr.
+ *
+ * @param token - token value to malform
+ * 
+ * @returns string - malformed token
+ ******************************************************************************************************************/
+export function malformToken(token: string) {
+  return token.slice(0, -1) + (token.at(-1) === 'a' ? 'b' : 'a');
+}
+
+/******************************************************************************************************************
+ * Asserts that a value matches the listed datatype.
  *
  * @param value - value to check
  ******************************************************************************************************************/
+// value is a Mongoose document/model instance
 export function expectMongooseDoc(value: unknown) {
   expect(value).toBeInstanceOf(mongoose.Model);
 }
 
-/******************************************************************************************************************
- * Asserts that a value is a plain object (not a Mongoose document).
- *
- * @param value - value to check
- ******************************************************************************************************************/
+// value is a plain object (not a Mongoose document)
 export function expectObj(value: unknown) {
   expect(value?.constructor.name).toBe('Object');
 }
 
-/******************************************************************************************************************
- * Asserts that a value is a string.
- *
- * @param value - value to check
- ******************************************************************************************************************/
+// value is a string
 export function expectString(value: unknown) {
   expect(typeof value === 'string').toBeTruthy();
 }
 
-/******************************************************************************************************************
- * Asserts that a value is a JS Date instance.
- *
- * @param value - value to check
- ******************************************************************************************************************/
+// value is a JS Date instance
 export function expectDate(value: unknown) {
   expect(value).toBeInstanceOf(Date);
 }
 
-/******************************************************************************************************************
- * Asserts that a string is a valid Mongoose objectId.
- *
- * @param value - value to check
- ******************************************************************************************************************/
+// string is a valid Mongoose objectId
 export function expectObjectIdStr(value: string) {
   expect(value).toMatch(/^[a-f\d]{24}$/i);
 }
@@ -139,4 +129,5 @@ export function genTestEmail(): string {
   const rand = Math.random().toString(36).slice(2, 10); // 8 random chars
   return `user${rand}@test.com`;
 }
+
 export const TEST_PW = 'StrongP@ss123!';
