@@ -7,8 +7,7 @@ import {
   sanitizeStringArray,
   sanitizeObjectId
 } from './InputSanitizer';
-import { testInvalidStringInputs } from '../Test/TestUtils';
-import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
+import { invaid_strs, invalid_emails, invalid_pws, testInvalidInputs } from '../Test/TestUtils';
 import { InputError } from '../Error/AppError';
 
 /******************************************************************************************************************
@@ -18,18 +17,9 @@ describe('sanitizeEmail', () => {
 
   test('InputError', async () => {
     // invalid email format
-    expect(() => sanitizeEmail('a@.c')).toThrow(InputError);
-    expect(() => sanitizeEmail('invalid')).toThrow(InputError);
-    expect(() => sanitizeEmail('                    ')).toThrow(InputError);
-    expect(() => sanitizeEmail('')).toThrow(InputError);
-    // exceeding length validation
-    expect(() => sanitizeEmail(`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`)).toThrow(InputError);
+    await testInvalidInputs(sanitizeEmail, InputError, invalid_emails);
     // non-string values
-     await testInvalidStringInputs({
-      fn: sanitizeEmail,
-      arity: 1,
-      expectedError: InputError,
-    });
+    await testInvalidInputs(sanitizeEmail, InputError, invaid_strs);
   });
 
   test('trim and lowercase valid email', () => {
@@ -44,16 +34,9 @@ describe('sanitizePassword', () => {
 
   test('InputError', async () => {
     // failed password policy
-    expect(() => sanitizePassword('Valid@3')).toThrow(InputError);
-    expect(() => sanitizePassword(`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`)).toThrow(InputError);
-    expect(() => sanitizePassword('Valid01234')).toThrow(InputError);
-    expect(() => sanitizePassword('')).toThrow(InputError);
+    await testInvalidInputs(sanitizePassword, InputError, invalid_pws);
     // non-string values
-    await testInvalidStringInputs({
-      fn: sanitizePassword,
-      arity: 1,
-      expectedError: InputError,
-    });
+    await testInvalidInputs(sanitizePassword, InputError, invaid_strs);
   });
 
   test('accept valid password', () => {
@@ -77,11 +60,9 @@ describe('sanitizeStringField', () => {
     expect(() => sanitizeStringField('a', 2, 100, '')).toThrow(InputError);
     expect(() => sanitizeStringField('        ', 1, 100, '')).toThrow(InputError);  // trim into length 0
     // non-string values
-    await testInvalidStringInputs({
-      fn: (v: string) => sanitizeStringField(v, 0, 100, ''),
-      arity: 1,
-      expectedError: InputError,
-    });
+    await testInvalidInputs(
+      (v: string) => sanitizeStringField(v, 0, 100, ''),
+      InputError, invaid_strs);
   });
 
   test('trim and pass valid string', () => {
@@ -100,11 +81,9 @@ describe('datestrToDate', () => {
     // non ISO datestrings
     expect(() => datestrToDate('not-a-date', '')).toThrow(InputError);
     // non-string values
-    await testInvalidStringInputs({
-      fn: (v) => datestrToDate(v, ''),
-      arity: 1,
-      expectedError: InputError,
-    });
+    await testInvalidInputs(
+      (v) => datestrToDate(v, ''),
+      InputError, invaid_strs);
   });
 
   test('return JS Date object from valid ISO datestring', () => {
@@ -130,10 +109,9 @@ describe('sanitizeStringArray', () => {
     // post-trim string elem fails length validation
     const validInput = [' col1  ', 'col2', 'a'.repeat(MAX_LEN)];
     const input = validInput.concat(['a'.repeat(MAX_LEN + 1)]);
+
     expect(() => callSanitizeStringArray(input)).toThrow(InputError);
-
     expect(() => callSanitizeStringArray(validInput.concat(['']))).toThrow(InputError);
-
     expect(() => callSanitizeStringArray(validInput.concat(['        ']))).toThrow(InputError);
 
     // invalid elem types
@@ -177,11 +155,7 @@ describe('sanitizeObjectId', () => {
     expect(() => sanitizeObjectId('')).toThrow(InputError);
     expect(() => sanitizeObjectId(' '.repeat(24))).toThrow(InputError);
     // non-string values
-    await testInvalidStringInputs({
-      fn: sanitizeObjectId,
-      arity: 1,
-      expectedError: InputError,
-    });
+    await testInvalidInputs(sanitizeObjectId, InputError, invaid_strs);
   });
 
   test('return ObjectId instance from valid string', () => {

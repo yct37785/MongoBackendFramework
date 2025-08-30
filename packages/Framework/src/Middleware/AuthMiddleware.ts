@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import { ser_findUserViaId } from '../Services/AuthServices';
 import jwt from 'jsonwebtoken';
 import { Types } from 'mongoose';
+import { UserModel } from '../Models/UserModel';
 import { InputError, AuthError } from '../Error/AppError';
 
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
@@ -36,7 +36,7 @@ export async function verifyAccessToken(req: Request) {
     }
 
     // verify user exists
-    const user = await ser_findUserViaId(new Types.ObjectId(decoded.sub));
+    const user = await UserModel.findById(new Types.ObjectId(decoded.sub)).exec();
     if (!user) {
       throw new AuthError('user not found');
     }

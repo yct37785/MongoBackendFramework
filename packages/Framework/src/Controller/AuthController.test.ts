@@ -1,7 +1,8 @@
 import { setUpInMemDB } from '../Test/SetupTestDB';
 import { wait, expectString, expectDate, mockReq, genTestEmail, TEST_PW } from '../Test/TestUtils';
 import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from './AuthController';
-import { InputError, AuthError, NotFoundError, ConflictError } from '../Error/AppError';
+import { InputError, AuthError, ConflictError } from '../Error/AppError';
+import { invaid_strs, invalid_emails, invalid_pws, testInvalidInputs, malformToken } from '../Test/TestUtils';
 
 setUpInMemDB();
 
@@ -10,9 +11,13 @@ setUpInMemDB();
  ******************************************************************************************************************/
 describe('con_auth_register', () => {
 
-  test('InputError: invalid email/password', async () => {
-    await expect(con_auth_register(mockReq({ email: 'invalid', password: TEST_PW }))).rejects.toThrow(InputError);
-    await expect(con_auth_register(mockReq({ email: genTestEmail(), password: 123 }))).rejects.toThrow(InputError);
+  test('InputError: invalid email/password type/format', async () => {
+    await testInvalidInputs(
+      (email) => con_auth_register(mockReq({ email, password: TEST_PW })),
+      InputError, invaid_strs, invalid_emails);
+    await testInvalidInputs(
+      (password) => con_auth_register(mockReq({ email: genTestEmail(), password })),
+      InputError, invaid_strs, invalid_pws);
   });
 
   test('ConflictError: registering duplicate email', async () => {
@@ -38,8 +43,12 @@ describe('con_auth_login', () => {
   });
 
   test('InputError: invalid types', async () => {
-    await expect(con_auth_login(mockReq({ email: {}, password: TEST_PW }))).rejects.toThrow(InputError);
-    await expect(con_auth_login(mockReq({ email: sameEmail, password: null }))).rejects.toThrow(InputError);
+    await testInvalidInputs(
+      (email) => con_auth_login(mockReq({ email, password: TEST_PW })),
+      InputError, invaid_strs);
+    await testInvalidInputs(
+      (password) => con_auth_login(mockReq({ email: sameEmail, password })),
+      InputError, invaid_strs);
   });
 
   test('AuthError: wrong credentials', async () => {
@@ -69,15 +78,13 @@ describe('con_auth_refresh', () => {
   });
 
   test('InputError: invalid refresh token type/format', async () => {
-    await expect(con_auth_refresh(mockReq({ refreshToken: 123 }))).rejects.toThrow(InputError);
-    await expect(con_auth_refresh(mockReq({ refreshToken: '' }))).rejects.toThrow(InputError);
+    await testInvalidInputs(
+      (refreshToken) => con_auth_refresh(mockReq({ refreshToken })),
+      InputError, invaid_strs);
   });
 
   test('AuthError: malformed token', async () => {
-    const malformed_rt =
-      loginData.refreshToken.slice(0, -1) +
-      (loginData.refreshToken.at(-1) === 'a' ? 'b' : 'a');
-    await expect(con_auth_refresh(mockReq({ refreshToken: malformed_rt }))).rejects.toThrow(AuthError);
+    await expect(con_auth_refresh(mockReq({ refreshToken: malformToken(loginData.refreshToken) }))).rejects.toThrow(AuthError);
   });
 
   test('refresh successfully rotates access token but preserves refresh expiry', async () => {
@@ -109,16 +116,13 @@ describe('con_auth_logout', () => {
   });
 
   test('InputError: invalid refresh token type/format', async () => {
-    await expect(con_auth_logout(mockReq({ refreshToken: '' }))).rejects.toThrow(InputError);
-    await expect(con_auth_logout(mockReq({ refreshToken: null }))).rejects.toThrow(InputError);
-    await expect(con_auth_logout(mockReq({ refreshToken: undefined }))).rejects.toThrow(InputError);
+    await testInvalidInputs(
+      (refreshToken) => con_auth_logout(mockReq({ refreshToken })),
+      InputError, invaid_strs);
   });
 
   test('AuthError: malformed token', async () => {
-    const malformed_rt =
-      loginData.refreshToken.slice(0, -1) +
-      (loginData.refreshToken.at(-1) === 'a' ? 'b' : 'a');
-    await expect(con_auth_logout(mockReq({ refreshToken: malformed_rt }))).rejects.toThrow(AuthError);
+    await expect(con_auth_logout(mockReq({ refreshToken: malformToken(loginData.refreshToken) }))).rejects.toThrow(AuthError);
   });
 
   test('logout successfully invalidates session', async () => {

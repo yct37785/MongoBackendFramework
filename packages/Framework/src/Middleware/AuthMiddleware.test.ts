@@ -1,6 +1,6 @@
 import { setUpInMemDB } from '../Test/SetupTestDB';
 import { verifyAccessToken, verifyAccessTokenMiddleware } from './AuthMiddleware';
-import { ser_findUserViaId } from '../Services/AuthServices';
+import { UserModel } from '../Models/UserModel';
 import { mockReq, genTestEmail, TEST_PW } from '../Test/TestUtils';
 import { con_auth_register, con_auth_login } from '../Controller/AuthController';
 import jwt from 'jsonwebtoken';
@@ -95,7 +95,7 @@ describe('verifyAccessToken', () => {
       email: testEmail
     });
     // user found and id matches
-    const user = await ser_findUserViaId(req.user.userId);
+    const user = await UserModel.findById(req.user.userId).exec();
     expect(req.user.userId.toString()).toBe(user?._id.toString());
   });
 });
