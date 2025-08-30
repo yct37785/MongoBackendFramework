@@ -19,49 +19,24 @@ export const wait = (s: number) => new Promise(res => setTimeout(res, s * 1000))
 /******************************************************************************************************************
  * Generic invalid value tester
  *
- * Dynamically verifies that a function rejects a set of invalid values for each parameter position.
- *
- * @param config - options object:
- *   - fn: function under test
- *   - arity: number of parameters
- *   - values: array of invalid values to test (e.g. invalidStrValues, invalidEmailValues)
- *   - fixedArgs?: default arguments for non-tested positions
- *   - expectedError?: error class expected to be thrown
+ * @param fn - function under test (accepts one value)
+ * @param values - array of invalid values to test
+ * @param expectedError - error class expected to be thrown
  ******************************************************************************************************************/
-export async function testInvalidInputs({
-  fn,
-  arity,
-  values,
-  fixedArgs = [],
-  expectedError = Error,
-}: {
-  fn: (...args: any[]) => any;
-  arity: number;
-  values: any[];
-  fixedArgs?: any[];
-  expectedError?: new (...args: any[]) => Error;
-}) {
-  for (let paramIndex = 0; paramIndex < arity; paramIndex++) {
-    for (const val of values) {
-      const args = Array.from({ length: arity }).map((_, i) =>
-        fixedArgs[i] !== undefined
-          ? fixedArgs[i]
-          : i === paramIndex
-          ? val
-          : 'valid'
-      );
+export async function testInvalidInputs(
+  fn: (v: any) => any,
+  values: any[],
+  expectedError: new (...args: any[]) => Error = Error
+) {
+  for (const val of values) {
+    const result = (() => fn(val)) as any;
 
-      try {
-        const result = fn(...args);
-
-        if (result instanceof Promise) {
-          await expect(result).rejects.toThrow(expectedError);
-        } else {
-          expect(() => fn(...args)).toThrow(expectedError);
-        }
-      } catch (err) {
-        expect(err).toBeInstanceOf(expectedError);
-      }
+    if (result instanceof Promise) {
+      // async function: expect rejection
+      await expect(result).rejects.toThrow(expectedError);
+    } else {
+      // sync function: expect throw
+      expect(() => fn(val)).toThrow(expectedError);
     }
   }
 }
