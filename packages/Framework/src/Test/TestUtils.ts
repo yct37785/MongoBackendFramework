@@ -3,7 +3,7 @@ import mongoose, { Types } from 'mongoose';
 import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
 
 /******************************************************************************************************************
- * Invalid values.
+ * invalid values sets
  ******************************************************************************************************************/
 export const invaid_strs = [null, undefined, 123, true, [], {}, Symbol('sym')];
 export const invalid_emails = [`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`, '     ', '', 'plainaddress',
@@ -75,46 +75,42 @@ export function mockReq(
 }
 
 /******************************************************************************************************************
- * Asserts that a value is a Mongoose document/model instance.
+ * Malform given token by changing last chr.
+ *
+ * @param token - token value to malform
+ * 
+ * @returns string - malformed token
+ ******************************************************************************************************************/
+export function malformToken(token: string) {
+  return token.slice(0, -1) + (token.at(-1) === 'a' ? 'b' : 'a');
+}
+
+/******************************************************************************************************************
+ * Asserts that a value matches the listed datatype.
  *
  * @param value - value to check
  ******************************************************************************************************************/
+// value is a Mongoose document/model instance
 export function expectMongooseDoc(value: unknown) {
   expect(value).toBeInstanceOf(mongoose.Model);
 }
 
-/******************************************************************************************************************
- * Asserts that a value is a plain object (not a Mongoose document).
- *
- * @param value - value to check
- ******************************************************************************************************************/
+// value is a plain object (not a Mongoose document)
 export function expectObj(value: unknown) {
   expect(value?.constructor.name).toBe('Object');
 }
 
-/******************************************************************************************************************
- * Asserts that a value is a string.
- *
- * @param value - value to check
- ******************************************************************************************************************/
+// value is a string
 export function expectString(value: unknown) {
   expect(typeof value === 'string').toBeTruthy();
 }
 
-/******************************************************************************************************************
- * Asserts that a value is a JS Date instance.
- *
- * @param value - value to check
- ******************************************************************************************************************/
+// value is a JS Date instance
 export function expectDate(value: unknown) {
   expect(value).toBeInstanceOf(Date);
 }
 
-/******************************************************************************************************************
- * Asserts that a string is a valid Mongoose objectId.
- *
- * @param value - value to check
- ******************************************************************************************************************/
+// string is a valid Mongoose objectId
 export function expectObjectIdStr(value: string) {
   expect(value).toMatch(/^[a-f\d]{24}$/i);
 }
@@ -126,4 +122,5 @@ export function genTestEmail(): string {
   const rand = Math.random().toString(36).slice(2, 10); // 8 random chars
   return `user${rand}@test.com`;
 }
+
 export const TEST_PW = 'StrongP@ss123!';
