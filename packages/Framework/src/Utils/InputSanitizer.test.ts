@@ -97,7 +97,7 @@ describe('sanitizeStringArray', () => {
   const MAX_ELEMS = 10;
 
   const callSanitizeStringArray = (input: unknown) =>
-    sanitizeStringArray(input, MAX_ELEMS, MIN_LEN, MAX_LEN);
+    sanitizeStringArray(input, MAX_ELEMS, MIN_LEN, MAX_LEN, '');
 
   test('InputError', () => {
     // post-trim string elem fails length validation
@@ -144,17 +144,17 @@ describe('sanitizeObjectId', () => {
 
   test('InputError', async () => {
     // invalid ObjectID format + non-string values
-    await testInvalidInputs(sanitizeObjectId, InputError, invalid_objIds, invaid_strs);
+    await testInvalidInputs((v) => sanitizeObjectId(v, ''), InputError, invalid_objIds, invaid_strs);
   });
 
   test('return ObjectId instance from valid string', () => {
     const validId = new Types.ObjectId().toString();
-    const result = sanitizeObjectId(validId);
+    const result = sanitizeObjectId(validId, '');
     expect(result).toBeInstanceOf(Types.ObjectId);
     expect(result.toString()).toBe(validId);
     // with trailing whitespaces
     const validId2 = new Types.ObjectId().toString();
-    const result2 = sanitizeObjectId(`   ${validId2}   `);
+    const result2 = sanitizeObjectId(`   ${validId2}   `, '');
     expect(result2.toString()).toBe(validId2);
   });
 });
