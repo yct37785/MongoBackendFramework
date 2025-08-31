@@ -6,6 +6,7 @@ import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
  * invalid values sets
  ******************************************************************************************************************/
 export const invaid_strs = [null, undefined, 123, true, [], {}, Symbol('sym')];
+export const invaid_strs_optional = [null, 123, true, [], {}, Symbol('sym')];  // for testing optional str fields (can be undefined)
 export const invalid_emails = [`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`, '     ', '', 'plainaddress',
   '@missinguser.com', 'user@.com', 'user@site..com', 'user@site.c'];
 export const invalid_pws = [`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`, '     ', '', 'Valid@3',
