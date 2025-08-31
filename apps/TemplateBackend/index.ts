@@ -12,7 +12,7 @@ loadEnv();
 // test rexport express works on client
 const unprotectedRouter: express.Router = express.Router();
 unprotectedRouter.get('/test-unprotected', async (req, res) => {
-  return res.status(200).json('hello from TemplateBackend');
+  return res.status(200).json('hello from TemplateBackend!');
 });
 
 // initialize app with optional unprotected/protected routes
