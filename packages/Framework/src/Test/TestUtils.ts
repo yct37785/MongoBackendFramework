@@ -10,6 +10,7 @@ export const invalid_emails = [`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`, 
   '@missinguser.com', 'user@.com', 'user@site..com', 'user@site.c'];
 export const invalid_pws = [`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`, '     ', '', 'Valid@3',
   'Valid01234', 'Valid01234'];
+export const invalid_objIds = ['123', 'zzzzzzzzzzzzzzzzzzzzzzzz', '', ' '.repeat(24)];
 
 /******************************************************************************************************************
  * Waits for a number of seconds before resolving.

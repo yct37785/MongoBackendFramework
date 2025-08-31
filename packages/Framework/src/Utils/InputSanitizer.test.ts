@@ -7,7 +7,7 @@ import {
   sanitizeStringArray,
   sanitizeObjectId
 } from './InputSanitizer';
-import { invaid_strs, invalid_emails, invalid_pws, testInvalidInputs } from '../Test/TestUtils';
+import { invaid_strs, invalid_emails, invalid_pws, invalid_objIds, testInvalidInputs } from '../Test/TestUtils';
 import { InputError } from '../Error/AppError';
 
 /******************************************************************************************************************
@@ -16,10 +16,8 @@ import { InputError } from '../Error/AppError';
 describe('sanitizeEmail', () => {
 
   test('InputError', async () => {
-    // invalid email format
-    await testInvalidInputs(sanitizeEmail, InputError, invalid_emails);
-    // non-string values
-    await testInvalidInputs(sanitizeEmail, InputError, invaid_strs);
+    // invalid email format + non-string values
+    await testInvalidInputs(sanitizeEmail, InputError, invalid_emails, invaid_strs);
   });
 
   test('trim and lowercase valid email', () => {
@@ -33,10 +31,8 @@ describe('sanitizeEmail', () => {
 describe('sanitizePassword', () => {
 
   test('InputError', async () => {
-    // failed password policy
-    await testInvalidInputs(sanitizePassword, InputError, invalid_pws);
-    // non-string values
-    await testInvalidInputs(sanitizePassword, InputError, invaid_strs);
+    // failed password policy + non-string values
+    await testInvalidInputs(sanitizePassword, InputError, invalid_pws, invaid_strs);
   });
 
   test('accept valid password', () => {
@@ -78,12 +74,10 @@ describe('sanitizeStringField', () => {
 describe('datestrToDate', () => {
 
   test('InputError', async () => {
-    // non ISO datestrings
-    expect(() => datestrToDate('not-a-date', '')).toThrow(InputError);
-    // non-string values
+    // non ISO datestrings + non-string values
     await testInvalidInputs(
       (v) => datestrToDate(v, ''),
-      InputError, invaid_strs);
+      InputError, ['not-a-date'], invaid_strs);
   });
 
   test('return JS Date object from valid ISO datestring', () => {
@@ -149,13 +143,8 @@ describe('sanitizeStringArray', () => {
 describe('sanitizeObjectId', () => {
 
   test('InputError', async () => {
-    // invalid ObjectID format
-    expect(() => sanitizeObjectId('123')).toThrow(InputError);
-    expect(() => sanitizeObjectId('zzzzzzzzzzzzzzzzzzzzzzzz')).toThrow(InputError);
-    expect(() => sanitizeObjectId('')).toThrow(InputError);
-    expect(() => sanitizeObjectId(' '.repeat(24))).toThrow(InputError);
-    // non-string values
-    await testInvalidInputs(sanitizeObjectId, InputError, invaid_strs);
+    // invalid ObjectID format + non-string values
+    await testInvalidInputs(sanitizeObjectId, InputError, invalid_objIds, invaid_strs);
   });
 
   test('return ObjectId instance from valid string', () => {
