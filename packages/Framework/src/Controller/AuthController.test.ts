@@ -1,8 +1,9 @@
 import { setUpInMemDB } from '../Test/SetupTestDB';
-import { wait, expectString, expectDate, mockReq, genTestEmail, TEST_PW } from '../Test/TestUtils';
+import { wait, expectString, expectDate, mockReq, genTestEmail, TEST_PW,
+  invaid_strs, invalid_emails, invalid_pws, testInvalidInputs, malformToken
+ } from '../Test/TestUtils';
 import { con_auth_register, con_auth_login, con_auth_refresh, con_auth_logout } from './AuthController';
 import { InputError, AuthError, ConflictError } from '../Error/AppError';
-import { invaid_strs, invalid_emails, invalid_pws, testInvalidInputs, malformToken } from '../Test/TestUtils';
 
 setUpInMemDB();
 
