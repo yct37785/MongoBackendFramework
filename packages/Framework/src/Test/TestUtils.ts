@@ -1,4 +1,5 @@
 import type { Request } from 'express';
+const supRequest = require('supertest');
 import mongoose, { Types } from 'mongoose';
 import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
 
@@ -81,6 +82,65 @@ export function mockReq(
   if (params) req.params = params;
   if (query) req.query = query;
   return req as Request;
+}
+
+/******************************************************************************************************************
+ * URI builder utility.
+ * Substitutes params into URL and appends query strings.
+ * 
+ * @param path - base URL path
+ * @param params? - params record
+ * @param query? - query record
+ * 
+ * @returns string - fully built URL
+ ******************************************************************************************************************/
+export function buildUrl(path: string, params?: Record<string, any>, query?: Record<string, any>): string {
+  let url = path;
+  // substitute :params in path
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      url = url.replace(`:${key}`, encodeURIComponent(String(value)));
+    }
+  }
+  // append query string
+  if (query) {
+    const queryString = new URLSearchParams(
+      Object.entries(query).map(([k, v]) => [k, String(v)])
+    ).toString();
+    if (queryString) {
+      url += (url.includes('?') ? '&' : '?') + queryString;
+    }
+  }
+  return url;
+}
+
+/******************************************************************************************************************
+ * Endpoints utility with supertest.
+ ******************************************************************************************************************/
+export async function doPost(
+  server: ReturnType<typeof supRequest>,
+  path: string,
+  body?: any,
+  params?: Record<string, any>,
+  query?: Record<string, any>
+) {
+  const url = buildUrl(path, params, query);
+  let req = server.post(url).set('Accept', 'application/json');
+  if (body) req = req.send(body);
+  return await req;
+}
+
+export async function doGet(
+  server: ReturnType<typeof supRequest>,
+  path: string,
+  body?: any,
+  params?: Record<string, any>,
+  query?: Record<string, any>
+) {
+  const url = buildUrl(path, params, query);
+  let req = server.get(url).set('Accept', 'application/json');
+  if (body) req = req.send(body);
+  return await req;
 }
 
 /******************************************************************************************************************
