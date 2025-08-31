@@ -68,7 +68,7 @@ export async function testInvalidInputs(
  ******************************************************************************************************************/
 export function mockReq(
   body?: Record<string, any>,
-  userId?: Types.ObjectId,
+  userId?: Types.ObjectId | null,
   params?: Record<string, any>,
   query?: Record<string, any>
 ): Request {
