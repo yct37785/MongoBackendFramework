@@ -8,6 +8,6 @@
       "path": "../../packages/Framework"
     }
   ],
-  "include": ["index.ts", "src/**/*"],
+  "include": ["index.ts", "src/**/*", "integrationTests/**/*"],
   "exclude": ["node_modules"]
 }
