@@ -1,4 +1,6 @@
 import { setUpInMemDB } from '../Test/SetupTestDB';
+import { UserModel } from '../Models/UserModel';
+import { hmacHash } from '../Utils/Hash';
 import { wait, expectString, expectDate, mockReq, genTestEmail, TEST_PW,
   invaid_strs, invalid_emails, invalid_pws, testInvalidInputs, malformToken
  } from '../Test/TestUtils';
@@ -28,8 +30,11 @@ describe('con_auth_register', () => {
   });
 
   test('registered successfully', async () => {
-    const result = await con_auth_register(mockReq({ email: genTestEmail(), password: TEST_PW }));
+    const email = genTestEmail();
+    const result = await con_auth_register(mockReq({ email, password: TEST_PW }));
     expect(result.msg).toBe('User registered successfully');
+    // user exists in DB
+    expect(await UserModel.findOne({ email }).exec()).not.toBeNull();
   });
 });
 
@@ -63,6 +68,9 @@ describe('con_auth_login', () => {
     expectString(result.refreshToken);
     expectDate(result.atExpiresAt);
     expectDate(result.rtExpiresAt);
+    // session exists in DB
+    const hashedToken = hmacHash(result.refreshToken);
+    expect(await UserModel.findOne({ 'refreshTokens.tokenHash': hashedToken }).exec()).not.toBeNull();
   });
 });
 
@@ -101,6 +109,12 @@ describe('con_auth_refresh', () => {
     expect(result.rtExpiresAt.toISOString()).toBe(loginData.rtExpiresAt.toISOString());       // refresh token expiry always stay the same
     // refresh will fail (refresh token rotated)
     await expect(con_auth_refresh(mockReq({ refreshToken: loginData.refreshToken }))).rejects.toThrow(AuthError);
+    // previous session does not exist in DB
+    let hashedToken = hmacHash(loginData.refreshToken);
+    expect(await UserModel.findOne({ 'refreshTokens.tokenHash': hashedToken }).exec()).toBeNull();
+    // rotated session exists in DB
+    hashedToken = hmacHash(result.refreshToken);
+    expect(await UserModel.findOne({ 'refreshTokens.tokenHash': hashedToken }).exec()).not.toBeNull();
   });
 });
 
@@ -131,5 +145,8 @@ describe('con_auth_logout', () => {
     expect(result.msg).toBe('Logged out of session');
     // refresh will fail (session removed)
     await expect(con_auth_refresh(mockReq({ refreshToken: loginData.refreshToken }))).rejects.toThrow(AuthError);
+    // session does not exist in DB
+    const hashedToken = hmacHash(loginData.refreshToken);
+    expect(await UserModel.findOne({ 'refreshTokens.tokenHash': hashedToken }).exec()).toBeNull();
   });
 });
