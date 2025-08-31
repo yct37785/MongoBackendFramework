@@ -134,9 +134,11 @@ export function sanitizeStringArray(input: unknown, max: number, minLen: number,
 }
 
 /******************************************************************************************************************
- * Sanitizes an ObjectId string.
+ * Sanitizes an ObjectId input.
+ * If is already of ObjectId type, return instantly.
+ * Else, ensure value is valid ObjectId 24-char hex string.
  *
- * @param id - input representing a MongoDB ObjectId
+ * @param input - input, could be string or already an ObjectId type
  * @param fieldName? - field name for error logging
  * 
  * @returns ObjectId - valid Mongoose ObjectId
@@ -144,26 +146,14 @@ export function sanitizeStringArray(input: unknown, max: number, minLen: number,
  * @throws {InputError} if type or format is invalid
  ******************************************************************************************************************/
 export function sanitizeObjectId(input: unknown, fieldName?: string): Types.ObjectId {
+  if (input instanceof Types.ObjectId) {
+    return input; // already valid
+  }
   if (typeof input !== 'string') throw new InputError(fieldName || '');
+
   const idStr = input.trim();
   if (!Types.ObjectId.isValid(idStr)) {
     throw new InputError(fieldName || '');
   }
   return new Types.ObjectId(idStr);
-}
-
-/******************************************************************************************************************
- * Ensure ObjectId is defined. For use with Express userId.
- *
- * @param input - MongoDB ObjectId that might be undefined
- * 
- * @returns ObjectId - defined Mongoose ObjectId
- * 
- * @throws {InputError} if undefined
- ******************************************************************************************************************/
-export function verifyObjectId(input: Types.ObjectId | undefined): Types.ObjectId {
-   if (input instanceof Types.ObjectId) {
-    return input;
-  }
-  throw new InputError('Undefined object id');
 }
