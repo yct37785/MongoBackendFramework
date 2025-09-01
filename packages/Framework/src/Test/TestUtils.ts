@@ -212,13 +212,14 @@ export function genRandomString(length: number = 30): string {
   if (length < 5) {
     throw new Error('Length must be at least 5 to include all character categories');
   }
+
   const lowers = 'abcdefghijklmnopqrstuvwxyz';
   const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const digits = '0123456789';
   const specials = '!@#$%^&*()-_=+[]{}|;:,.<>?/`~';
+  const spaces = ' ';
 
-  // exclude space from the pool so it never lands at ends
-  const allChars = lowers + uppers + digits + specials;
+  const allChars = lowers + uppers + digits + specials + spaces;
 
   // ensure at least one of each category
   const required = [
@@ -226,27 +227,21 @@ export function genRandomString(length: number = 30): string {
     uppers[Math.floor(Math.random() * uppers.length)],
     digits[Math.floor(Math.random() * digits.length)],
     specials[Math.floor(Math.random() * specials.length)],
+    spaces, // guaranteed one space
   ];
 
-  // fill remaining (reserve 1 slot for the guaranteed space)
-  const remainingLength = length - required.length - 1;
-  for (let i = 0; i < remainingLength; i++) {
+  // fill the rest randomly
+  while (required.length < length) {
     required.push(allChars[Math.floor(Math.random() * allChars.length)]);
   }
 
-  // choose a middle index (not first or last) for the space
-  const spacePos = Math.floor(Math.random() * (required.length - 2)) + 1; // 1..len-2
-  required.splice(spacePos, 0, ' ');
-
-  // shuffle everything *except* the forced space
+  // shuffle array
   for (let i = required.length - 1; i > 0; i--) {
-    if (i === spacePos) continue; // don't move the guaranteed space
     const j = Math.floor(Math.random() * (i + 1));
-    if (j === spacePos) continue; // don't swap with the guaranteed space
     [required[i], required[j]] = [required[j], required[i]];
   }
 
-  return required.join('');
+  return required.join('').trim();
 }
 
 /******************************************************************************************************************
