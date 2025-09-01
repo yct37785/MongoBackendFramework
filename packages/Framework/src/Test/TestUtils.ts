@@ -205,6 +205,52 @@ export function expectObjectIdStr(value: string) {
 }
 
 /******************************************************************************************************************
+ * Generate a random string of given length (default 30).
+ * Guarantees at least one lowercase, uppercase, digit, special character, and space.
+ ******************************************************************************************************************/
+export function genRandomString(length: number = 30): string {
+  if (length < 5) {
+    throw new Error('Length must be at least 5 to include all character categories');
+  }
+
+  const lowers = 'abcdefghijklmnopqrstuvwxyz';
+  const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const digits = '0123456789';
+  const specials = '!@#$%^&*()-_=+[]{}|;:,.<>?/`~';
+  const spaces = ' ';
+
+  const allChars = lowers + uppers + digits + specials + spaces;
+
+  // ensure at least one of each (excluding space for now)
+  const required = [
+    lowers[Math.floor(Math.random() * lowers.length)],
+    uppers[Math.floor(Math.random() * uppers.length)],
+    digits[Math.floor(Math.random() * digits.length)],
+    specials[Math.floor(Math.random() * specials.length)],
+  ];
+
+  // fill the rest (excluding space guarantee for now)
+  const remainingLength = length - required.length - 1; // reserve 1 for space
+  for (let i = 0; i < remainingLength; i++) {
+    required.push(allChars[Math.floor(Math.random() * allChars.length)]);
+  }
+
+  // insert a guaranteed space in the middle (not at ends)
+  const spacePos = Math.floor(Math.random() * (required.length - 2)) + 1; // index 1..len-2
+  required.splice(spacePos, 0, ' ');
+
+  // shuffle everything except we keep the space at its chosen index
+  for (let i = required.length - 1; i > 0; i--) {
+    if (i === spacePos) continue; // don't move the guaranteed space
+    const j = Math.floor(Math.random() * (i + 1));
+    if (j === spacePos) continue; // also don't swap with space
+    [required[i], required[j]] = [required[j], required[i]];
+  }
+
+  return required.join('');
+}
+
+/******************************************************************************************************************
  * Common testing placeholder values.
  ******************************************************************************************************************/
 export function genTestEmail(): string {
