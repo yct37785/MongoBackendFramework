@@ -1,31 +1,23 @@
 import express from 'express';
-const request = require('supertest');
+const supRequest = require('supertest');
 import { setUpInMemDB } from '../src/Test/SetupTestDB';
-import { createApp } from '../src/App'; // framework app
-import { con_auth_register, con_auth_login } from '../src/Controller/AuthController';
-import { mockReq } from '../src/Test/TestUtils';
+import { createApp } from '../src/App';
+import { TEST_PW, genTestEmail } from '../src/Test/TestUtils';
+import { setupTestUsersSup } from '../src/Test/DownstreamTestUtils';
 import { Types } from 'mongoose';
 import jwt from 'jsonwebtoken';
 
 setUpInMemDB();
 
-let server: ReturnType<typeof request>;
+let server: ReturnType<typeof supRequest>;
+const email = genTestEmail();
 let accessToken: string = '';
-const email = `testuser${Date.now()}@test.com`;
-const password = 'Test12345!';
 
 /******************************************************************************************************************
  * Setup.
  ******************************************************************************************************************/
-beforeEach(async () => {
-  // create test user and login to get JWT
-  await con_auth_register(mockReq({ email, password }));
-  const loginResult = await con_auth_login(
-    mockReq({ email, password }));
-
-  accessToken = loginResult.accessToken;
-
-  // setup framework app with protected + unprotected test routes
+beforeAll(async () => {
+  // setup framework app with protected test routes
   const protectedRoutes = express.Router();
   protectedRoutes.get('/dev/protected', (req, res) => {
     const user = req.user;
@@ -35,10 +27,13 @@ beforeEach(async () => {
     const user = req.user;
     res.status(200).json({ msg: 'POST success', userId: user?.userId.toString() });
   });
+  const app = createApp(express.Router(), protectedRoutes);
+  server = supRequest(app);
+});
 
-  const unprotectedRoutes = express.Router();
-  const app = createApp(unprotectedRoutes, protectedRoutes);
-  server = request(app);
+beforeEach(async () => {
+  const { accessTokens } = await setupTestUsersSup(server, [{ email, password: TEST_PW }]);
+  accessToken = accessTokens[0];
 });
 
 /******************************************************************************************************************

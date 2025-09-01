@@ -34,12 +34,14 @@ export async function setupTestUserCon(email: string, password: string): Promise
  *
  * @returns any:
  *   - `accessTokens`: string[] - list of access tokens
+ *   - `refreshTokens`: string[] - list of refresh tokens
  ******************************************************************************************************************/
 export async function setupTestUsersSup(
   server: ReturnType<typeof supRequest>,
   users: { email: string; password: string }[]
-): Promise<{ accessTokens: string[] }> {
+): Promise<{ accessTokens: string[], refreshTokens: string[] }> {
   const accessTokens: string[] = [];
+  const refreshTokens: string[] = [];
 
   for (const { email, password } of users) {
     // register
@@ -47,7 +49,8 @@ export async function setupTestUsersSup(
     // login
     const loginRes = await doPost(server, '/auth/login', { email, password });
     accessTokens.push(loginRes.body.accessToken);
+    refreshTokens.push(loginRes.body.refreshToken);
   }
 
-  return { accessTokens };
+  return { accessTokens, refreshTokens };
 }
