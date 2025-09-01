@@ -1,4 +1,5 @@
 import type { Request } from 'express';
+const supRequest = require('supertest');
 import mongoose, { Types } from 'mongoose';
 import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
 
@@ -6,10 +7,12 @@ import { EMAIL_MAX_LEN, PW_MAX_LEN } from '../Consts';
  * invalid values sets
  ******************************************************************************************************************/
 export const invaid_strs = [null, undefined, 123, true, [], {}, Symbol('sym')];
+export const invaid_strs_optional = [null, 123, true, [], {}, Symbol('sym')];  // for testing optional str fields (can be undefined)
 export const invalid_emails = [`${'a'.repeat(EMAIL_MAX_LEN - 11)}@example.com`, '     ', '', 'plainaddress',
   '@missinguser.com', 'user@.com', 'user@site..com', 'user@site.c'];
 export const invalid_pws = [`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`, '     ', '', 'Valid@3',
   'Valid01234', 'Valid01234'];
+export const invalid_objIds = ['123', 'zzzzzzzzzzzzzzzzzzzzzzzz', '', ' '.repeat(24)];
 
 /******************************************************************************************************************
  * Waits for a number of seconds before resolving.
@@ -67,7 +70,7 @@ export async function testInvalidInputs(
  ******************************************************************************************************************/
 export function mockReq(
   body?: Record<string, any>,
-  userId?: Types.ObjectId,
+  userId?: Types.ObjectId | null,
   params?: Record<string, any>,
   query?: Record<string, any>
 ): Request {
@@ -79,6 +82,85 @@ export function mockReq(
   if (params) req.params = params;
   if (query) req.query = query;
   return req as Request;
+}
+
+/******************************************************************************************************************
+ * URI builder utility.
+ * Replaces :params in path and appends query string.
+ * 
+ * @param path - base URL path
+ * @param params? - params record
+ * @param query? - query record
+ * 
+ * @returns string - fully built URL
+ ******************************************************************************************************************/
+export function buildUrl(
+  path: string,
+  params?: Record<string, any>,
+  query?: Record<string, any>
+): string {
+  let url = path;
+
+  // substitute :params
+  if (params) {
+    for (const [key, value] of Object.entries(params)) {
+      url = url.replace(new RegExp(`:${key}\\b`, 'g'), encodeURIComponent(String(value)));
+    }
+  }
+
+  // append query string
+  if (query) {
+    const queryString = new URLSearchParams(
+      Object.entries(query).map(([k, v]) => [k, String(v)])
+    ).toString();
+    if (queryString) {
+      url += (url.includes('?') ? '&' : '?') + queryString;
+    }
+  }
+
+  return url;
+}
+
+/******************************************************************************************************************
+ * Endpoints utility with supertest.
+ * 
+ * @param server - supertest created Express app
+ * @param path - full URL
+ * @param accessToken - for authorization header, empty if not needed
+ * @param body? - body
+ * @param params? - params
+ * @param query? - query
+ * 
+ * @returns any - Express response object
+ ******************************************************************************************************************/
+export async function doPost(
+  server: ReturnType<typeof supRequest>,
+  path: string,
+  accessToken: string,
+  body?: any,
+  params?: Record<string, any>,
+  query?: Record<string, any>
+) {
+  const url = buildUrl(path, params, query);
+  let req = server.post(url).set('Accept', 'application/json');
+  if (accessToken) req = req.set('Authorization', `Bearer ${accessToken}`);
+  if (body) req = req.send(body);
+  return await req;
+}
+
+export async function doGet(
+  server: ReturnType<typeof supRequest>,
+  path: string,
+  accessToken: string,
+  body?: any,
+  params?: Record<string, any>,
+  query?: Record<string, any>
+) {
+  const url = buildUrl(path, params, query);
+  let req = server.get(url).set('Accept', 'application/json');
+  if (accessToken) req = req.set('Authorization', `Bearer ${accessToken}`);
+  if (body) req = req.send(body);
+  return await req;
 }
 
 /******************************************************************************************************************
@@ -120,6 +202,46 @@ export function expectDate(value: unknown) {
 // string is a valid Mongoose objectId
 export function expectObjectIdStr(value: string) {
   expect(value).toMatch(/^[a-f\d]{24}$/i);
+}
+
+/******************************************************************************************************************
+ * Generate a random string of given length (default 30).
+ * Guarantees at least one lowercase, uppercase, digit, special character, and space.
+ ******************************************************************************************************************/
+export function genRandomString(length: number = 30): string {
+  if (length < 5) {
+    throw new Error('Length must be at least 5 to include all character categories');
+  }
+
+  const lowers = 'abcdefghijklmnopqrstuvwxyz';
+  const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const digits = '0123456789';
+  const specials = '!@#$%^&*()-_=+[]{}|;:,.<>?/`~';
+  const spaces = ' ';
+
+  const allChars = lowers + uppers + digits + specials + spaces;
+
+  // ensure at least one of each category
+  const required = [
+    lowers[Math.floor(Math.random() * lowers.length)],
+    uppers[Math.floor(Math.random() * uppers.length)],
+    digits[Math.floor(Math.random() * digits.length)],
+    specials[Math.floor(Math.random() * specials.length)],
+    spaces, // guaranteed one space
+  ];
+
+  // fill the rest randomly
+  while (required.length < length) {
+    required.push(allChars[Math.floor(Math.random() * allChars.length)]);
+  }
+
+  // shuffle array
+  for (let i = required.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [required[i], required[j]] = [required[j], required[i]];
+  }
+
+  return required.join('').trim();
 }
 
 /******************************************************************************************************************
