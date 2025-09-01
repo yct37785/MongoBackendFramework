@@ -9,17 +9,17 @@ router.post('/create', asyncHandler(async (req, res) => {
   return res.status(201).json(resData);
 }));
 
-router.post('/get', asyncHandler(async (req, res) => {
+router.post('/get/:id', asyncHandler(async (req, res) => {
   const resData = await con_entry_get(req);
   return res.status(200).json(resData);
 }));
 
-router.post('/update', asyncHandler(async (req, res) => {
+router.post('/update/:id', asyncHandler(async (req, res) => {
   const resData = await con_entry_update(req);
   return res.status(200).json(resData);
 }));
 
-router.post('/delete', asyncHandler(async (req, res) => {
+router.post('/delete/:id', asyncHandler(async (req, res) => {
   const resData = await con_entry_delete(req);
   return res.status(200).json(resData);
 }));
