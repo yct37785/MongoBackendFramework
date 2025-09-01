@@ -37,9 +37,9 @@ describe('int: security', () => {
    * users cannot login with each other's password
    ****************************************************************************************************************/
   test('no cross-account login', async () => {
-    let res = await doPost(server, '/auth/login', { email: users[0].email, password: users[1].password });
+    let res = await doPost(server, '/auth/login', '', { email: users[0].email, password: users[1].password });
     expect(res.status).toBe(401);
-    res = await doPost(server, '/auth/login', { email: users[1].email, password: users[0].password });
+    res = await doPost(server, '/auth/login', '', { email: users[1].email, password: users[0].password });
     expect(res.status).toBe(401);
   });
 });

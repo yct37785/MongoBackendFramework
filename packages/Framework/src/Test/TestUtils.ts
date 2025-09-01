@@ -116,16 +116,27 @@ export function buildUrl(path: string, params?: Record<string, any>, query?: Rec
 
 /******************************************************************************************************************
  * Endpoints utility with supertest.
+ * 
+ * @param server - supertest created Express app
+ * @param path - full URL
+ * @param accessToken - for authorization header, empty if not needed
+ * @param body? - body
+ * @param params? - params
+ * @param query? - query
+ * 
+ * @returns any - Express response object
  ******************************************************************************************************************/
 export async function doPost(
   server: ReturnType<typeof supRequest>,
   path: string,
+  accessToken: string,
   body?: any,
   params?: Record<string, any>,
   query?: Record<string, any>
 ) {
   const url = buildUrl(path, params, query);
   let req = server.post(url).set('Accept', 'application/json');
+  if (accessToken) req = req.set('Authorization', `Bearer ${accessToken}`);
   if (body) req = req.send(body);
   return await req;
 }
@@ -133,12 +144,14 @@ export async function doPost(
 export async function doGet(
   server: ReturnType<typeof supRequest>,
   path: string,
+  accessToken: string,
   body?: any,
   params?: Record<string, any>,
   query?: Record<string, any>
 ) {
   const url = buildUrl(path, params, query);
   let req = server.get(url).set('Accept', 'application/json');
+  if (accessToken) req = req.set('Authorization', `Bearer ${accessToken}`);
   if (body) req = req.send(body);
   return await req;
 }

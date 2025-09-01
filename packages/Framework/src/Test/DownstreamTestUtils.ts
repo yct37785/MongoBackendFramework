@@ -29,7 +29,7 @@ export async function setupTestUserCon(email: string, password: string): Promise
 /******************************************************************************************************************
  * Setup users with supertest.
  *
- * @param server - supertest instance
+ * @param server - supertest created Express app
  * @param users - list of account details (email and password)
  *
  * @returns any:
@@ -45,9 +45,9 @@ export async function setupTestUsersSup(
 
   for (const { email, password } of users) {
     // register
-    await doPost(server, '/auth/register', { email, password });
+    await doPost(server, '/auth/register', '', { email, password });
     // login
-    const loginRes = await doPost(server, '/auth/login', { email, password });
+    const loginRes = await doPost(server, '/auth/login', '', { email, password });
     accessTokens.push(loginRes.body.accessToken);
     refreshTokens.push(loginRes.body.refreshToken);
   }
