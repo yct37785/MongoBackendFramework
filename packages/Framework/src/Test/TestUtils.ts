@@ -86,7 +86,7 @@ export function mockReq(
 
 /******************************************************************************************************************
  * URI builder utility.
- * Substitutes params into URL and appends query strings.
+ * Replaces :params in path and appends query string.
  * 
  * @param path - base URL path
  * @param params? - params record
@@ -94,14 +94,20 @@ export function mockReq(
  * 
  * @returns string - fully built URL
  ******************************************************************************************************************/
-export function buildUrl(path: string, params?: Record<string, any>, query?: Record<string, any>): string {
+export function buildUrl(
+  path: string,
+  params?: Record<string, any>,
+  query?: Record<string, any>
+): string {
   let url = path;
-  // substitute :params in path
+
+  // substitute :params
   if (params) {
     for (const [key, value] of Object.entries(params)) {
-      url = url.replace(`:${key}`, encodeURIComponent(String(value)));
+      url = url.replace(new RegExp(`:${key}\\b`, 'g'), encodeURIComponent(String(value)));
     }
   }
+
   // append query string
   if (query) {
     const queryString = new URLSearchParams(
@@ -111,6 +117,7 @@ export function buildUrl(path: string, params?: Record<string, any>, query?: Rec
       url += (url.includes('?') ? '&' : '?') + queryString;
     }
   }
+
   return url;
 }
 

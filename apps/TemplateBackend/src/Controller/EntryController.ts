@@ -48,7 +48,7 @@ export async function con_entry_get(req: Request) {
   const entryId = sanitizeObjectId(req.params.id);
 
   const entry = await EntryModel.findOne({ _id: entryId, userId }).exec();
-  if (!entry) throw new NotFoundError('entry not found');
+  if (!entry) throw new NotFoundError('entry not found/unauthorized');
 
   return {
     title: entry.title,
@@ -76,7 +76,7 @@ export async function con_entry_update(req: Request) {
   const entryId = sanitizeObjectId(req.params.id);
 
   const entry = await EntryModel.findOne({ _id: entryId, userId }).exec();
-  if (!entry) throw new NotFoundError('entry not found');
+  if (!entry) throw new NotFoundError('entry not found/unauthorized');
 
   if (req.body.title !== undefined) {
     entry.title = sanitizeStringField(req.body.title, TITLE_MIN_LEN, TITLE_MAX_LEN, 'title');
@@ -107,7 +107,7 @@ export async function con_entry_delete(req: Request) {
 
   const result = await EntryModel.deleteOne({ _id: entryId, userId }).exec();
   if (result.deletedCount === 0) {
-    throw new NotFoundError('entry not found');
+    throw new NotFoundError('entry not found/unauthorized');
   }
 
   return { msg: 'Entry deleted successfully' };

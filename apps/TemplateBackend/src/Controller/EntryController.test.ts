@@ -58,7 +58,7 @@ describe('con_entry_get', () => {
       InputError, invaid_strs, invalid_objIds);
   });
 
-  test('NotFoundError: non-existent id', async () => {
+  test('NotFoundError: non-existent/unauthorized id', async () => {
     await testInvalidInputs(
       (id) => con_entry_get(mockReq({}, userId, { id })),
       NotFoundError, [new Types.ObjectId]);
@@ -100,7 +100,7 @@ describe('con_entry_update', () => {
       InputError, invaid_strs_optional);
   });
 
-  test('NotFoundError: non-existent id', async () => {
+  test('NotFoundError: non-existent/unauthorized id', async () => {
     await testInvalidInputs(
       (id) => con_entry_update(mockReq({ title: 'valid', content: 'valid' }, userId, { id })),
       NotFoundError, [new Types.ObjectId]);
@@ -129,7 +129,7 @@ describe('con_entry_delete', () => {
       InputError, invaid_strs, invalid_objIds);
   });
 
-  test('NotFoundError: non-existent id', async () => {
+  test('NotFoundError: non-existent/unauthorized id', async () => {
     await testInvalidInputs(
       (id) => con_entry_delete(mockReq({}, userId, { id })),
       NotFoundError, [new Types.ObjectId]);
