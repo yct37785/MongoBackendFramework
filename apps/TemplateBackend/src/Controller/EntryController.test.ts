@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
 import { EntryModel } from '../Models/EntryModel';
 import { setUpInMemDB } from 'framework/tests';
-import { mockReq, genTestEmail, TEST_PW,
-  invaid_strs, invaid_strs_optional, invalid_objIds, testInvalidInputs, setupTestUserCon
+import { mockReq, genTestEmail, TEST_PW, invaid_strs, invaid_strs_optional, invalid_objIds, testInvalidInputs, 
+  genRandomString, setupTestUserCon
  } from 'framework/tests';
 import { InputError, NotFoundError } from 'framework/error';
 import { con_entry_create, con_entry_get, con_entry_update, con_entry_delete } from './EntryController';
@@ -65,12 +65,14 @@ describe('con_entry_get', () => {
   });
 
   test('fetched successfully', async () => {
-    const result = await con_entry_create(mockReq({ title: 'valid123', content: '4352353252345' }, userId));
+    const title = genRandomString();
+    const content = genRandomString();
+    const result = await con_entry_create(mockReq({ title, content }, userId));
     const id = result.entryId;
     const fetched = await con_entry_get(mockReq({}, userId, { id }));
     expect(fetched).not.toBeNull();
-    expect(fetched.title).toEqual('valid123');
-    expect(fetched.content).toEqual('4352353252345');
+    expect(fetched.title).toEqual(title);
+    expect(fetched.content).toEqual(content);
   });
 });
 
@@ -107,13 +109,15 @@ describe('con_entry_update', () => {
   });
 
   test('updated successfully', async () => {
-    const result = await con_entry_update(mockReq({ title: 'updated title', content: 'updated content' }, userId, { id: entryId }));
+    const title = genRandomString();
+    const content = genRandomString();
+    const result = await con_entry_update(mockReq({ title, content }, userId, { id: entryId }));
     expect(result.msg).toEqual('Entry updated successfully');
     // check values in DB
     const retrieved = await EntryModel.findOne({ _id: entryId }).exec();
     expect(retrieved).not.toBeNull();
-    expect(retrieved?.title).toEqual('updated title');
-    expect(retrieved?.content).toEqual('updated content');
+    expect(retrieved?.title).toEqual(title);
+    expect(retrieved?.content).toEqual(content);
   });
 });
 
