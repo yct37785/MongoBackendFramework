@@ -39,52 +39,49 @@ beforeEach(async () => {
 /******************************************************************************************************************
  * Protected routes test.
  ******************************************************************************************************************/
-describe('int: protected route tests', () => {
+test('reject request with no token', async () => {
+  const res = await server.get('/dev/protected');
+  expect(res.status).toBe(400);
+  expect(res.body.err).toMatch('Invalid input: missing or invalid auth header');
+});
 
-  test('reject request with no token', async () => {
-    const res = await server.get('/dev/protected');
-    expect(res.status).toBe(400);
-    expect(res.body.err).toMatch('Invalid input: missing or invalid auth header');
-  });
+test('reject request with wrong token', async () => {
+  const res = await server
+    .post('/dev/protected')
+    .set('Authorization', 'Bearer wrong.token.here');
 
-  test('reject request with wrong token', async () => {
-    const res = await server
-      .post('/dev/protected')
-      .set('Authorization', 'Bearer wrong.token.here');
+  expect(res.status).toBe(401);
+  expect(res.body.err).toMatch('Unauthorized: invalid or expired access token');
+});
 
-    expect(res.status).toBe(401);
-    expect(res.body.err).toMatch('Unauthorized: invalid or expired access token');
-  });
+test('rejects expired token', async () => {
+  const expiredToken = jwt.sign(
+    { userId: new Types.ObjectId().toString() },
+    process.env.ACCESS_TOKEN_SECRET as string,
+    { expiresIn: '-1s' } // already expired
+  );
 
-  test('rejects expired token', async () => {
-    const expiredToken = jwt.sign(
-      { userId: new Types.ObjectId().toString() },
-      process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn: '-1s' } // already expired
-    );
+  const res = await server
+    .get('/dev/protected')
+    .set('Authorization', `Bearer ${expiredToken}`);
+  expect(res.status).toBe(401);
+  expect(res.body.err).toMatch('Unauthorized: invalid or expired access token');
+});
 
-    const res = await server
-      .get('/dev/protected')
-      .set('Authorization', `Bearer ${expiredToken}`);
-    expect(res.status).toBe(401);
-    expect(res.body.err).toMatch('Unauthorized: invalid or expired access token');
-  });
+test('allow access with valid token', async () => {
+  const res = await server
+    .get('/dev/protected')
+    .set('Authorization', `Bearer ${accessToken}`);
 
-  test('allow access with valid token', async () => {
-    const res = await server
-      .get('/dev/protected')
-      .set('Authorization', `Bearer ${accessToken}`);
+  expect(res.status).toBe(200);
+  expect(Types.ObjectId.isValid(res.body.userId)).toBe(true);
+});
 
-    expect(res.status).toBe(200);
-    expect(Types.ObjectId.isValid(res.body.userId)).toBe(true);
-  });
+test('allow access with valid token (lowercase header)', async () => {
+  const res = await server
+    .post('/dev/protected')
+    .set('authorization', `Bearer ${accessToken}`);
 
-  test('allow access with valid token (lowercase header)', async () => {
-    const res = await server
-      .post('/dev/protected')
-      .set('authorization', `Bearer ${accessToken}`);
-
-    expect(res.status).toBe(200);
-    expect(Types.ObjectId.isValid(res.body.userId)).toBe(true);
-  });
+  expect(res.status).toBe(200);
+  expect(Types.ObjectId.isValid(res.body.userId)).toBe(true);
 });

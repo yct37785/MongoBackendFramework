@@ -27,34 +27,31 @@ beforeEach(async () => {
 });
 
 /******************************************************************************************************************
- * Test token invalidation.
+ * Test token invalidation scenarios.
  ******************************************************************************************************************/
-describe('int: token invalidation tests', () => {
+test('invalidation via logout', async () => {
+  // logout
+  let res = await doPost(server, '/auth/logout', '', { refreshToken });
+  expect(res.status).toBe(200);
+  // auth error 401 when attempt to refresh
+  res = await doPost(server, '/auth/refresh', '', { refreshToken });
+  expect(res.status).toBe(401);
+});
 
-  test('invalidation via logout', async () => {
-    // logout
-    let res = await doPost(server, '/auth/logout', '', { refreshToken });
-    expect(res.status).toBe(200);
-    // auth error 401 when attempt to refresh
-    res = await doPost(server, '/auth/refresh', '', { refreshToken });
-    expect(res.status).toBe(401);
-  });
+test('invalidation via timeout', async () => {
+  // wait for timeout + 1
+  await wait(rtExpiresIn + 1);
+  // auth error 401 when attempt to refresh
+  const res = await doPost(server, '/auth/refresh', '', { refreshToken });
+  expect(res.status).toBe(401);
+}, (rtExpiresIn + 2) * 1000);
 
-  test('invalidation via timeout', async () => {
-    // wait for timeout + 1
-    await wait(rtExpiresIn + 1);
-    // auth error 401 when attempt to refresh
-    const res = await doPost(server, '/auth/refresh', '', { refreshToken });
-    expect(res.status).toBe(401);
-  }, (rtExpiresIn + 2) * 1000);
-
-  test('invalidation via max session trim', async () => {
-    // login maxSessions times
-    for (let i = 0; i < maxSessions; ++i) {
-      await await doPost(server, '/auth/login', '', { email, password: TEST_PW });
-    }
-    // auth error 401 when attempt to refresh
-    const res = await doPost(server, '/auth/refresh', '', { refreshToken });
-    expect(res.status).toBe(401);
-  });
+test('invalidation via max session trim', async () => {
+  // login maxSessions times
+  for (let i = 0; i < maxSessions; ++i) {
+    await await doPost(server, '/auth/login', '', { email, password: TEST_PW });
+  }
+  // auth error 401 when attempt to refresh
+  const res = await doPost(server, '/auth/refresh', '', { refreshToken });
+  expect(res.status).toBe(401);
 });
