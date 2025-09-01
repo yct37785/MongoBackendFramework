@@ -212,16 +212,15 @@ export function genRandomString(length: number = 30): string {
   if (length < 5) {
     throw new Error('Length must be at least 5 to include all character categories');
   }
-
   const lowers = 'abcdefghijklmnopqrstuvwxyz';
   const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const digits = '0123456789';
   const specials = '!@#$%^&*()-_=+[]{}|;:,.<>?/`~';
-  const spaces = ' ';
 
-  const allChars = lowers + uppers + digits + specials + spaces;
+  // exclude space from the pool so it never lands at ends
+  const allChars = lowers + uppers + digits + specials;
 
-  // ensure at least one of each (excluding space for now)
+  // ensure at least one of each category
   const required = [
     lowers[Math.floor(Math.random() * lowers.length)],
     uppers[Math.floor(Math.random() * uppers.length)],
@@ -229,21 +228,21 @@ export function genRandomString(length: number = 30): string {
     specials[Math.floor(Math.random() * specials.length)],
   ];
 
-  // fill the rest (excluding space guarantee for now)
-  const remainingLength = length - required.length - 1; // reserve 1 for space
+  // fill remaining (reserve 1 slot for the guaranteed space)
+  const remainingLength = length - required.length - 1;
   for (let i = 0; i < remainingLength; i++) {
     required.push(allChars[Math.floor(Math.random() * allChars.length)]);
   }
 
-  // insert a guaranteed space in the middle (not at ends)
-  const spacePos = Math.floor(Math.random() * (required.length - 2)) + 1; // index 1..len-2
+  // choose a middle index (not first or last) for the space
+  const spacePos = Math.floor(Math.random() * (required.length - 2)) + 1; // 1..len-2
   required.splice(spacePos, 0, ' ');
 
-  // shuffle everything except we keep the space at its chosen index
+  // shuffle everything *except* the forced space
   for (let i = required.length - 1; i > 0; i--) {
     if (i === spacePos) continue; // don't move the guaranteed space
     const j = Math.floor(Math.random() * (i + 1));
-    if (j === spacePos) continue; // also don't swap with space
+    if (j === spacePos) continue; // don't swap with the guaranteed space
     [required[i], required[j]] = [required[j], required[i]];
   }
 
