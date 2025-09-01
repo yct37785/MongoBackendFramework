@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import { EntryModel } from '../Models/EntryModel';
 import { setUpInMemDB } from 'framework/tests';
 import { mockReq, genTestEmail, TEST_PW,
-  invaid_strs, invaid_strs_optional, invalid_objIds, testInvalidInputs, registerAndLogin
+  invaid_strs, invaid_strs_optional, invalid_objIds, testInvalidInputs, setupTestUserCon
  } from 'framework/tests';
 import { InputError, NotFoundError } from 'framework/error';
 import { con_entry_create, con_entry_get, con_entry_update, con_entry_delete } from './EntryController';
@@ -16,7 +16,7 @@ const sameEmail = genTestEmail();
 let userId = new Types.ObjectId;
 
 beforeEach(async () => {
-  userId = await registerAndLogin(sameEmail, TEST_PW);
+  userId = await setupTestUserCon(sameEmail, TEST_PW);
 });
 
 /******************************************************************************************************************

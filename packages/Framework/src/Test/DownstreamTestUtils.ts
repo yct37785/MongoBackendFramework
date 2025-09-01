@@ -1,21 +1,22 @@
 import type { Request } from 'express';
+const supRequest = require('supertest');
 import { Types } from 'mongoose';
 import { verifyAccessToken } from '../Middleware/AuthMiddleware';
-import { mockReq } from '../Test/TestUtils';
+import { mockReq, doPost } from '../Test/TestUtils';
 import { con_auth_register, con_auth_login } from '../Controller/AuthController';
 
 /******************************************************************************************************************
- * Register and login a valid user.
+ * Register and login a valid user via controller functions.
  *
  * @param email - email to register
  * @param password - password to register
  *
  * @returns ObjectId - registered user userId
  ******************************************************************************************************************/
-export async function registerAndLogin(email: string, password: string): Promise<Types.ObjectId> {
+export async function setupTestUserCon(email: string, password: string): Promise<Types.ObjectId> {
   await con_auth_register(mockReq({ email, password }));
   const loginData = await con_auth_login(mockReq({ email, password }));
-  const req: Partial<Request> = { 
+  const req: Partial<Request> = {
     headers: { 'authorization': `Bearer ${loginData.accessToken}` }
   };
   await verifyAccessToken(req as Request);
@@ -23,4 +24,30 @@ export async function registerAndLogin(email: string, password: string): Promise
     fail();
   }
   return req.user.userId;
+}
+
+/******************************************************************************************************************
+ * Setup users with supertest.
+ *
+ * @param server - supertest instance
+ * @param users - list of account details (email and password)
+ *
+ * @returns any:
+ *   - `accessTokens`: string[] - list of access tokens
+ ******************************************************************************************************************/
+export async function setupTestUsersSup(
+  server: ReturnType<typeof supRequest>,
+  users: { email: string; password: string }[]
+): Promise<{ accessTokens: string[] }> {
+  const accessTokens: string[] = [];
+
+  for (const { email, password } of users) {
+    // register
+    await doPost(server, '/auth/register', { email, password });
+    // login
+    const loginRes = await doPost(server, '/auth/login', { email, password });
+    accessTokens.push(loginRes.body.accessToken);
+  }
+
+  return { accessTokens };
 }

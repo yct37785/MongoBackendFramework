@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken';
 import { setUpInMemDB } from 'framework/tests';
 import { createApp } from 'framework/core';
 import { mockReq, genTestEmail, TEST_PW,
-  invaid_strs, invaid_strs_optional, invalid_objIds, testInvalidInputs, registerAndLogin
+  invaid_strs, invaid_strs_optional, invalid_objIds, testInvalidInputs, setupTestUserCon
  } from 'framework/tests';
 import entryRoutes from '../src/Routes/EntryRoutes';
 
