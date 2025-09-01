@@ -171,7 +171,7 @@ Body
 { "email": "user@example.com", "password": "ValidP@ssw0rd" }
 ```
 
-200
+201
 ```json
 {
   "accessToken": "<jwt>",
