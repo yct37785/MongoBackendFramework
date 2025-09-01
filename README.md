@@ -1,113 +1,76 @@
 # Mongo Backend Framework
-Modular, extensible plug-and-play Node.js backend framework built with TypeScript, Express, Mongoose, and JWT authentication.
+This project is a monorepo for backend applications.
+
+Core functionalities such as authentication, database access, error handling, middleware, and utilities (henceforth referred to as the framework) are shared across all backend app projects.
+
+Dependencies for the common framework are managed centrally, following the monorepo philosophy.
+
+In this repo:
+- **packages/Framework** holds the reusable backend framework.
+- **apps/TemplateBackend** demonstrates how to build an app on top of that framework.
+
+*What is a monorepo: A monorepo is a single repository containing multiple distinct projects, with well-defined relationships.*
 
 ## Features
-⚙️ Plug-and-play Express app builder (createApp)
+⚙️ Framework package: Express app builder, error handling, sanitizers.
 
-🔐 JWT authentication middleware & utilities
+🔐 Authentication: JWT access tokens + opaque refresh tokens.
 
-🧼 Input sanitization helpers
+🧼 Utilities: input sanitization, MongoDB helpers.
 
-💥 Centralized error handling and reusable error classes
+💥 Error handling: reusable error classes + middleware.
 
-🧪 Jest testing support (setup templates and mocks included)
+🧪 Testing: Jest + mongodb-memory-server for isolated DB testing.
 
-🧱 Fully typed with TypeScript and exports .d.ts declarations
+📁 Monorepo structure: Apps and packages separated but linked via workspaces.
 
-🧪 In-memory DB testing via mongodb-memory-server
-
-📁 Strict project structure for clarity and modularity
+📦 Typed: Full TypeScript support with generated .d.ts declarations.
 
 ## Project structure
-	MongoBackendFramework/
-	├── dist/          # compiled output
-	├── exports/       # dependency exports
-	├── src/           # core modules (controllers, services, utils, etc.)
-	├── templates/     # shared templates (Jest etc.)
-	├── types/         # type augmentations (e.g. express `Request.user`)
-	├── index.ts       # main entry for build exports
-	├── indexSample.ts # example usage and standalone runner (for development)
-	├── build.bat      # build script
-	├── start-dev.bat  # run standalone mode
-	└── package.json   # package metadata and exports
+	root/
+	├── apps/
+	│   └── TemplateBackend/   		# example backend app consuming the framework
+	│       ├── src/           		# app-specific controllers, services, routes
+	│       ├── .env           		
+	│       ├── index.ts		
+	│       ├── jest.config.js		
+	│       ├── jest.setup.ts		# override env vars here for testing
+	│       ├── ...
+	│       ├── package.json
+	│       └── tsconfig.json
+	├── packages/
+	│   └── Framework/         		# core framework
+	│       ├── src/				# framework source
+	│       ├── types/         		# Express.Request.user augmentation, etc.
+	│       └── ...
+	├── templates/             		# shared configs (Jest/TS config templates etc)
+	├── install.bat            		# run npm install
+	└── package.json           		# Monorepo root (workspaces defined here)
+
+The root ```package.json``` defines workspaces for apps and packages.
 
 ## Getting started
-### Place framework and client side-by-side:
-	root/
-	├── MongoBackendFramework/
-	└── MyProject/
 
-### Build
-In MongoBackendFramework/, run:
+### 1. Project setup:
+At **root/apps/**, clone **TemplateBackend** in the same directory, renaming it to the project name of your choice:
+
+	root/apps
+	├── TemplateBackend/
+	└── MyBackend/
+
+Search and replace all instances of the template name ```template-backend``` with the actual name of your backend project.
+
+### 2. Install dependencies:
+At **root/**:
 ```bash
-./build.bat
+./install.bat
 ```
+This installs all dependencies for both apps and packages thanks to workspaces.
 
-This compiles to ```dist/``` and enables proper exports
+### 3. Environment setup:
+Each app manages its own env variables.
 
-### Link the framework in your client
-In your client (```MyProject/```), reference the framework as a local dependency:
-```javascript
-"dependencies": {
-  "@yourname/mongo-backend-framework": "file:../MongoBackendFramework"
-},
-```
-
-Install:
-```bash
-npm i
-```
-
-### Dev dependencies (client)
-Install the following dev dependencies in your client project:
-```bash
-npm install --save-dev @types/cors @types/express @types/jest @types/jsonwebtoken @types/node cross-env jest mongodb-memory-server nodemon supertest ts-jest ts-node typescript
-```
-
-### TypeScript configuration (client)
-In your ```tsconfig.json```:
-```javascript
-"compilerOptions": {
-  "baseUrl": ".",
-  "paths": {
-    "@yourname/mongo-backend-framework": ["../MongoBackendFramework/dist"]
-  }
-```
-
-### Basic usage example
-index.ts:
-```javascript
-import {} from '@yourname/mongo-backend-framework/types'; // type argumentation
-import { express } from '@yourname/mongo-backend-framework/express';
-import { loadEnv } from '@yourname/mongo-backend-framework/miscUtils';
-import { createApp } from '@yourname/mongo-backend-framework/createApp';
-// import myRoutes from './src/routes/myRoutes';
-
-loadEnv();
-
-// test rexport express works on client
-const unprotectedRouter: express.Router = express.Router();
-unprotectedRouter.get('/test-unprotected', async (req, res) => {
-  return res.status(200).json('yes works');
-});
-
-// initialize app with optional unprotected/protected routes
-const app = createApp(
-  unprotectedRouter, // optional unprotected routes (if any)
-  express
-    .Router()
-    // .use('/myRoutes', myRoutes)
-);
-
-// start server
-const PORT = process.env.PORT;
-app.listen(PORT, () => {
-  console.log(`🚀 Client App running on port ${PORT}`);
-});
-```
-
-### Environment variables (.env)
-Create a .env file in your client project with the following required values:
+Create a ```.env``` file at the root of your backend project with the following required values:
 
 | Variable  | Description |
 | ------------- | ------------- |
@@ -122,7 +85,7 @@ Create a .env file in your client project with the following required values:
 | ACCESS_TOKEN_SECRET  | Strong random secret for signing access tokens  |
 | REFRESH_TOKEN_SECRET  | Strong random secret for signing refresh tokens  |
 
-Tip: you can generate a 64-byte (512-bit) secret as a hex string using OpenSSL. Run the following within PowerShell:
+*Tip: you can generate a 64-byte (512-bit) secret as a hex string using OpenSSL. Run the following within PowerShell:*
 
 ```bash
 openssl rand -hex 64
@@ -130,49 +93,31 @@ openssl rand -hex 64
 
 Use different values for access and refresh token secrets.
 
-## Sample starter project
-Alternatively start your backend app with the [sample starter project](https://github.com/yct37785/MongoBackendFrameworkSample).
+### 4. Launching:
+At **root/apps/MyBackend/**, run the bat files as required:
 
-### Usage
-Clone it next to the framework:
 
-	root/
-	├── MongoBackendFramework/
-	└── MyProject/
+	root/apps/MyBackend
+	├── run-tests.bat			# run jest tests
+	└── start-dev.bat			# launch the backend locally
 
-Search and replace all instances of the placeholder name ```mongo-backend-framework-sample``` with the actual name of your app.
+### 5. Continuing:
+You can now start building off of the starting code provided.
 
-Build framework if not already:
-```bash
-cd MongoBackendFramework
-./build.bat
-```
-
-Back to your project, install dependencies:
-```bash
-npm i
-```
-
-Setup ```.env```, refer to sample ```sample.env``` (you can delete it afterwards)
-
-Launch the app by running ```start-dev.bat```
-
-Run your project and test GET ```/test-unprotected``` returns 200.
-
-You can now start building off of the start code provided.
+Included in the TemplateBackend codebase is a simple guestbook entry application that demonstrates all layers of a backend project based on this framework.
 
 ## MongoDB setup
 The framework uses Mongoose to interact with MongoDB. You can connect to a remote MongoDB Atlas cluster or a local MongoDB instance.
 
 ### Link your MongoDB database
-Using either MongoDB Atlas or local MongoDB (MongoDB Community Edition), create a cluster and a database under that cluster. Fill in the relevant .env variables.
+Using either MongoDB Atlas or local MongoDB (MongoDB Community Edition), create a cluster and a database under that cluster. Fill in the relevant ```.env``` variables.
 
-MONGO_URI (MongoDB connection URI to cluster):
+```MONGO_URI``` (MongoDB connection URI to cluster):
 ```bash
 mongodb+srv://<username>:<password>@cluster0.mongodb.net/
 ```
 
-MONGO_DB_NAME (Database name):
+```MONGO_DB_NAME``` (Database name):
 ```bash
 myDatabaseDB
 ```
@@ -183,56 +128,18 @@ You do not need to create collections manually. When you use one of the provided
 - Apply the defined schema fields and types
 - Ensure indexes (like unique constraints) are enforced
 
-The framework would have defined the following model ```userModel``` for auth:
-```javascript
-{
-  email:        { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
-  refreshTokens: [
-    {
-      tokenHash:  String,
-      createdAt:  Date,
-      lastUsedAt: Date,
-      expiresAt:  Date,
-      userAgent:  String,
-      ip:         String
-    }
-  ]
-}
-```
+The framework would have defined the model ```userModel``` for auth.
 
-This will be saved to a ```users``` collection under your defined MONGO_DB_NAME.
+This will be saved to a ```users``` collection under your defined ```MONGO_DB_NAME```.
 
 ### When is the database connected?
 The framework automatically connects to the MongoDB URI during createApp(...) when your app launches. You just need to make sure:
 
-- .env is provided
+- ```.env``` is provided
 
-- The required MONGO_URI and MONGO_DB_NAME are present
+- The required ```MONGO_URI``` and ```MONGO_DB_NAME``` are present
 
 If the connection fails, an error will be thrown at startup.
-
-## Contributions
-### Function comment block guidelines
-All functions will include a standardized JSDoc comment block for clarity, maintainability, and automated documentation support.
-
-Use the following format:
-```javascript
-/**
- * <brief description of the function's purpose and behavior>
- *
- * @param <typedParamName> - <description of the parameter with a defined TypeScript type>
- * @param <anyParamName> - <description of the loose/any-typed object parameter>:
- *   - `<fieldName1>`: <type> - <description of this field>
- *   - `<fieldName2_optional?>`: <type> - <description of this optional field>
- *
- * @returns <typed> - <description of the returned primitive or named type>
- * @returns any:
- *   - `<fieldName1>`: <type> - <description of this field in the returned loose/any-typed object>
- *
- * @throws {<ErrorType>} <condition under which the error is thrown>
- */
-```
 
 ## Authentication
 The framework ships with a complete auth flow using JWT access tokens (short-lived) and opaque refresh tokens (rotatable). Device/user-agent/IP are stored alongside sessions for reference, but not currently used for enforcement.
@@ -246,16 +153,16 @@ The framework ships with a complete auth flow using JWT access tokens (short-liv
 
 - **Logout** → invalidates just that one refresh session.
 
-- **Session limits** → sessions are pruned to env var MAX_SESSIONS (newest kept).
+- **Session limits** → sessions are pruned to env var ```MAX_SESSIONS``` (newest kept).
 
 ### Setup
-No extra wiring needed, the /auth routes are mounted internally in the framework. From your client app, just do the normal setup and env:
+No extra wiring needed, the ```/auth``` routes are mounted internally in the framework. From your client app, just do the normal setup and env:
 
-- Use createApp from the framework.
+- Use ```createApp``` from the framework.
 
-- Ensure your .env is filled out fully (see your main env section for details).
+- Ensure your ```.env``` is filled out fully (see your main env section for details).
 
-To protect your own routes, add them to the **protectedRoutes** param of createApp (the framework applies **verifyAccessTokenMiddleware** before protected routes).
+To protect your own routes, add them to the **protectedRoutes** param of ```createApp``` (the framework applies **verifyAccessTokenMiddleware** before protected routes).
 
 ### API
 **POST /auth/register**
@@ -336,22 +243,6 @@ Errors
 - 404: session not found
 
 ### Using protected routes in your app
-In your client app:
-```javascript
-import { express } from '@yourname/mongo-backend-framework/express';
-import { createApp } from '@yourname/mongo-backend-framework/createApp';
-
-const publicRoutes = express.Router();
-publicRoutes.get('/ping', (_req, res) => res.send('pong'));
-
-const protectedRoutes = express.Router();
-protectedRoutes.get('/me', (req, res) => {
-  // req.user is set by the framework's verifyAccessTokenMiddleware
-  res.json({ user: req.user });
-});
-
-const app = createApp(publicRoutes, protectedRoutes);
-```
 
 Users must send the access token in:
 ```json
@@ -359,3 +250,26 @@ Authorization: Bearer <accessToken>
 ```
 
 Refresh tokens should be stored securely on the client and only sent to **/auth/refresh** and **/auth/logout**.
+
+
+## Contributions
+### Function comment block guidelines
+All functions will include a standardized JSDoc comment block for clarity, maintainability, and automated documentation support.
+
+Use the following format:
+```javascript
+/**
+ * <brief description of the function's purpose and behavior>
+ *
+ * @param <typedParamName> - <description of the parameter with a defined TypeScript type>
+ * @param <anyParamName> - <description of the loose/any-typed object parameter>:
+ *   - `<fieldName1>`: <type> - <description of this field>
+ *   - `<fieldName2_optional?>`: <type> - <description of this optional field>
+ *
+ * @returns <typed> - <description of the returned primitive or named type>
+ * @returns any:
+ *   - `<fieldName1>`: <type> - <description of this field in the returned loose/any-typed object>
+ *
+ * @throws {<ErrorType>} <condition under which the error is thrown>
+ */
+```
