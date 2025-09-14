@@ -13,7 +13,7 @@ const pwErrMsg = `password must be ${PW_MIN_LEN}-${PW_MAX_LEN} chars with upperc
  * 
  * @return - sanitized email
  * 
- * @throws {InputError} when the email is missing or fails format/length checks
+ * @throws {InputError} if the email is missing or fails format/length checks
  ******************************************************************************************************************/
 export function sanitizeEmail(input: unknown): string {
   if (typeof input !== 'string') throw new InputError('email');
@@ -35,7 +35,7 @@ export function sanitizeEmail(input: unknown): string {
  *
  * @return - validated password (unchanged characters; trimmed if policy allows)
  *
- * @throws {InputError} when password is missing or violates policy (length/charset/etc.)
+ * @throws {InputError} if password is missing or violates policy (length/charset/etc.)
  ******************************************************************************************************************/
 export function sanitizePassword(input: unknown): string {
   if (typeof input !== 'string') throw new InputError(pwErrMsg);
@@ -60,7 +60,7 @@ export function sanitizePassword(input: unknown): string {
  * 
  * @return - sanitized string
  * 
- * @throws {InputError} when value is not string-coercible or violates constraints
+ * @throws {InputError} if value is not string-coercible or violates constraints
  ******************************************************************************************************************/
 export function sanitizeStringField(input: unknown, minLen: number, maxLen: number, fieldName?: string): string {
   if (typeof input !== 'string') throw new InputError(fieldName || '');
@@ -79,7 +79,7 @@ export function sanitizeStringField(input: unknown, minLen: number, maxLen: numb
  * 
  * @return - converted JS Date obj
  * 
- * @throws {InputError} when input type or format is invalid
+ * @throws {InputError} if input type or format is invalid
  ******************************************************************************************************************/
 export function datestrToDate(input: unknown, fieldName?: string): Date {
   if (typeof input !== 'string') throw new InputError(fieldName || '');
@@ -105,7 +105,7 @@ export function datestrToDate(input: unknown, fieldName?: string): Date {
  * 
  * @return - sanitized string array
  * 
- * @throws {InputError} when above requirements are not met
+ * @throws {InputError} if above requirements are not met
  ******************************************************************************************************************/
 export function sanitizeStringArray(input: unknown, max: number, minLen: number, maxLen: number, fieldName?: string): string[] {
   if (!Array.isArray(input)) {
@@ -142,7 +142,7 @@ export function sanitizeStringArray(input: unknown, max: number, minLen: number,
  * 
  * @return - valid Mongoose ObjectId
  * 
- * @throws {InputError} when value is not a valid ObjectId
+ * @throws {InputError} if value is not a valid ObjectId
  ******************************************************************************************************************/
 export function sanitizeObjectId(input: unknown, fieldName?: string): Types.ObjectId {
   if (input instanceof Types.ObjectId) {

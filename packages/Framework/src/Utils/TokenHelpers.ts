@@ -20,7 +20,7 @@ const MAX_SESSIONS = Number(process.env.MAX_SESSIONS);
  *   - atExpiresAt: Date - access token expiry date
  *   - rtExpiresAt: Date - refresh token expiry date
  * 
- * @throws {Error} when token generation fails
+ * @throws {Error} if token generation fails
  ******************************************************************************************************************/
 export function generateNewTokens(userId: Types.ObjectId, email: string): {
   accessToken: string;

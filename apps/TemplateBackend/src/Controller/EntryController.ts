@@ -19,7 +19,7 @@ import { sanitizeStringField } from 'framework/utils';
  *   - msg: string - confirmation message that entry is created
  *   - entryId: string - entry id
  *
- * @throws {InputError} when title/content is invalid
+ * @throws {InputError} if title/content is invalid
  ******************************************************************************************************************/
 export async function con_entry_create(req: Request) {
   const userId = sanitizeObjectId(req.user?.userId);
@@ -45,7 +45,7 @@ export async function con_entry_create(req: Request) {
  *   - title: string - entry content
  *   - content: string - entry content
  *
- * @throws {NotFoundError} when entry is not found or if not owned by user
+ * @throws {NotFoundError} if entry is not found or if not owned by user
  ******************************************************************************************************************/
 export async function con_entry_get(req: Request) {
   const userId = sanitizeObjectId(req.user?.userId);
@@ -75,8 +75,8 @@ export async function con_entry_get(req: Request) {
  * @return - operation result:
  *   - msg: string - confirmation message
  *
- * @throws {InputError} when title/content is invalid
- * @throws {NotFoundError} when entry is not found or if not owned by user
+ * @throws {InputError} if title/content is invalid
+ * @throws {NotFoundError} if entry is not found or if not owned by user
  ******************************************************************************************************************/
 export async function con_entry_update(req: Request) {
   const userId = sanitizeObjectId(req.user?.userId);
@@ -108,7 +108,7 @@ export async function con_entry_update(req: Request) {
  * @return - operation result:
  *   - msg: string - confirmation message
  *
- * @throws {NotFoundError} when entry is not found or if not owned by user
+ * @throws {NotFoundError} if entry is not found or if not owned by user
  ******************************************************************************************************************/
 export async function con_entry_delete(req: Request) {
   const userId = sanitizeObjectId(req.user?.userId);

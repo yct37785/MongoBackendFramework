@@ -12,7 +12,7 @@ const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET!;
  * 
  * @return - bcrypt hash of the provided value
  * 
- * @throws {Error} when hashing fails
+ * @throws {Error} if hashing fails
  ******************************************************************************************************************/
 export async function hashValue(raw: string): Promise<string> {
   return bcrypt.hash(raw, SALT_ROUNDS);
@@ -27,7 +27,7 @@ export async function hashValue(raw: string): Promise<string> {
  * 
  * @return - HMAC-SHA256 hash string
  * 
- * @throws {Error} when hashing fails
+ * @throws {Error} if hashing fails
  ******************************************************************************************************************/
 export function hmacHash(value: string): string {
   return crypto

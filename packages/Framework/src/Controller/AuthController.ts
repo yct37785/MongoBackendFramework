@@ -20,8 +20,8 @@ import { REFRESH_TOKEN_LEN } from '../Consts';
  * @return - operation result:
  *   - msg: string - confirmation message that the user was registered
  *
- * @throws {InputError} when the email or password is missing or invalid
- * @throws {ConflictError} when the email is already registered
+ * @throws {InputError} if the email or password is missing or invalid
+ * @throws {ConflictError} if the email is already registered
  ******************************************************************************************************************/
 export async function con_auth_register(req: Request) {
   // validate required fields
@@ -63,8 +63,8 @@ export async function con_auth_register(req: Request) {
  *   - atExpiresAt: string - ISO timestamp when the access token expires
  *   - rtExpiresAt: string - ISO timestamp when the refresh token expires
  *
- * @throws {InputError} when the email or password is missing or invalid
- * @throws {AuthError} when credentials are incorrect or authentication fails
+ * @throws {InputError} if the email or password is missing or invalid
+ * @throws {AuthError} if credentials are incorrect or authentication fails
  ******************************************************************************************************************/
 export async function con_auth_login(req: Request) {
   const email = req.body.email;
@@ -124,9 +124,9 @@ export async function con_auth_login(req: Request) {
  *   - atExpiresAt: string - ISO timestamp when the new access token expires
  *   - rtExpiresAt: string - ISO timestamp when the refresh token expires
  *
- * @throws {InputError} when the refresh token is missing or invalid
- * @throws {AuthError} when token reuse is detected or the refresh token is expired/forbidden
- * @throws {NotFoundError} when the refresh session cannot be found
+ * @throws {InputError} if the refresh token is missing or invalid
+ * @throws {AuthError} if token reuse is detected or the refresh token is expired/forbidden
+ * @throws {NotFoundError} if the refresh session cannot be found
  ******************************************************************************************************************/
 export async function con_auth_refresh(req: Request) {
   const refreshToken = req.body.refreshToken;
@@ -197,9 +197,9 @@ export async function con_auth_refresh(req: Request) {
  * @return - operation result:
  *   - msg: string - confirmation message that logout was successful
  *
- * @throws {InputError} when the refresh token is missing or invalid
- * @throws {AuthError} when token reuse is detected or the token is not allowed
- * @throws {NotFoundError} when the session was not found
+ * @throws {InputError} if the refresh token is missing or invalid
+ * @throws {AuthError} if token reuse is detected or the token is not allowed
+ * @throws {NotFoundError} if the session was not found
  ******************************************************************************************************************/
 export async function con_auth_logout(req: Request) {
   const refreshToken = req.body.refreshToken;

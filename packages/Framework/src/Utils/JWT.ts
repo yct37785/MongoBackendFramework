@@ -13,7 +13,7 @@ const ACCESS_TOKEN_EXPIRES_IN_S = Number(process.env.ACCESS_TOKEN_EXPIRES_IN_S);
  * 
  * @return - signed JWT access token string
  * 
- * @throws {Error} when signing fails
+ * @throws {Error} if signing fails
  ******************************************************************************************************************/
 export function generateAccessToken(userId: Types.ObjectId, email: string): string {
   if (!userId || !Types.ObjectId.isValid(userId)) {

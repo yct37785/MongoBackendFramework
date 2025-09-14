@@ -19,9 +19,9 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
  *
  * @return - passes control to subsequent handlers when authentication succeeds
  *
- * @throws {AuthError} when the token is missing, malformed, or expired
- * @throws {NotFoundError} when the token subject or session cannot be found
- * @throws {PermissionError} when the authenticated principal lacks required privileges (if enforced here)
+ * @throws {AuthError} if the token is missing, malformed, or expired
+ * @throws {NotFoundError} if the token subject or session cannot be found
+ * @throws {PermissionError} if the authenticated principal lacks required privileges (if enforced here)
  *
  * @usage
  * ```ts
