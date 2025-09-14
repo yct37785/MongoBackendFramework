@@ -1,10 +1,17 @@
 /******************************************************************************************************************
- * Base application error class.
+ * Custom application-specific error with standardized fields for consistent handling.
  *
- * @param message - error message to display
- * @param statusCode - HTTP status code (default 500)
- * 
- * @returns AppError - custom error instance with message and status code
+ * @param name - error name (e.g., "InputError", "AuthError")
+ * @param message - human-readable error message
+ * @param statusCode - HTTP status code representing the error (default: 500)
+ * @param isOperational - whether the error is safe/expected (true) or a programming/critical error (false)
+ *
+ * @return - constructed error instance
+ *
+ * @usage
+ * ```ts
+ * throw new AppError("InputError", "Invalid email format", 400, true);
+ * ```
  ******************************************************************************************************************/
 export class AppError extends Error {
   statusCode: number;
