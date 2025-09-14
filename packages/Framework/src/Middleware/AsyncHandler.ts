@@ -1,14 +1,21 @@
 import { Request, Response, NextFunction } from 'express';
 
 /******************************************************************************************************************
- * Wraps an async Express route handler to automatically catch and forward errors.
+ * Wraps an async route/controller function and forwards any rejection to the next error handler.
  *
- * Automatically catches errors thrown inside async functions and passes them to the Express error handler,
- * eliminating repetitive try/catch blocks in each route.
+ * @param fn - async handler to wrap
  *
- * @param fn - async route handler function to wrap
- * 
- * @returns func - wrapped function that calls next() with any thrown error
+ * @return - wrapped handler that auto-catches async errors
+ *
+ * @usage
+ * ```ts
+ * app.get("/profile",
+ *   asyncHandler(async (req, res) => {
+ *     const user = await fetchUser(req);
+ *     res.json(user);
+ *   })
+ * );
+ * ```
  ******************************************************************************************************************/
 export const asyncHandler = (
   fn: (req: Request, res: Response, next: NextFunction) => Promise<any>
