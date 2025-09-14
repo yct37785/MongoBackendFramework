@@ -31,7 +31,7 @@ export class AppError extends Error {
  * 
  * @param message - description of the invalid input
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class InputError extends AppError {
   constructor(message: string) {
@@ -46,7 +46,7 @@ export class InputError extends AppError {
  *
  * @param message - reason for authentication failure
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class AuthError extends AppError {
   constructor(message: string) {
@@ -61,7 +61,7 @@ export class AuthError extends AppError {
  * 
  * @param message - reason for permission denial
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class PermissionError extends AppError {
   constructor(message: string) {
@@ -76,7 +76,7 @@ export class PermissionError extends AppError {
  * 
  * @param message - description of the missing resource
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class NotFoundError extends AppError {
   constructor(message: string) {
@@ -91,7 +91,7 @@ export class NotFoundError extends AppError {
  * 
  * @param message - description of the conflict
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class ConflictError extends AppError {
   constructor(message: string) {
@@ -106,7 +106,7 @@ export class ConflictError extends AppError {
  * 
  * @param message - description of the internal failure
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class InternalError extends AppError {
   constructor(message: string) {

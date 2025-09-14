@@ -13,14 +13,14 @@ const MAX_SESSIONS = Number(process.env.MAX_SESSIONS);
  * @param userId - user's ObjectId
  * @param email - user's email
  * 
- * @returns any:
- *   - `accessToken`: string
- *   - `refreshToken`: string
- *   - `hashedToken`: string - hashed refresh token for storing in DB
- *   - `atExpiresAt`: Date - access token expiry date
- *   - `rtExpiresAt`: Date - refresh token expiry date
+ * @return - tokens and corresponding expiry timestamps:
+ *   - accessToken: string
+ *   - refreshToken: string
+ *   - hashedToken: string - hashed refresh token for storing in DB
+ *   - atExpiresAt: Date - access token expiry date
+ *   - rtExpiresAt: Date - refresh token expiry date
  * 
- * @throws {Error} if token generation fails
+ * @throws {Error} when token generation fails
  ******************************************************************************************************************/
 export function generateNewTokens(userId: Types.ObjectId, email: string): {
   accessToken: string;
@@ -50,6 +50,14 @@ export function generateNewTokens(userId: Types.ObjectId, email: string): {
  * @param rtExpiresAt - refresh token expiry date
  * @param userAgent? - device info
  * @param ip? - IP address
+ * 
+ * @return - IRefreshToken shaped obj:
+ *   - tokenHash: string - mirrored from param
+ *   - createdAt: string - datetime now
+ *   - lastUsedAt: Date - datetime now
+ *   - expiresAt: Date - mirrored from param (rtExpiresAt)
+ *   - userAgent?: string - mirrored from param
+ *   - ip?: string - mirrored from param
  ******************************************************************************************************************/
 export function createRefreshTokenEntry(
   tokenHash: string,
@@ -76,7 +84,7 @@ export function createRefreshTokenEntry(
  * 
  * @param tokens - array of IRefreshToken entries
  * 
- * @returns IRefreshToken[] - cleaned and sorted array of IRefreshToken
+ * @return - cleaned and sorted array of IRefreshToken
  ******************************************************************************************************************/
 export function pruneAndSortRefreshTokens(tokens: IRefreshToken[]): IRefreshToken[] {
   const now = new Date();
@@ -91,7 +99,7 @@ export function pruneAndSortRefreshTokens(tokens: IRefreshToken[]): IRefreshToke
  * 
  * @param token - IRefreshToken entry
  * 
- * @returns bool - true if expired
+ * @return - true if expired, false otherwise
  ******************************************************************************************************************/
 export function isRefreshTokenExpired(token: IRefreshToken): boolean {
   return token.expiresAt.getTime() < Date.now();
@@ -103,7 +111,7 @@ export function isRefreshTokenExpired(token: IRefreshToken): boolean {
  * @param tokens - array of IRefreshToken
  * @param tokenHash - token hash to remove
  * 
- * @returns IRefreshToken[] - new array without the removed token
+ * @return - new array without the removed token
  ******************************************************************************************************************/
 export function removeTokenFromList(tokens: IRefreshToken[], tokenHash: string): IRefreshToken[] {
   return tokens.filter(rt => rt.tokenHash !== tokenHash);
