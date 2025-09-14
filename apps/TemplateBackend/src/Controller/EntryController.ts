@@ -6,18 +6,20 @@ import { TITLE_MIN_LEN, TITLE_MAX_LEN, CONTENT_MIN_LEN, CONTENT_MAX_LEN } from '
 import { sanitizeStringField } from 'framework/utils';
 
 /******************************************************************************************************************
- * Creates a new entry for the authenticated user.
+ * [ASYNC] Creates a new entry for the authenticated user.
  *
- * @param req - Express request containing:
- *   - `user.userId`: string - authenticated user id
- *   - `body.title`: string - entry title
- *   - `body.content`: string - entry content
+ * @param req - Express request:
+ *   - user: obj - authenticated user:
+ *       + userId: string - authenticated user id
+ *   - body: obj - request body:
+ *       + title: string - entry title
+ *       + content: string - entry content
  *
- * @returns any:
- *   - `msg`: string - confirmation message that entry is created
- *   - `entryId`: string - entry id
+ * @return - operation result:
+ *   - msg: string - confirmation message that entry is created
+ *   - entryId: string - entry id
  *
- * @throws {InputError} if title/content are invalid
+ * @throws {InputError} when title/content is invalid
  ******************************************************************************************************************/
 export async function con_entry_create(req: Request) {
   const userId = sanitizeObjectId(req.user?.userId);
@@ -31,17 +33,19 @@ export async function con_entry_create(req: Request) {
 }
 
 /******************************************************************************************************************
- * Retrieves an entry by id. Entry must belong to the authenticated user.
+ * [ASYNC] Retrieves an entry by id. Entry must belong to the authenticated user.
  *
- * @param req - Express request containing:
- *   - `user.userId`: string - authenticated user id
- *   - `params.id`: string - entry id
+ * @param req - Express request:
+ *   - user: obj - authenticated user:
+ *       + userId: string - authenticated user id
+ *   - params: obj - request params:
+ *       + id: string - entry id
  *
- * @returns any:
- *   - `title`: string - entry content
- *   - `content`: string - entry content
+ * @return - operation result:
+ *   - title: string - entry content
+ *   - content: string - entry content
  *
- * @throws {NotFoundError} if entry is not found or not owned by user
+ * @throws {NotFoundError} when entry is not found or if not owned by user
  ******************************************************************************************************************/
 export async function con_entry_get(req: Request) {
   const userId = sanitizeObjectId(req.user?.userId);
@@ -57,19 +61,22 @@ export async function con_entry_get(req: Request) {
 }
 
 /******************************************************************************************************************
- * Updates an existing entry. Entry must belong to the authenticated user.
+ * [ASYNC] Updates an existing entry. Entry must belong to the authenticated user.
  *
- * @param req - Express request containing:
- *   - `user.userId`: string - authenticated user id
- *   - `params.id`: string - entry id
- *   - `body.title?`: string - new title
- *   - `body.content?`: string - new content
+ * @param req - Express request:
+ *   - user: obj - authenticated user:
+ *       + userId: string - authenticated user id
+ *   - params: obj - request params:
+ *       + id: string - entry id
+ *   - body: obj - request body:
+ *       + title: string - new title
+ *       + content: string - new content
+ * 
+ * @return - operation result:
+ *   - msg: string - confirmation message
  *
- * @returns any:
- *   - `msg`: string - confirmation message
- *
- * @throws {InputError} if provided title/content are invalid
- * @throws {NotFoundError} if entry is not found or not owned by user
+ * @throws {InputError} when title/content is invalid
+ * @throws {NotFoundError} when entry is not found or if not owned by user
  ******************************************************************************************************************/
 export async function con_entry_update(req: Request) {
   const userId = sanitizeObjectId(req.user?.userId);
@@ -90,16 +97,18 @@ export async function con_entry_update(req: Request) {
 }
 
 /******************************************************************************************************************
- * Deletes an entry. Entry must belong to the authenticated user.
+ * [ASYNC] Deletes an entry. Entry must belong to the authenticated user.
  *
- * @param req - Express request containing:
- *   - `user.userId`: string - authenticated user id
- *   - `params.id`: string - entry id
+ * @param req - Express request:
+ *   - user: obj - authenticated user:
+ *       + userId: string - authenticated user id
+ *   - params: obj - request params:
+ *       + id: string - entry id
  *
- * @returns any:
- *   - `msg`: string - confirmation message
+ * @return - operation result:
+ *   - msg: string - confirmation message
  *
- * @throws {NotFoundError} if entry is not found or not owned by user
+ * @throws {NotFoundError} when entry is not found or if not owned by user
  ******************************************************************************************************************/
 export async function con_entry_delete(req: Request) {
   const userId = sanitizeObjectId(req.user?.userId);

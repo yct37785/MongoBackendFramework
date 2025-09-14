@@ -4,15 +4,15 @@ const SALT_ROUNDS: number = Number(process.env.SALT_ROUNDS);
 const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET!;
 
 /******************************************************************************************************************
- * Hashes a string value using bcrypt with the configured salt rounds.
+ * [ASYNC] Hashes a string value using bcrypt with the configured salt rounds.
  * Used for:
  * - password hashing
  *
  * @param value - value to hash
  * 
- * @returns string - bcrypt hash of the provided value
+ * @return - bcrypt hash of the provided value
  * 
- * @throws {Error} if hashing fails
+ * @throws {Error} when hashing fails
  ******************************************************************************************************************/
 export async function hashValue(raw: string): Promise<string> {
   return bcrypt.hash(raw, SALT_ROUNDS);
@@ -25,9 +25,9 @@ export async function hashValue(raw: string): Promise<string> {
  * 
  * @param value - raw input string to hash (e.g. refresh token)
  * 
- * @returns string - HMAC-SHA256 hash string
+ * @return - HMAC-SHA256 hash string
  * 
- * @throws {Error} if hashing fails
+ * @throws {Error} when hashing fails
  ******************************************************************************************************************/
 export function hmacHash(value: string): string {
   return crypto
@@ -37,7 +37,7 @@ export function hmacHash(value: string): string {
 }
 
 /******************************************************************************************************************
- * Compares a raw input against a hashed string using bcrypt.
+ * [ASYNC] Compares a raw input against a hashed string using bcrypt.
  * Used for:
  * - login password verification
  * - refresh token validation
@@ -45,9 +45,7 @@ export function hmacHash(value: string): string {
  * @param value - plaintext value to check
  * @param hash - existing bcrypt hash
  * 
- * @returns bool - true if the value matches the hash
- * 
- * @throws {Error} if comparison fails
+ * @return - true if the value matches the hash, false otherwise
  ******************************************************************************************************************/
 export async function compareHash(raw: string, hash: string): Promise<boolean> {
   return bcrypt.compare(raw, hash);

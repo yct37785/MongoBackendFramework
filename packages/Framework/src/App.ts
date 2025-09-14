@@ -22,7 +22,7 @@ import { validateEnv } from './Utils/Misc';
  * @param unprotectedRoutes - Express Router containing public routes (no auth required)
  * @param protectedRoutes - Express Router containing protected routes (requires valid access token)
  * 
- * @returns Express - configured Express app instance
+ * @return - configured Express app instance
  ******************************************************************************************************************/
 export function createApp(unprotectedRoutes: Router, protectedRoutes: Router) {
   // ensure all required env vars are provided

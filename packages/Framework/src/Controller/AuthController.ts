@@ -10,17 +10,18 @@ import { sanitizeEmail, sanitizePassword } from '../Utils/InputSanitizer';
 import { REFRESH_TOKEN_LEN } from '../Consts';
 
 /******************************************************************************************************************
- * Registers a new user using the provided email and password.
+ * [ASYNC] Registers a new user using the provided email and password.
  *
- * @param req - Express request containing:
- *   - `req.body.email`: string - user's email address
- *   - `req.body.password`: string - user's password
+ * @param req - Express request:
+ *   - body: obj - request body:
+ *       + email: string - user's email address
+ *       + password: string - user's password
  *
- * @returns any:
- *   - `msg`: string - confirmation message that user was registered
+ * @return - operation result:
+ *   - msg: string - confirmation message that the user was registered
  *
- * @throws {InputError} if the email or password is missing or invalid
- * @throws {ConflictError} if the email is already registered
+ * @throws {InputError} when the email or password is missing or invalid
+ * @throws {ConflictError} when the email is already registered
  ******************************************************************************************************************/
 export async function con_auth_register(req: Request) {
   // validate required fields
@@ -46,22 +47,24 @@ export async function con_auth_register(req: Request) {
 }
 
 /******************************************************************************************************************
- * Logs in a user using the provided credentials and issues new access + refresh tokens.
+ * [ASYNC] Authenticates a user with email and password and issues tokens.
  *
- * @param req - Express request containing:
- *   - `req.body.email`: string - user's email
- *   - `req.body.password`: string - user's password
- *   - `req.headers['user-agent']?`: string - to record device info
- *   - `req.ip?`: string - to record IP address
+ * @param req - Express request:
+ *   - body: obj - request body:
+ *       + email: string - user's email address
+ *       + password: string - user's password
+ *   - headers: obj - request headers:
+ *       + user-agent?: string - optional device/user agent for session context
+ *   - ip?: string - optional client IP address for session context
  *
- * @returns any:
- *   - `accessToken`: string - JWT access token
- *   - `refreshToken`: string - JWT refresh token
- *   - `atExpiresAt`: string - ISO datetime of access token expiry
- *   - `rtExpiresAt`: string - ISO datetime of refresh token expiry
+ * @return - authentication result:
+ *   - accessToken: string - short-lived access token
+ *   - refreshToken: string - long-lived refresh token
+ *   - atExpiresAt: string - ISO timestamp when the access token expires
+ *   - rtExpiresAt: string - ISO timestamp when the refresh token expires
  *
- * @throws {InputError} if input is missing or invalid
- * @throws {AuthError} if email or password is incorrect
+ * @throws {InputError} when the email or password is missing or invalid
+ * @throws {AuthError} when credentials are incorrect or authentication fails
  ******************************************************************************************************************/
 export async function con_auth_login(req: Request) {
   const email = req.body.email;
@@ -106,22 +109,24 @@ export async function con_auth_login(req: Request) {
 }
 
 /******************************************************************************************************************
- * Rotates a valid refresh token to issue new tokens and update session metadata.
- * 
- * @param req - Express request containing:
- *   - `req.body.refreshToken`: string - JWT refresh token
- *   - `req.headers['user-agent']?`: string - to record device info
- *   - `req.ip?`: string - to record IP address
+ * [ASYNC] Rotates tokens using a valid refresh token and returns new credentials.
  *
- * @returns any:
- *   - `accessToken`: string - new JWT access token
- *   - `refreshToken`: string - new JWT refresh token
- *   - `atExpiresAt`: string - ISO datetime of new access token expiry
- *   - `rtExpiresAt`: string - ISO datetime of refresh token expiry, will still be the same as before
+ * @param req - Express request:
+ *   - body: obj - request body:
+ *       + refreshToken: string - refresh token used to obtain new credentials
+ *   - headers: obj - request headers:
+ *       + user-agent?: string - optional device/user agent for session context
+ *   - ip?: string - optional client IP address for session context
  *
- * @throws {InputError} if refresh token is missing or invalid
- * @throws {AuthError} if the token is reused or invalid
- * @throws {NotFoundError} if the session was not found
+ * @return - refreshed authentication result:
+ *   - accessToken: string - newly issued access token
+ *   - refreshToken: string - newly issued refresh token
+ *   - atExpiresAt: string - ISO timestamp when the new access token expires
+ *   - rtExpiresAt: string - ISO timestamp when the refresh token expires
+ *
+ * @throws {InputError} when the refresh token is missing or invalid
+ * @throws {AuthError} when token reuse is detected or the refresh token is expired/forbidden
+ * @throws {NotFoundError} when the refresh session cannot be found
  ******************************************************************************************************************/
 export async function con_auth_refresh(req: Request) {
   const refreshToken = req.body.refreshToken;
@@ -183,17 +188,18 @@ export async function con_auth_refresh(req: Request) {
 }
 
 /******************************************************************************************************************
- * Logs the user out by invalidating a single refresh token session.
+ * [ASYNC] Logs the user out by invalidating a single refresh token session.
  *
- * @param req - Express request containing:
- *   - `req.body.refreshToken`: string - refresh token to invalidate
+ * @param req - Express request:
+ *   - body: obj - request body:
+ *       + refreshToken: string - refresh token to invalidate
  *
- * @returns any:
- *   - `msg`: string - confirmation message that logout was successful
+ * @return - operation result:
+ *   - msg: string - confirmation message that logout was successful
  *
- * @throws {InputError} if the refresh token is missing or invalid
- * @throws {AuthError} if token reuse is detected or token is not found
- * @throws {NotFoundError} if the session was not found
+ * @throws {InputError} when the refresh token is missing or invalid
+ * @throws {AuthError} when token reuse is detected or the token is not allowed
+ * @throws {NotFoundError} when the session was not found
  ******************************************************************************************************************/
 export async function con_auth_logout(req: Request) {
   const refreshToken = req.body.refreshToken;

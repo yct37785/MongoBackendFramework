@@ -1,10 +1,17 @@
 /******************************************************************************************************************
- * Base application error class.
+ * Custom application-specific error with standardized fields for consistent handling.
  *
- * @param message - error message to display
- * @param statusCode - HTTP status code (default 500)
- * 
- * @returns AppError - custom error instance with message and status code
+ * @param name - error name (e.g., "InputError", "AuthError")
+ * @param message - human-readable error message
+ * @param statusCode - HTTP status code representing the error (default: 500)
+ * @param isOperational - whether the error is safe/expected (true) or a programming/critical error (false)
+ *
+ * @return - constructed error instance
+ *
+ * @usage
+ * ```ts
+ * throw new AppError("InputError", "Invalid email format", 400, true);
+ * ```
  ******************************************************************************************************************/
 export class AppError extends Error {
   statusCode: number;
@@ -24,7 +31,7 @@ export class AppError extends Error {
  * 
  * @param message - description of the invalid input
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class InputError extends AppError {
   constructor(message: string) {
@@ -39,7 +46,7 @@ export class InputError extends AppError {
  *
  * @param message - reason for authentication failure
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class AuthError extends AppError {
   constructor(message: string) {
@@ -54,7 +61,7 @@ export class AuthError extends AppError {
  * 
  * @param message - reason for permission denial
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class PermissionError extends AppError {
   constructor(message: string) {
@@ -69,7 +76,7 @@ export class PermissionError extends AppError {
  * 
  * @param message - description of the missing resource
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class NotFoundError extends AppError {
   constructor(message: string) {
@@ -84,7 +91,7 @@ export class NotFoundError extends AppError {
  * 
  * @param message - description of the conflict
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class ConflictError extends AppError {
   constructor(message: string) {
@@ -99,7 +106,7 @@ export class ConflictError extends AppError {
  * 
  * @param message - description of the internal failure
  * 
- * @returns AppError - error instance
+ * @return - error instance
  ******************************************************************************************************************/
 export class InternalError extends AppError {
   constructor(message: string) {

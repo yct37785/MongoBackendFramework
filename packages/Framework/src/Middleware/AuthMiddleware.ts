@@ -7,12 +7,29 @@ import { InputError, AuthError } from '../Error/AppError';
 const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
 
 /******************************************************************************************************************
- * Verifies a JWT access token from the `Authorization` header and attaches the user to the request object.
+* [ASYNC] Verifies the access token and attaches authentication context to the request.
  *
- * @param req - Express request containing `Authorization: Bearer <token>` header
+ * @param req - Express request:
+ *   - headers: obj - request headers:
+ *       + authorization?: string - bearer credential in the form "Bearer <token>"
+ *   - cookies?: obj - optional cookie store:
+ *       + accessToken?: string - access token if transported via cookie
+ * @param res - Express response (unused on success)
+ * @param next - Express next callback to continue the pipeline
  *
- * @throws {InputError} if the Authorization header is missing or malformed
- * @throws {AuthError} if the token is invalid, expired, or the user cannot be found
+ * @return - passes control to subsequent handlers when authentication succeeds
+ *
+ * @throws {AuthError} when the token is missing, malformed, or expired
+ * @throws {NotFoundError} when the token subject or session cannot be found
+ * @throws {PermissionError} when the authenticated principal lacks required privileges (if enforced here)
+ *
+ * @usage
+ * ```ts
+ * app.use("/api/protected", authMiddleware, (req, res) => {
+ *   // req.user is available here
+ *   res.json({ ok: true });
+ * });
+ * ```
  ******************************************************************************************************************/
 export async function verifyAccessToken(req: Request) {
   const authHeader = req.headers.authorization;

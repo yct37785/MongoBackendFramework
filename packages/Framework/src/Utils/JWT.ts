@@ -11,9 +11,9 @@ const ACCESS_TOKEN_EXPIRES_IN_S = Number(process.env.ACCESS_TOKEN_EXPIRES_IN_S);
  * @param userId - user's ObjectId
  * @param email - user's email
  * 
- * @returns string - signed JWT access token string
+ * @return - signed JWT access token string
  * 
- * @throws {Error} if signing fails
+ * @throws {Error} when signing fails
  ******************************************************************************************************************/
 export function generateAccessToken(userId: Types.ObjectId, email: string): string {
   if (!userId || !Types.ObjectId.isValid(userId)) {
@@ -33,7 +33,7 @@ export function generateAccessToken(userId: Types.ObjectId, email: string): stri
 /******************************************************************************************************************
  * Generates a secure, opaque refresh token (non-JWT).
  * 
- * @returns string - a random string (e.g. 64-character hex)
+ * @return - a random string (e.g. 64-character hex)
  ******************************************************************************************************************/
 export function generateRefreshToken(): string {
   return crypto.randomBytes(REFRESH_TOKEN_LEN / 2).toString('hex'); // 96 characters of entropy
