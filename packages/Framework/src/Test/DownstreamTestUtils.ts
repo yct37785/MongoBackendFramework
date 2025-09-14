@@ -6,12 +6,12 @@ import { mockReq, doPost } from '../Test/TestUtils';
 import { con_auth_register, con_auth_login } from '../Controller/AuthController';
 
 /******************************************************************************************************************
- * Register and login a valid user via controller functions.
+ * [ASYNC] Register and login a valid user via controller functions.
  *
  * @param email - email to register
  * @param password - password to register
  *
- * @returns ObjectId - registered user userId
+ * @return - registered user userId
  ******************************************************************************************************************/
 export async function setupTestUserCon(email: string, password: string): Promise<Types.ObjectId> {
   await con_auth_register(mockReq({ email, password }));
@@ -27,14 +27,14 @@ export async function setupTestUserCon(email: string, password: string): Promise
 }
 
 /******************************************************************************************************************
- * Setup users with supertest.
+ * [ASYNC] Setup users with supertest.
  *
  * @param server - supertest created Express app
  * @param users - list of account details (email and password)
  *
- * @returns any:
- *   - `accessTokens`: string[] - list of access tokens
- *   - `refreshTokens`: string[] - list of refresh tokens
+ * @return - list of tokens corresponding to given users:
+ *   - accessTokens: string[] - list of access tokens
+ *   - refreshTokens: string[] - list of refresh tokens
  ******************************************************************************************************************/
 export async function setupTestUsersSup(
   server: ReturnType<typeof supRequest>,

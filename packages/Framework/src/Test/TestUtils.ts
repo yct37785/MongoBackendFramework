@@ -15,15 +15,16 @@ export const invalid_pws = [`Valid@123${'a'.repeat(PW_MAX_LEN - 8)}`, '     ', '
 export const invalid_objIds = ['123', 'zzzzzzzzzzzzzzzzzzzzzzzz', '', ' '.repeat(24)];
 
 /******************************************************************************************************************
- * Waits for a number of seconds before resolving.
+ * [ASYNC] Waits for a number of seconds before resolving.
  *
  * @param s - number of seconds to wait
- * @returns Promise - promise that resolves after the delay
+ * 
+ * @return - resolves after the delay
  ******************************************************************************************************************/
 export const wait = (s: number) => new Promise(res => setTimeout(res, s * 1000));
 
 /******************************************************************************************************************
- * Generic invalid value tester.
+ * [ASYNC] Generic invalid value tester.
  *
  * @param fn - function under test (accepts one value)
  * @param expectedError - error class expected to be thrown
@@ -57,16 +58,21 @@ export async function testInvalidInputs(
 }
 
 /******************************************************************************************************************
- * Creates a mock Express Request for controller/middleware tests.
- * Simulates a minimal Express request object with optional `headers`, `query`, `params`, `ip`, and `user` fields.
- * Useful for testing controllers or middleware without requiring a full Express context.
+ * Creates a minimal mock of an Express request object for unit tests:
+ * - Simulates a minimal Express request object with optional `headers`, `query`, `params`, `ip`, and `user` fields.
+ * - Useful for testing controllers or middleware without requiring a full Express context.
  *
  * @param body? - value for `req.body`
  * @param userId? - sets `req.user = { userId, email: '' }`
  * @param params? - value for `req.params`
  * @param query? - value for `req.query`
  *
- * @returns any - mock request shaped like Express `Request`
+ * @return - mock request with common fields and accessors used in tests
+ *
+ * @usage
+ * ```ts
+ * const req = mockReq({ email, password }, userId, { id }, { sortBy: 'asc' });
+ * ```
  ******************************************************************************************************************/
 export function mockReq(
   body?: Record<string, any>,
@@ -92,7 +98,7 @@ export function mockReq(
  * @param params? - params record
  * @param query? - query record
  * 
- * @returns string - fully built URL
+ * @return - fully built URL
  ******************************************************************************************************************/
 export function buildUrl(
   path: string,
@@ -122,7 +128,7 @@ export function buildUrl(
 }
 
 /******************************************************************************************************************
- * Endpoints utility with supertest.
+ * [ASYNC] Endpoints utility with supertest.
  * 
  * @param server - supertest created Express app
  * @param path - full URL
@@ -131,7 +137,7 @@ export function buildUrl(
  * @param params? - params
  * @param query? - query
  * 
- * @returns any - Express response object
+ * @return - Express response object
  ******************************************************************************************************************/
 export async function doPost(
   server: ReturnType<typeof supRequest>,
@@ -168,7 +174,7 @@ export async function doGet(
  *
  * @param token - token value to malform
  * 
- * @returns string - malformed token
+ * @return - malformed token
  ******************************************************************************************************************/
 export function malformToken(token: string) {
   return token.slice(0, -1) + (token.at(-1) === 'a' ? 'b' : 'a');
@@ -177,7 +183,7 @@ export function malformToken(token: string) {
 /******************************************************************************************************************
  * Asserts that a value matches the listed datatype.
  *
- * @param value - value to check
+ * @param value - raw value to check
  ******************************************************************************************************************/
 // value is a Mongoose document/model instance
 export function expectMongooseDoc(value: unknown) {
@@ -207,6 +213,10 @@ export function expectObjectIdStr(value: string) {
 /******************************************************************************************************************
  * Generate a random string of given length (default 30).
  * Guarantees at least one lowercase, uppercase, digit, special character, and space.
+ * 
+ * @param length - length of the string
+ * 
+ * @return - randon string
  ******************************************************************************************************************/
 export function genRandomString(length: number = 30): string {
   if (length < 5) {
