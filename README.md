@@ -251,25 +251,10 @@ Authorization: Bearer <accessToken>
 
 Refresh tokens should be stored securely on the client and only sent to **/auth/refresh** and **/auth/logout**.
 
-
+https://github.com/yct37785/Development-SOPs/blob/main/Testing.md
 ## Contributions
 ### Function comment block guidelines
-All functions will include a standardized JSDoc comment block for clarity, maintainability, and automated documentation support.
+Refer to the [commenting guidelines SOP](https://github.com/yct37785/Development-SOPs/blob/main/Commenting.md "Commenting Guidelines").
 
-Use the following format:
-```javascript
-/**
- * <brief description of the function's purpose and behavior>
- *
- * @param <typedParamName> - <description of the parameter with a defined TypeScript type>
- * @param <anyParamName> - <description of the loose/any-typed object parameter>:
- *   - `<fieldName1>`: <type> - <description of this field>
- *   - `<fieldName2_optional?>`: <type> - <description of this optional field>
- *
- * @returns <typed> - <description of the returned primitive or named type>
- * @returns any:
- *   - `<fieldName1>`: <type> - <description of this field in the returned loose/any-typed object>
- *
- * @throws {<ErrorType>} <condition under which the error is thrown>
- */
-```
+### Testing guidelines
+Tests framework is Jest. Do refer to the [testing guidelines SOP](https://github.com/yct37785/Development-SOPs/blob/main/Commenting.md "Testing Guidelines") for both unit and integration tests contributions.
