@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../.."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+			"apps/": true,
+			"**/*.code-workspace": true
+		}
+	}
+}
